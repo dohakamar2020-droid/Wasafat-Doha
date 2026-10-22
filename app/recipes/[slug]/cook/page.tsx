@@ -27,6 +27,9 @@ export default function CookPage({ params }: { params: Promise<{ slug: string }>
   const s = r.sources[0];
   const fmt = (t: number) => `${String(Math.floor(t / 60)).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}`;
   const startTimer = () => { const e = Date.now() + mins * 60 * 1000; setEndAt(e); try { localStorage.setItem(`wasafat-Doha:timer:${slug}`, String(e)); } catch {} };
+  const startTimerMin = (m: number) => { setMins(m); const e = Date.now() + m * 60 * 1000; setEndAt(e); try { localStorage.setItem(`wasafat-Doha:timer:${slug}`, String(e)); } catch {} };
+  const [stepIdx, setStepIdx] = useState(() => { try { return Number(localStorage.getItem(`wasafat-Doha:cookstep:${slug}`) || 0); } catch { return 0; } });
+  const goStep = (i: number) => { const n = Math.max(0, Math.min(i, (r.detail?.steps.length || 1) - 1)); setStepIdx(n); try { localStorage.setItem(`wasafat-Doha:cookstep:${slug}`, String(n)); } catch {} };
   const stopTimer = () => { setEndAt(null); try { localStorage.removeItem(`wasafat-Doha:timer:${slug}`); } catch {} };
   const keepAwake = async () => { try { wakeRef.current = await (navigator as Navigator & { wakeLock?: { request: (t: string) => Promise<unknown> } }).wakeLock?.request("screen"); alert("تمام، الشاشة هتفضل صاحية وانت بتطبخ 👌"); } catch { alert("المتصفح ده مش بيدعم إبقاء الشاشة صاحية هنا."); } };
   const prepItems = ["شفت الفيديو كامل مرة", `جهّزت: ${r.mainIngredients.join("، ")}`, "جهّزت الأدوات الظاهرة في الفيديو"];
@@ -46,6 +49,22 @@ export default function CookPage({ params }: { params: Promise<{ slug: string }>
         {prepItems.map((i) => <li key={i}><label><input type="checkbox" checked={prep.includes(i)} onChange={() => togglePrep(i)} /><span style={{ fontSize: "1.05rem" }}>{i}</span></label></li>)}
       </ul>
 
+      {r.detail && (
+        <section className="surface" aria-label="خطوات الطبخ خطوة بخطوة" style={{ fontSize: "1.06rem" }}>
+          <h3 style={{ marginTop: 0 }}>خطوة {Math.min(stepIdx + 1, r.detail.steps.length)} من {r.detail.steps.length}: {r.detail.steps[stepIdx]?.title}</h3>
+          <div className="progress"><i style={{ width: `${((stepIdx) / r.detail.steps.length) * 100}%` }} /></div>
+          <p style={{ fontSize: "1.12rem", lineHeight: 2 }}>{r.detail.steps[stepIdx]?.body}</p>
+          {r.detail.steps[stepIdx]?.cue && <p><span className="cue">علامة النتيجة: {r.detail.steps[stepIdx]?.cue}</span></p>}
+          <div className="action-row">
+            <button className="btn btn-ghost" disabled={stepIdx === 0} onClick={() => goStep(stepIdx - 1)}>→ الخطوة اللي قبلها</button>
+            {stepIdx < r.detail.steps.length - 1
+              ? <button className="btn btn-primary" onClick={() => goStep(stepIdx + 1)}>الخطوة اللي بعدها ←</button>
+              : <button className="btn btn-olive" onClick={() => { done.toggle(r.slug); goStep(0); }}>خلصت الوصفة — سجلها في تجاربي ✓</button>}
+            {r.detail.steps[stepIdx]?.minutes ? <button className="btn btn-ghost" onClick={() => startTimerMin(r.detail!.steps[stepIdx].minutes!)}>⏱ شغّل مؤقت {r.detail.steps[stepIdx].minutes} دقيقة</button> : null}
+          </div>
+          <p style={{ color: "var(--muted)", fontSize: ".88rem", marginBottom: 0 }}>المقادير المرتبطة بأي خطوة مكتوبة في قسم المقادير في صفحة الوصفة — ارجع لها من زرار الوصفة فوق. تقدمك في الخطوات بيتحفظ على جهازك.</p>
+        </section>
+      )}
       <div style={{ marginTop: 22 }}><VideoEmbed ytId={s.ytId} title={r.title} vertical={s.kind === "short"} /></div>
 
       <div className="timer-box" role="group" aria-label="مؤقت الطبخ">

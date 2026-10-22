@@ -11,10 +11,12 @@ export default function Home() {
   const featuredCol = collections.find((c) => c.slug === "potato")!;
   const featuredRecipes = featuredCol.recipeSlugs.map((s) => recipes.find((r) => r.slug === s)!).filter(Boolean).slice(0, 4);
   const meals = [
-    { name: "غداء عائلي", items: ["potato-bechamel-tray", "tomato-qallaya", "mango-cheesecake"], desc: "رئيسي + جانبي + حلو اختياري" },
-    { name: "قعدة آخر الأسبوع", items: ["steak-tortilla", "potato-balloons", "chocolate-truffles-2-ing"], desc: "سندوتشات وسناكس وحلو سريع" },
-    { name: "عزومة بسيطة", items: ["shrimp-maqluba", "goulash-meat-rolls", "kunafa-cream"], desc: "شكلها فخم وتحضيرها أوضح مما تتخيل" },
+    { slug: "family-lunch", name: "غداء عائلي", items: ["potato-bechamel-tray", "tomato-qallaya", "mango-cheesecake"], desc: "رئيسي + جانبي + حلو اختياري" },
+    { slug: "weekend-gathering", name: "قعدة آخر الأسبوع", items: ["steak-tortilla", "potato-balloons", "chocolate-truffles-2-ing"], desc: "سندوتشات وسناكس وحلو سريع" },
+    { slug: "simple-feast", name: "عزومة بسيطة", items: ["shrimp-maqluba", "goulash-meat-rolls", "kunafa-cream"], desc: "شكلها فخم وتحضيرها أوضح مما تتخيل" },
+    { slug: "reviewed-night", name: "ليلة الوصفات المكتملة", items: ["chicken-negrisco", "italian-tiramisu-nadia", "toumeya-secrets"], desc: "كل أطباقها مراجعة يدويًا بمقادير وخطوات" },
   ];
+  const weekly = recipes.find((r) => r.slug === "mango-cheesecake")!;
   const moods = [
     { e: "🍟", t: "عايز حاجة مقرمشة", s: "قرمشة من أول قطمة", q: "/discover?texture=مقرمش" },
     { e: "🍮", t: "نفسي في حلو", s: "بارد أو كيك يفرّح", q: "/discover?cat=حلويات باردة" },
@@ -100,13 +102,21 @@ export default function Home() {
             {meals.map((m) => {
               const first = recipes.find((r) => r.slug === m.items[0])!;
               return (
-                <Link key={m.name} className="col-card" href={`/recipes/${first.slug}`}>
+                <Link key={m.name} className="col-card" href={`/meals/${m.slug}`}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={ytThumb(first.sources[0].ytId)} alt={m.name} loading="lazy" />
-                  <div><span className="col-count">{m.items.length} أطباق</span><h3>{m.name}</h3><p>{m.desc} — ابدأ بـ{first.title}</p></div>
+                  <div><span className="col-count">{m.items.length} أطباق</span><h3>{m.name}</h3><p>{m.desc} — ابدأ بـ{first.title}، وافتح السفرة لقائمة مشترياتها</p></div>
                 </Link>
               );
             })}
+          </div>
+        </section>
+
+        <section className="block" aria-labelledby="weekly-h">
+          <SectionHead title="لقطة الأسبوع 🌙" sub="وصفة واحدة بتركيز تحريري كل أسبوع" href={`/recipes/${weekly.slug}`} linkText="افتح لقطة الأسبوع" />
+          <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fill,minmax(250px,1fr))" }}>
+            <RecipeCard r={weekly} reason="لقطة الأسبوع: تشيز كيك مانجا من عبير الصغير — أكتر من 11 مليون مشاهدة وشكلها بيفتح النفس" />
+            {recipes.filter((r) => r.status === "reviewed").slice(0, 3).map((r) => <RecipeCard key={r.slug} r={r} reason="من أول دفعة وصفات مكتملة المراجعة يدويًا — المقادير والخطوات جوه" />)}
           </div>
         </section>
 

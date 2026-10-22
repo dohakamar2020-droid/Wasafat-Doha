@@ -45,6 +45,7 @@ export function RecipeCard({ r, reason }: { r: Recipe; reason?: string }) {
         <img src={ytThumb(s.ytId)} alt={r.title} loading="lazy" width={480} height={360} />
         <span className={`kind-badge ${s.kind === "short" ? "is-short" : ""}`}>{s.kind === "short" ? "▶ شورت" : "▶ فيديو"}</span>
         {r.sources.length > 1 && <span className="multi-badge">شرح كامل + شورت</span>}
+        {r.status === "reviewed" ? <span className="reviewed-badge">✓ وصفة مكتملة</span> : <span className="video-badge">ترشيح فيديو</span>}
         <SaveButton slug={r.slug} />
       </Link>
       <div className="card-body">

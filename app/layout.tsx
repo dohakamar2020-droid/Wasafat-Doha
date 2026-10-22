@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import "./globals.css";
+import SyncProvider from "@/components/SyncProvider";
+import AuthStatus from "@/components/AuthStatus";
+import RegisterSW from "@/components/RegisterSW";
 
 export const metadata: Metadata = {
   title: { default: "وصفات قمر | وصفات تستاهل التجربة", template: "%s | وصفات قمر" },
@@ -38,9 +41,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Link href="/discover" className="icon-btn" aria-label="البحث">🔍</Link>
             <Link href="/pick" className="btn btn-primary btn-sm">✨ رشحلي 3</Link>
             <Link href="/kitchen/saved" className="btn btn-ghost btn-sm">♥ محفوظاتي</Link>
+            <AuthStatus />
           </div>
         </header>
 
+        <SyncProvider /><RegisterSW />
         <main>{children}</main>
 
         <footer className="footer">
@@ -71,6 +76,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Link href="/kitchen/saved">محفوظاتي</Link>
               <Link href="/kitchen/shopping">مشترياتي</Link>
               <Link href="/about">فكرة وصفات قمر ومنهج الانتقاء</Link>
+              <Link href="/privacy">الخصوصية وبياناتك</Link>
+              <Link href="/contact">تواصل وابلاغ عن مصدر</Link>
+              <Link href="/login">تسجيل الدخول والمزامنة</Link>
             </nav>
           </div>
           <p className="footer-bottom">🌙 وصفات قمر © 2026 — الوصفات والمقادير والخطوات ملك لأصحابها، ودورنا الانتقاء والترتيب.</p>
