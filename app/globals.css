@@ -112,7 +112,7 @@ section.block{padding:38px 0 8px}
 .short-card{scroll-snap-align:start}
 .short-media{position:relative;display:block;border-radius:18px;overflow:hidden}
 .short-media img{width:100%;aspect-ratio:9/13;object-fit:cover;background:var(--beige)}
-.play-dot{position:absolute;inset:50% auto auto 50%;transform:translate(50%,-50%);width:46px;height:46px;border-radius:50%;background:rgba(201,101,63,.92);color:#fff;display:grid;place-items:center;font-size:1rem;box-shadow:0 8px 22px rgba(0,0,0,.3)}
+.play-dot{position:absolute;inset:50% auto auto 50%;transform:translate(-50%,-50%);width:46px;height:46px;border-radius:50%;background:rgba(201,101,63,.92);color:#fff;display:grid;place-items:center;font-size:1rem;box-shadow:0 8px 22px rgba(0,0,0,.3)}
 .short-title{display:block;font-weight:700;font-size:.9rem;margin-top:8px;line-height:1.6}
 .short-title:hover{color:var(--orange)}
 .short-meta{font-size:.76rem;color:var(--muted)}
@@ -157,7 +157,7 @@ section.block{padding:38px 0 8px}
 .embed-poster img{width:100%;aspect-ratio:16/9;object-fit:cover;opacity:.92}
 .embed-poster.is-vertical{max-width:380px;margin-inline:auto}
 .embed-poster.is-vertical img{aspect-ratio:9/16}
-.big-play{position:absolute;inset:50% auto auto 50%;transform:translate(50%,-50%);width:72px;height:72px;border-radius:50%;background:var(--orange);color:#fff;display:grid;place-items:center;font-size:1.5rem;box-shadow:0 12px 30px rgba(0,0,0,.4)}
+.big-play{position:absolute;inset:50% auto auto 50%;transform:translate(-50%,-50%);width:72px;height:72px;border-radius:50%;background:var(--orange);color:#fff;display:grid;place-items:center;font-size:1.5rem;box-shadow:0 12px 30px rgba(0,0,0,.4)}
 .embed-hint{position:absolute;inset:auto 12px 12px auto;background:var(--glass);padding:5px 13px;border-radius:999px;font-weight:700;font-size:.8rem;color:var(--olive)}
 .source-switch{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
 .source-switch button{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:7px 16px;font-weight:700;color:var(--olive)}
@@ -268,3 +268,100 @@ input.text-in{border:1px solid var(--line);border-radius:999px;padding:10px 16px
 .compare-table{width:100%;border-collapse:collapse;background:var(--card);border-radius:var(--radius);overflow:hidden}
 .compare-table th,.compare-table td{border-bottom:1px solid var(--line);padding:11px 13px;text-align:start;font-size:.94rem}
 .compare-table th{font-family:Alexandria,sans-serif;color:var(--olive)}
+
+
+/* ============ Mobile layout overhaul (≤900 / ≤640) ============ */
+html,body{overflow-x:clip}
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.table-scroll .admin-table{min-width:520px}
+@media (max-width:900px){
+  .topbar{gap:10px;padding:9px 14px}
+}
+@media (max-width:640px){
+  body{padding-top:60px;padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+  .wrap{padding-inline:14px}
+  /* header: slim — اللوجو والبحث والدخول بس، الباقي في الشريط السفلي */
+  .topbar{gap:8px;padding:8px 12px}
+  .logo{font-size:1.08rem;gap:6px}
+  .logo-moon{font-size:1.3rem}
+  .top-actions{gap:6px}
+  .top-actions .btn{padding:7px 12px;font-size:.82rem;min-height:38px}
+  .top-actions .btn-primary{display:none}
+  .top-actions a[href="/kitchen/saved"]{display:none}
+  .icon-btn{width:38px;height:38px}
+  /* hero */
+  .hero-inner{padding:26px 0 36px;gap:22px}
+  .hero h1{font-size:1.75rem}
+  .hero-sub{font-size:1rem;margin:10px 0 16px}
+  .hero-stats{gap:12px 18px;margin-top:20px}
+  .hero-stats div b{font-size:1.12rem}
+  .hero-collage{gap:8px}
+  .hero-collage span{font-size:.7rem;padding:4px 8px;border-radius:9px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .hero-search button{padding-inline:16px}
+  /* sections */
+  section.block{padding:26px 0 4px}
+  .section-head h2{font-size:1.3rem}
+  .section-head{gap:10px;margin-bottom:13px}
+  .section-head .text-link{font-size:.88rem}
+  .page-head{padding:24px 0 6px}
+  .page-head h1{font-size:1.6rem}
+  /* grids: عمودين مريحين بدل عمود عملاق */
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+  .mood-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .mood{padding:13px 12px;border-radius:16px}
+  .mood .mood-emoji{font-size:1.35rem}
+  .creator-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+  .creator-card{padding:15px 10px}
+  .creator-avatar{width:54px;height:54px;font-size:1.2rem}
+  .kitchen-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .kitchen-cards a{padding:14px}
+  .info-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .col-grid{grid-template-columns:1fr;gap:12px}
+  .col-card{min-height:160px}
+  /* cards */
+  .card{border-radius:16px}
+  .card-body{padding:10px 11px 12px;gap:5px}
+  .card-title{font-size:.9rem;line-height:1.55}
+  .card-meta{font-size:.76rem}
+  .card-why{font-size:.79rem;padding:7px 9px}
+  .tag{font-size:.67rem;padding:1px 8px}
+  .save-btn{padding:5px 10px;font-size:.75rem}
+  .kind-badge,.multi-badge,.reviewed-badge,.video-badge{font-size:.66rem;padding:2px 8px}
+  .kind-badge{top:7px;inset-inline-start:7px}
+  .card-media .save-btn,.short-media .save-btn{top:7px;inset-inline-end:7px}
+  .multi-badge{bottom:7px;inset-inline-start:7px}
+  .reviewed-badge,.video-badge{bottom:7px;inset-inline-end:7px}
+  /* discover filters: صف واحد بيتمرر بدل نص الشاشة */
+  .filter-bar{flex-wrap:nowrap;overflow-x:auto;top:60px;padding:8px;gap:7px;scrollbar-width:none;border-radius:14px}
+  .filter-bar::-webkit-scrollbar{display:none}
+  .filter-bar select{flex:0 0 auto;max-width:180px;min-height:44px;font-size:.88rem;padding:8px 10px}
+  .search-bar{margin:12px 0}
+  /* surfaces & forms: أهداف لمس مريحة ومنع زوم iOS */
+  .surface{padding:16px 14px;margin:13px 0;border-radius:16px}
+  .empty{padding:24px 14px}
+  input,select,textarea{font-size:16px}
+  .btn{min-height:44px}
+  .action-row .btn{flex:1 1 44%;justify-content:center;text-align:center}
+  .save-btn-big{flex:1 1 44%}
+  .check-list label{padding:10px 12px;font-size:.95rem}
+  .shop-add input{min-width:0}
+  .tabs{gap:6px}
+  .tabs a{padding:8px 14px}
+  .wiz-step{padding:18px 15px;border-radius:18px}
+  .opt-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .opt{padding:13px 8px;font-size:.93rem}
+  /* recipe */
+  .recipe-hero{gap:18px;padding:18px 0 6px}
+  .recipe-info h1{font-size:1.5rem}
+  .cook-shell{padding:18px 14px 46px}
+  .cook-shell h1{font-size:1.35rem}
+  /* timer: بيترتب صفوف مريحة */
+  .timer-box{padding:14px;gap:8px}
+  .timer-box .t-digits{flex:1 1 100%;font-size:2.3rem;min-width:0}
+  .timer-box input{flex:1 1 28%;width:auto!important;min-height:44px}
+  .timer-box button{flex:1 1 42%;min-height:46px}
+  /* watch */
+  .watch-nav .btn{flex:1;justify-content:center}
+  .shorts-row{grid-auto-columns:138px;gap:11px}
+  .big-play{width:60px;height:60px;font-size:1.25rem}
+}
