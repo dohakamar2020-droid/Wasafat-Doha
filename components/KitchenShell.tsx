@@ -9,6 +9,13 @@ export function KitchenTabs() {
   const tabs = [["/kitchen", "دفتري"], ["/kitchen/saved", "محفوظاتي"], ["/kitchen/shopping", "مشترياتي"], ["/kitchen/attempts", "تجاربي"]];
   return <div className="tabs" role="navigation" aria-label="أقسام مطبخي">{tabs.map(([href, label]) => <Link key={href} href={href} className={path === href ? "on" : ""}>{label}</Link>)}</div>;
 }
+export function SyncBanner() {
+  const [user, setUser] = useState<{ name: string } | null>(() => { try { return JSON.parse(localStorage.getItem("wasafat-Doha:user") || "null"); } catch { return null; } });
+  useEffect(() => { fetch("/api/auth/me").then((r) => r.json()).then((d) => setUser(d.user || null)).catch(() => {}); }, []);
+  return user
+    ? <p className="ok-box">🔄 أهلًا {user.name} — مطبخك ده <b>متزامن مع حسابك</b>: أي حفظ أو ملحوظة هنا هتلاقيها على أي جهاز تدخل منه.</p>
+    : <p className="notice">أنت في وضع الضيف: الحفظ على الجهاز ده بس. <a className="text-link" href="/login">سجل دخول</a> عشان تزامن محفوظاتك وملاحظاتك ومشترياتك بين أجهزتك — اللي حفظته هنا هيندمج في حسابك من غير تكرار.</p>;
+}
 export function KitchenHome() {
   const saved = useSaved(); const planned = usePlanned(); const done = useDone();
   const shop = useLocalList("wasafat-Doha:shopping");
@@ -22,6 +29,7 @@ export function KitchenHome() {
   return (
     <div className="wrap"><div className="page-head"><h1>مطبخي 🍳</h1><p>دفترك الخفيف في وصفات قمر: اللي عايز تجربه، واللي هتعمله قريب، واللي عملته، وناقصك إيه. كل ده بيتحفظ على جهازك من غير حساب — الحساب هيضيف المزامنة بين أجهزتك لاحقًا.</p></div>
       <KitchenTabs />
+      <SyncBanner />
       <div className="kitchen-cards">{cards.map(([href, n, label], i) => <Link key={i} href={href}><b>{n}</b><span>{label}</span></Link>)}</div>
       {recent.length > 0 && <><div className="section-head"><div><h2>آخر اللي حفظته</h2></div><Link className="text-link" href="/kitchen/saved">كل محفوظاتي ←</Link></div><div className="grid">{recent.map((r) => <RecipeCard key={r.slug} r={r} />)}</div></>}
       {!recent.length && <div className="empty"><h3>دفترك فاضي لسه 🌙</h3><p>دوس «عايز أجربها» على أي وصفة وهتظهر هنا على طول.</p><Link className="btn btn-primary" href="/discover">اكتشف الوصفات</Link></div>}
@@ -66,4 +74,4 @@ function ShoppingInner({ items, toggleItem, checked, toggleChecked, add }: { ite
     </div>
   );
 }
-import { useState } from "react";
+import { useState, useEffect } from "react";

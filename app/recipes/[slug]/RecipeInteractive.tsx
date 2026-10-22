@@ -5,6 +5,16 @@ import type { Recipe } from "@/lib/data";
 import { creatorById } from "@/lib/data";
 import { VideoEmbed, SaveButton, usePlanned, useDone } from "@/components/ui";
 
+function CompareButton({ slug }: { slug: string }) {
+  const [list, setList] = useState<string[]>(() => { try { return JSON.parse(localStorage.getItem("wasafat-Doha:compare") || "[]"); } catch { return []; } });
+  const on = list.includes(slug);
+  const toggleCmp = () => {
+    const next = on ? list.filter((x) => x !== slug) : [...list, slug].slice(-3);
+    setList(next); try { localStorage.setItem("wasafat-Doha:compare", JSON.stringify(next)); } catch {}
+  };
+  return <>{<button className={`btn ${on ? "btn-olive" : "btn-ghost"}`} onClick={toggleCmp}>{on ? "✓ في المقارنة" : "⚖️ قارنها"}</button>}{on && <Link className="btn btn-ghost" href="/compare">افتح المقارنة</Link>}</>;
+}
+
 export default function RecipeInteractive({ r }: { r: Recipe }) {
   const [srcIdx, setSrcIdx] = useState(0);
   const planned = usePlanned(); const done = useDone();
@@ -62,6 +72,7 @@ export default function RecipeInteractive({ r }: { r: Recipe }) {
             <button className={`btn ${planned.has(r.slug) ? "btn-olive" : "btn-ghost"}`} onClick={() => planned.toggle(r.slug)}>
               {planned.has(r.slug) ? "✓ في خطة قريب" : "📌 هعملها قريب"}
             </button>
+            <CompareButton slug={r.slug} />
             <button className={`btn ${done.has(r.slug) ? "btn-olive" : "btn-ghost"}`} onClick={() => done.toggle(r.slug)}>
               {done.has(r.slug) ? "✓ عملتها" : "عملتها؟ سجّلها"}
             </button>

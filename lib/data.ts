@@ -6,10 +6,14 @@
 
 export type Creator = { id: string; name: string; tagline: string; style: string; channelHint: string };
 export type VideoSource = { ytId: string; kind: "video" | "short"; published: string; views: number; sourceNo: number };
+import { REVIEWED, type ReviewedDetail } from "./reviewed";
+export type { ReviewedDetail };
 export type Recipe = {
   slug: string; title: string; creatorId: string; category: string;
   mainIngredients: string[]; textures: string[]; needs: string[];
   why: string; sources: VideoSource[]; views: number; editorsPick?: boolean;
+  status?: "reviewed" | "video"; // reviewed = وصفة مكتملة بعد مراجعة المقادير والخطوات | video = ترشيح فيديو
+  detail?: ReviewedDetail;
 };
 
 export const SITE_NAME = "وصفات قمر";
@@ -2071,6 +2075,13 @@ export const recipes: Recipe[] = [
  }
 ];
 
+// إرفاق تفاصيل المراجعة اليدوية: الوصفة بتبقى «مكتملة» بس لو ليها مقادير وخطوات مراجعة
+for (const r of recipes as Recipe[]) {
+  const d = REVIEWED[r.slug];
+  r.status = d ? "reviewed" : "video";
+  if (d) r.detail = d;
+}
+export const reviewedRecipes = (recipes as Recipe[]).filter((r) => r.status === "reviewed");
 export const allSourcesCount = recipes.reduce((a, r) => a + r.sources.length, 0);
 export const recipeBySlug = (slug: string) => recipes.find((r) => r.slug === slug);
 export const ytThumb = (ytId: string) => `https://i.ytimg.com/vi/${ytId}/hqdefault.jpg`;
@@ -2100,7 +2111,8 @@ export function searchRecipes(q: string): Recipe[] {
   const terms = new Set<string>([nq]);
   for (const [k, vals] of Object.entries(SYN)) if (nq.includes(normalizeAr(k))) vals.forEach(v => terms.add(normalizeAr(v)));
   const scored = recipes.map(r => {
-    const hay = [r.title, r.category, creatorById(r.creatorId).name, ...r.mainIngredients, ...r.textures, ...r.needs].map(normalizeAr).join(" ");
+    const detailIngs = r.detail ? r.detail.ingredients.flatMap((g) => g.items.map((i) => i.name)) : [];
+    const hay = [r.title, r.category, creatorById(r.creatorId).name, ...r.mainIngredients, ...r.textures, ...r.needs, ...detailIngs].map(normalizeAr).join(" ");
     let score = 0;
     terms.forEach(t => { if (normalizeAr(r.title).includes(t)) score += 5; else if (hay.includes(t)) score += 2; });
     nq.split(/\s+/).forEach(w => { if (w.length > 1 && hay.includes(w)) score += 1; });
@@ -2258,4 +2270,9 @@ export const collections: Collection[] = [
   ]
  }
 ];
+collections.push(
+  { slug: "movie-night", title: "مزاج الليلة: قعدة فيلم", desc: "سندوتشات وسناكس وحلو سريع لقعدة أفلام.", recipeSlugs: ["burger-wrap", "pizza-tortilla-rolls", "potato-balloons", "chocolate-truffles-2-ing"] },
+  { slug: "quiet-dinner", title: "مزاج الليلة: عشاء هادي", desc: "أطباق خفيفة التحضير ليوم هادي.", recipeSlugs: ["salmon-curry-rice", "tomato-qallaya", "hibiscus-juice", "creamy-garlic-shrimp-rice"] },
+  { slug: "start-easy", title: "ابدأ بالسهل", desc: "مسار صغير من وصفات مكتملة المراجعة تناسب أول تجارب المطبخ.", recipeSlugs: ["pink-sauce-pasta", "cinnamon-beehive", "kunafa-cream", "elham-kabsa"] },
+);
 export const collectionBySlug = (s: string) => collections.find(c => c.slug === s);

@@ -1,0 +1,10 @@
+{
+  "name": "وصفات قمر",
+  "short_name": "وصفات قمر",
+  "description": "وصفات قمر — وصفات تستاهل التجربة: مكتبة عربية منتقاة من فيديوهات الشيفات",
+  "lang": "ar", "dir": "rtl",
+  "start_url": "/", "scope": "/",
+  "display": "standalone",
+  "background_color": "#F8F5EE", "theme_color": "#34483D",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

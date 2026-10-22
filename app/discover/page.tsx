@@ -17,6 +17,7 @@ function DiscoverInner() {
   const [need, setNeed] = useState(sp.get("need") || "");
   const [ing, setIng] = useState(sp.get("ing") || "");
   const [sort, setSort] = useState<Sort>("editor");
+  const [status, setStatus] = useState("");
   const [shown, setShown] = useState(24);
 
   const results = useMemo(() => {
@@ -27,13 +28,14 @@ function DiscoverInner() {
     if (texture) list = list.filter((r) => r.textures.includes(texture));
     if (need) list = list.filter((r) => r.needs.includes(need));
     if (ing) list = list.filter((r) => r.mainIngredients.includes(ing));
+    if (status) list = list.filter((r) => r.status === status);
     const byDate = (r: (typeof recipes)[0]) => { const [m, y] = r.sources.map((s) => s.published).sort().reverse()[0].split("/"); return +y * 100 + +m; };
     if (sort === "views") list.sort((a, b) => b.views - a.views);
     else if (sort === "newest") list.sort((a, b) => byDate(b) - byDate(a));
     else if (sort === "az") list.sort((a, b) => a.title.localeCompare(b.title, "ar"));
     else list.sort((a, b) => Number(b.editorsPick || false) - Number(a.editorsPick || false) || b.views - a.views);
     return list;
-  }, [q, cat, creator, kind, texture, need, ing, sort]);
+  }, [q, cat, creator, kind, texture, need, ing, sort, status]);
 
   const active: [string, () => void][] = [];
   if (q) active.push([`بحث: ${q}`, () => setQ("")]);
@@ -43,7 +45,8 @@ function DiscoverInner() {
   if (texture) active.push([texture, () => setTexture("")]);
   if (need) active.push([need, () => setNeed("")]);
   if (ing) active.push([ing, () => setIng("")]);
-  const clearAll = () => { setQ(""); setCat(""); setCreator(""); setKind(""); setTexture(""); setNeed(""); setIng(""); };
+  if (status) active.push([status === "reviewed" ? "وصفات مكتملة" : "ترشيحات فيديو", () => setStatus("")]);
+  const clearAll = () => { setQ(""); setCat(""); setCreator(""); setKind(""); setTexture(""); setNeed(""); setIng(""); setStatus(""); };
 
   return (
     <div className="wrap">
@@ -63,6 +66,7 @@ function DiscoverInner() {
         <select value={texture} onChange={(e) => setTexture(e.target.value)} aria-label="القوام"><option value="">أي قوام</option>{allTextures.map((t) => <option key={t}>{t}</option>)}</select>
         <select value={need} onChange={(e) => setNeed(e.target.value)} aria-label="الاحتياج"><option value="">أي احتياج</option>{allNeeds.map((n) => <option key={n}>{n}</option>)}</select>
         <select value={ing} onChange={(e) => setIng(e.target.value)} aria-label="المكون الرئيسي"><option value="">أي مكوّن</option>{allIngredients.map((i) => <option key={i}>{i}</option>)}</select>
+        <select value={status} onChange={(e) => setStatus(e.target.value)} aria-label="حالة المراجعة"><option value="">أي حالة مراجعة</option><option value="reviewed">✓ وصفات مكتملة (مراجعة)</option><option value="video">ترشيحات فيديو</option></select>
         <select value={sort} onChange={(e) => setSort(e.target.value as Sort)} aria-label="ترتيب النتائج">
           <option value="editor">اختيارات المحرر</option><option value="views">الأكثر مشاهدة على يوتيوب</option>
           <option value="newest">الأحدث نشرًا</option><option value="az">أبجدي</option>

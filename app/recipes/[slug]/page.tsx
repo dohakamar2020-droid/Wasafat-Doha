@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { recipes, recipeBySlug, creatorById, formatViews, ytWatchUrl, collections, relatedRecipes } from "@/lib/data";
 import { RecipeCard } from "@/components/ui";
+import ReviewedSection from "@/components/ReviewedSection";
 import RecipeInteractive from "./RecipeInteractive";
 
 export function generateStaticParams() { return recipes.map((r) => ({ slug: r.slug })); }
@@ -24,7 +25,17 @@ export default async function RecipePage({ params }: { params: Promise<{ slug: s
   const c = creatorById(r.creatorId);
   const related = relatedRecipes(r);
   const myCols = collections.filter((col) => col.recipeSlugs.includes(r.slug));
-  const structured = {
+  const structured = r.detail ? {
+    // بيانات Recipe المنظمة بتتضاف بس للوصفات المكتملة المراجعة فعلًا وظاهرة للمستخدم
+    "@context": "https://schema.org", "@type": "Recipe",
+    name: `${r.title} — وصفات قمر`, description: r.why,
+    image: [`https://i.ytimg.com/vi/${r.sources[0].ytId}/hqdefault.jpg`],
+    author: { "@type": "Person", name: c.name },
+    recipeYield: r.detail.servings,
+    recipeIngredient: r.detail.ingredients.flatMap((g) => g.items.map((i) => i.display)),
+    recipeInstructions: r.detail.steps.map((st) => ({ "@type": "HowToStep", name: st.title, text: st.body })),
+    video: { "@type": "VideoObject", name: r.title, thumbnailUrl: [`https://i.ytimg.com/vi/${r.sources[0].ytId}/hqdefault.jpg`], contentUrl: ytWatchUrl(r.sources[0]) },
+  } : {
     "@context": "https://schema.org", "@type": "VideoObject",
     name: `${r.title} — وصفات قمر`, description: r.why,
     thumbnailUrl: [`https://i.ytimg.com/vi/${r.sources[0].ytId}/hqdefault.jpg`],
@@ -35,13 +46,15 @@ export default async function RecipePage({ params }: { params: Promise<{ slug: s
     <div className="wrap">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structured) }} />
       <RecipeInteractive r={r} />
+      {r.detail && <ReviewedSection detail={r.detail} slug={r.slug} />}
 
       <section className="surface" aria-labelledby="src-h">
         <h2 id="src-h">المصدر الأصلي 📺</h2>
         <p style={{ color: "var(--muted)" }}>
-          الوصفة من <Link className="chef-link" href={`/creators/${c.id}`}>{c.name}</Link>، والمقادير والخطوات التفصيلية موجودة في الفيديو الأصلي على يوتيوب.
-          حالة الوصفة هنا في وصفات قمر: <b>ترشيح فيديو</b> — يعني انتقيناها ورتبناها، ولسه مراجعة المقادير والخطوات المكتوبة قيد التحرير،
-          عشان كده مش هنعرضلك أوقات طبخ أو مقادير متخيّلة.
+          الوصفة من <Link className="chef-link" href={`/creators/${c.id}`}>{c.name}</Link>.
+          {r.detail ? <>حالة الوصفة هنا في وصفات قمر: <b>وصفة مكتملة ✓</b> — المقادير والخطوات اللي فوق مراجعة يدويًا من وصف القناة الرسمية وشرح الفيديو (شوف ملحوظة المراجعة تحت الخطوات)، والفيديو الأصلي هو المرجع الأول دايمًا.</>
+          : <>والمقادير والخطوات التفصيلية موجودة في الفيديو الأصلي على يوتيوب. حالة الوصفة هنا في وصفات قمر: <b>ترشيح فيديو</b> — يعني انتقيناها ورتبناها، ولسه مراجعة المقادير والخطوات المكتوبة قيد التحرير، عشان كده مش هنعرضلك أوقات طبخ أو مقادير متخيّلة.</>}
+          {' '}<a className="text-link" href={`/contact?recipe=${r.slug}`}>الإبلاغ عن مشكلة في المصدر ←</a>
         </p>
         <div className="info-grid">
           <div className="info-cell"><span>صاحب الوصفة</span><b>{c.name}</b></div>
