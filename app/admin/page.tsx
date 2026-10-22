@@ -90,12 +90,12 @@ export default function AdminPage() {
           <button className="btn btn-primary" onClick={add}>افحص الرابط وضيفه كـ«وارد»</button>
           {msg && <div className={msg.ok ? "ok-box" : "err-box"} role="status">{msg.text}</div>}
         </div>
-        {local.length > 0 && <table className="admin-table"><thead><tr><th>الوصفة</th><th>النوع</th><th>المعرف</th><th>الحالة</th></tr></thead><tbody>{local.map((x) => <tr key={x.ytId}><td>{x.title}</td><td>{x.kind === "short" ? "شورت" : "فيديو"}</td><td dir="ltr">{x.ytId}</td><td>وارد — قيد المراجعة</td></tr>)}</tbody></table>}
+        {local.length > 0 && <div className="table-scroll"><table className="admin-table"><thead><tr><th>الوصفة</th><th>النوع</th><th>المعرف</th><th>الحالة</th></tr></thead><tbody>{local.map((x) => <tr key={x.ytId}><td>{x.title}</td><td>{x.kind === "short" ? "شورت" : "فيديو"}</td><td dir="ltr">{x.ytId}</td><td>وارد — قيد المراجعة</td></tr>)}</tbody></table></div>}
       </section>
       <DbPanel />
       <section className="surface"><h2>مراجعة سريعة للمكتبة الحالية</h2>
-        <table className="admin-table"><thead><tr><th>الشيف</th><th>وصفات</th><th>مصادر</th></tr></thead>
-        <tbody>{creators.map((c) => { const l = recipes.filter((r) => r.creatorId === c.id); return <tr key={c.id}><td>{c.name}</td><td>{l.length}</td><td>{l.reduce((a, r) => a + r.sources.length, 0)}</td></tr>; })}</tbody></table>
+        <div className="table-scroll"><table className="admin-table"><thead><tr><th>الشيف</th><th>وصفات</th><th>مصادر</th></tr></thead>
+        <tbody>{creators.map((c) => { const l = recipes.filter((r) => r.creatorId === c.id); return <tr key={c.id}><td>{c.name}</td><td>{l.length}</td><td>{l.reduce((a, r) => a + r.sources.length, 0)}</td></tr>; })}</tbody></table></div>
       </section>
     </div>
   );
