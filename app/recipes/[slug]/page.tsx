@@ -9,6 +9,8 @@ import { notFound } from "next/navigation";
 import { creatorById, formatViews, ytWatchUrl, collections } from "@/lib/data";
 import { RecipeCard } from "@/components/ui";
 import ReviewedSection from "@/components/ReviewedSection";
+import MyVersion from "@/components/MyVersion";
+import TrialCard from "@/components/TrialCard";
 import RecipeInteractive from "./RecipeInteractive";
 
 export async function generateStaticParams() {
@@ -100,6 +102,8 @@ export default async function RecipePage({
       />
       <RecipeInteractive r={r} />
       {r.detail && <ReviewedSection detail={r.detail} slug={r.slug} />}
+      <MyVersion r={r} />
+      <TrialCard r={r} />
       <SosPanel />
       <CommunityAttempts slug={r.slug} />
 

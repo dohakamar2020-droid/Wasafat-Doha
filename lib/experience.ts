@@ -188,7 +188,14 @@ export function matchIngredients(
   available: string[],
   excluded: string[],
 ) {
-  const availableKeys = new Set(available.map(ingredientKey));
+  // اللي عند اليوزر ممكن يكون مكتوب معطوفًا («ملح وفلفل») — بنفك العطف
+  // زي ما بنفكه في مقادير الوصفة نفسها عشان المقارنة تبقى عادلة
+  const availableKeys = new Set(
+    available.flatMap((a) => [
+      ingredientKey(a),
+      ...a.split(/\s+و(?=[\u0600-\u06ff])/).map((x) => ingredientKey(x)),
+    ]),
+  );
   const allItems = r.detail
     ? r.detail.ingredients.flatMap((g) => g.items)
     : r.mainIngredients.map((name) => ({ name, display: name }));

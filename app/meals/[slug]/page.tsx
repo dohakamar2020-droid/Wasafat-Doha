@@ -1,5 +1,7 @@
 import { siteURL } from "@/lib/site";
 import MealPlanner from "@/components/MealPlanner";
+import GuestPlanner from "@/components/GuestPlanner";
+import { guestDishes } from "@/lib/guest-plan";
 import { getCatalog } from "@/lib/catalog";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -81,6 +83,7 @@ export default async function MealPage({
         {tools.length > 0 && <p>الأدوات المطلوبة: {tools.join(" · ")}</p>}
         <ShareMeal title={m.title} />
       </section>
+      <GuestPlanner dishes={guestDishes(list, m.roles).map((d) => ({ slug: d.r.slug, title: d.r.title, role: d.role, minutes: d.minutes, basis: d.basis, needsOven: d.needsOven, makeAhead: d.makeAhead }))} />
       <MealPlanner recipes={list} />
     </div>
   );

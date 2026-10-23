@@ -48,6 +48,12 @@ export function addAttempt(
   rating?: number,
   photo?: string,
   isPublic?: boolean,
+  trial?: {
+    actualMinutes?: number;
+    hardest?: string;
+    verdict?: "worth" | "tasty-slow" | "fixed" | "skip";
+    verdictFor?: string;
+  },
 ) {
   const attempts = readJSON<import("./kitchen-state").Attempt[]>(
     "attempts",
@@ -61,6 +67,10 @@ export function addAttempt(
     ...(rating ? { rating } : {}),
     ...(photo ? { photo } : {}),
     ...(isPublic ? { public: true } : {}),
+    ...(trial?.actualMinutes ? { actualMinutes: trial.actualMinutes } : {}),
+    ...(trial?.hardest ? { hardest: trial.hardest } : {}),
+    ...(trial?.verdict ? { verdict: trial.verdict } : {}),
+    ...(trial?.verdictFor ? { verdictFor: trial.verdictFor } : {}),
   };
   storageSet("wasafat-Doha:attempts", JSON.stringify([a, ...attempts]));
   const done = readJSON<string[]>("done", []);

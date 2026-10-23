@@ -5,6 +5,8 @@ import Link from "next/link";
 import { Heart, Play, CheckCircle2 } from "lucide-react";
 import { type Recipe, creatorById, formatViews, ytThumb } from "@/lib/data";
 import { useStored } from "./useStored";
+import { VERDICT_LABELS } from "./TrialCard";
+import type { Attempt } from "@/lib/kitchen-state";
 import FoodImage from "./FoodImage";
 export function useLocalList(key: string) {
   const [list, set] = useStored<string[]>(key, []);
@@ -51,6 +53,10 @@ export function SaveButton({
 export function RecipeCard({ r, reason }: { r: Recipe; reason?: string }) {
   const c = creatorById(r.creatorId);
   const s = r.sources[0];
+  const [attempts] = useStored<Attempt[]>("wasafat-Doha:attempts", []);
+  const myVerdict = attempts.find(
+    (a) => a.slug === r.slug && a.verdict,
+  )?.verdict;
   if (!s) return null;
   return (
     <article className="card">
@@ -106,6 +112,11 @@ export function RecipeCard({ r, reason }: { r: Recipe; reason?: string }) {
         {r.testedNote && (
           <span className="tag tag-need">
             <CheckCircle2 size={12} aria-hidden="true" /> تجربة موثقة من الفريق
+          </span>
+        )}
+        {myVerdict && (
+          <span className="tag tag-need">
+            🔬 حكم تجربتك: {VERDICT_LABELS[myVerdict] || myVerdict}
           </span>
         )}
       </div>
