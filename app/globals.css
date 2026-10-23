@@ -997,6 +997,66 @@ input.text-in {
   background: #fff;
   min-width: 0;
 }
+textarea.text-in {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-family: inherit;
+  font-size: 1rem;
+  background: #fff;
+  resize: vertical;
+}
+.pantry-box label {
+  display: block;
+  font-weight: 800;
+  color: var(--olive-2);
+  margin-bottom: 8px;
+}
+.pantry-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+.pantry-actions .results-note {
+  margin-bottom: 0;
+  flex: 1;
+  min-width: 220px;
+}
+.near-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.near-card .card {
+  flex: 1;
+}
+.missing-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--olive-2);
+}
+.missing-chip {
+  border: 1.5px dashed var(--orange);
+  background: rgba(201, 101, 63, 0.08);
+  color: var(--orange);
+  border-radius: 999px;
+  padding: 3px 11px;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.missing-chip:hover {
+  background: var(--orange);
+  color: #fff;
+}
 .shop-add {
   display: flex;
   gap: 8px;

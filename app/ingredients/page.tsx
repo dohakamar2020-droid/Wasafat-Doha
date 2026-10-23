@@ -2,16 +2,30 @@
 import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useCatalog } from "@/components/CatalogProvider";
-import { RecipeCard, SectionHead } from "@/components/ui";
-import { ingredientKey, matchIngredients } from "@/lib/experience";
+import { RecipeCard, SectionHead, useLocalList } from "@/components/ui";
+import {
+  ingredientKey,
+  matchIngredients,
+  parsePantryText,
+} from "@/lib/experience";
+
 function Ingredients() {
   const catalog = useCatalog();
   const sp = useSearchParams();
+  const shop = useLocalList("wasafat-Doha:shopping");
   const [sel, setSel] = useState<string[]>(
-      sp.get("ing") ? [sp.get("ing")!] : [],
+      sp.get("ing")
+        ? sp
+            .get("ing")!
+            .split(/[،,]/)
+            .map((x) => x.trim())
+            .filter(Boolean)
+        : [],
     ),
-    [custom, setCustom] = useState(""),
-    [excluded, setExcluded] = useState("");
+    [draft, setDraft] = useState(""),
+    [note, setNote] = useState(""),
+    [excluded, setExcluded] = useState(""),
+    [shopped, setShopped] = useState<string[]>([]);
   const ingredients = useMemo(
     () =>
       [
@@ -43,11 +57,35 @@ function Ingredients() {
           ),
         )
         .filter((x) => !x.forbidden && x.have > 0)
-        .sort((a, b) => a.missing.length - b.missing.length || b.have - a.have),
+        .sort(
+          (a, b) =>
+            a.missing.length - b.missing.length ||
+            b.have - a.have ||
+            b.r.views - a.r.views,
+        ),
     [catalog, sel, excluded],
   );
   const toggle = (i: string) =>
     setSel((s) => (s.includes(i) ? s.filter((x) => x !== i) : [...s, i]));
+  const applyDraft = () => {
+    const parsed = parsePantryText(draft, ingredients);
+    if (!parsed.length) {
+      setNote("مقدرناش نطلع مكونات من اللي كتبته — جرّب تفصل بينهم بفواصل.");
+      return;
+    }
+    setSel((s) => [...new Set([...s, ...parsed])]);
+    setNote(
+      `ضفنا ${parsed.length} مكوّن: ${parsed.join("، ")} — شيل أي حاجة مش عندك بدوسة عليها.`,
+    );
+    setDraft("");
+  };
+  const addMissingToShopping = (
+    slug: string,
+    names: string[],
+  ) => {
+    for (const n of names) if (!shop.has(n)) shop.toggle(n);
+    setShopped((s) => (s.includes(slug) ? s : [...s, slug]));
+  };
   const full = results.filter((x) => x.complete && !x.missing.length),
     near = results.filter((x) => x.complete && x.missing.length),
     ideas = results.filter((x) => !x.complete);
@@ -56,15 +94,40 @@ function Ingredients() {
       <div className="page-head">
         <h1>عندك إيه في البيت؟</h1>
         <p>
-          زوّد المكونات الموجودة فعلًا، بما فيها أساسيات المطبخ. الوصفات
-          المكتملة بتتقارن بالمقادير المكتوبة؛ الفيديوهات بنعرضها كأفكار
-          بالمكوّن الأساسي.
+          اكتب المقادير اللي عندك زي ما بتتكلم، وهنرشحلك وصفات وفيديوهات
+          تنفع بيها. ولو وصفة عجبتك وناقصها حاجة، هنقولك الناقص بالظبط —
+          دوس عليه لو بقى عندك، أو زوّده لقايمة مشترياتك وكمّل عليها.
         </p>
+      </div>
+      <div className="surface pantry-box">
+        <label htmlFor="pantry-text">اكتب اللي عندك</label>
+        <textarea
+          id="pantry-text"
+          className="text-in pantry-text"
+          rows={3}
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          placeholder="مثال: عندي بطاطس وفراخ وبصل وطماطم، وبيض وحليب"
+        />
+        <div className="pantry-actions">
+          <button className="btn btn-primary" type="button" onClick={applyDraft}>
+            رشّحلي على أساسهم
+          </button>
+          <span className="results-note">
+            بنفهم المرادفات (فراخ = دجاج، بطاطا = بطاطس) وبنطابق على المقادير
+            المكتوبة للوصفات المراجعة.
+          </span>
+        </div>
+        {note && (
+          <p className="results-note" role="status">
+            {note}
+          </p>
+        )}
       </div>
       <div
         className="chip-row"
         role="group"
-        aria-label="المكونات الموجودة عندك"
+        aria-label="مكونات سريعة"
       >
         {[
           "بطاطس",
@@ -107,7 +170,8 @@ function Ingredients() {
         </div>
       </details>
       {sel.length > 0 && (
-        <div className="chip-row">
+        <div className="chip-row" aria-label="اللي عندك دلوقتي">
+          <strong>اللي عندك ({sel.length}):</strong>
           {sel.map((i) => (
             <button
               className="af-chip"
@@ -118,33 +182,15 @@ function Ingredients() {
               {i} ×
             </button>
           ))}
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm"
+            onClick={() => setSel([])}
+          >
+            امسح الكل
+          </button>
         </div>
       )}
-      <form
-        className="shop-add"
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (custom.trim()) {
-            setSel((s) => [...new Set([...s, custom.trim()])]);
-            setCustom("");
-          }
-        }}
-      >
-        <input
-          aria-label="أضف مكون موجود"
-          value={custom}
-          onChange={(e) => setCustom(e.target.value)}
-          placeholder="مكوّن مش في القائمة؟"
-        />
-        <button className="btn btn-olive">ضيف المكوّن</button>
-        <button
-          type="button"
-          className="btn btn-ghost"
-          onClick={() => setSel([])}
-        >
-          امسح الاختيارات
-        </button>
-      </form>
       <div className="surface">
         <label htmlFor="exclude">استبعد مكونات — افصل بينها بفاصلة</label>
         <input
@@ -163,8 +209,8 @@ function Ingredients() {
         <>
           <section className="block">
             <SectionHead
-              title={`المقادير المطلوبة عندك (${full.length})`}
-              sub="مطابقة لقائمة المقادير المكتوبة، مع استثناء الإضافات الاختيارية"
+              title={`جاهزة باللي عندك (${full.length})`}
+              sub="كل المقادير الإلزامية المكتوبة موجودة عندك — الإضافات الاختيارية مش محسوبة"
             />
             <div className="grid">
               {full.map(({ r }) => (
@@ -179,35 +225,72 @@ function Ingredients() {
           </section>
           <section className="block">
             <SectionHead
-              title="قريبين من اللي عندك"
-              sub="الناقص محسوب من المقادير الفعلية"
+              title="قريبة — ناقصها حاجة بسيطة"
+              sub="الناقص محسوب من المقادير المكتوبة. دوس على مكوّن ناقص لو بقى عندك وهنعيد الترشيح، أو زوّد الناقص للمشتريات"
             />
             <div className="grid">
               {near.slice(0, 12).map(({ r, missing }) => (
-                <RecipeCard
-                  key={r.slug}
-                  r={r}
-                  reason={`ناقصك ${missing.length}: ${missing.map((i) => i.name).join("، ")}`}
-                />
+                <div key={r.slug} className="near-card">
+                  <RecipeCard
+                    r={r}
+                    reason={`عندك أغلبها — ناقصك ${missing.length} بس`}
+                  />
+                  <div
+                    className="missing-row"
+                    aria-label={`الناقص لـ${r.title}`}
+                  >
+                    <span>ناقصك:</span>
+                    {missing.map((i) => (
+                      <button
+                        type="button"
+                        key={i.name}
+                        className="missing-chip"
+                        title="دوس لو بقى عندك"
+                        onClick={() => toggle(i.name)}
+                      >
+                        {i.name} +
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    className="btn btn-olive btn-sm"
+                    disabled={shopped.includes(r.slug)}
+                    onClick={() =>
+                      addMissingToShopping(
+                        r.slug,
+                        missing.map((i) => i.name),
+                      )
+                    }
+                  >
+                    {shopped.includes(r.slug)
+                      ? "اتضاف الناقص لمشترياتك ✓"
+                      : "زوّد الناقص لقايمة المشتريات"}
+                  </button>
+                </div>
               ))}
             </div>
           </section>
           <section className="block">
             <SectionHead
-              title="أفكار بالمكوّن الأساسي"
-              sub="لسه مقاديرها مش مكتملة عندنا؛ عدد المكونات الناقصة غير معروف"
+              title="ترشيحات فيديو بنفس مكوناتك"
+              sub="لسه مقاديرها الكاملة مش مكتوبة عندنا، فبنرشحها بمكوّناتها الأساسية المسجلة — المقادير والنواقص الدقيقة في الفيديو نفسه"
             />
             <div className="grid">
               {ideas.slice(0, 12).map(({ r }) => (
-                <RecipeCard key={r.slug} r={r} />
+                <RecipeCard
+                  key={r.slug}
+                  r={r}
+                  reason="ترشيح فيديو — اتأكد من مقاديره في المصدر"
+                />
               ))}
             </div>
           </section>
         </>
       ) : (
         <div className="empty">
-          <h2>ابدأ بمكوّن عندك</h2>
-          <p>كل ما تزود مكونات، المطابقة هتبقى أدق.</p>
+          <h2>اكتب اللي عندك أو اختار مكوّن</h2>
+          <p>كل ما تزود مكونات، الترشيحات هتبقى أدق والنواقص أوضح.</p>
         </div>
       )}
     </div>
