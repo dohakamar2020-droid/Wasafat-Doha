@@ -39,27 +39,25 @@ test("savory and no-oven preferences are hard constraints", () => {
   assert.ok(!p.some((p) => p.r.slug === "raspberry-jam"));
 });
 test("shorts never count as proof of cooking time", () => {
-  // بس الوصفات اللي مصدرها صرّح بوقت كلي هي اللي تعدي فلتر الوقت —
-  // ومدة الشورت أو الفيديو نفسها مش دليل طبخ أبدًا
+  // الوقت أولوية ترتيب لا فلتر صلب: الموثّق الأقصر يتصدر، ومفيش نتيجة
+  // بتدّعي وقت كلي مش مصرح به في تفاصيل مراجعتها — مدة الفيديو مش دليل
   const fast = recommend(recipes, { taste: "any", time: "15", priority: "few" });
-  for (const { r } of fast) {
-    assert.ok(r.totalMinutes != null && r.totalMinutes <= 15);
-    // الوقت الكلي لازم يكون مصرحًا به في تفاصيل المراجعة نفسها — مش مستنتج من مدة أي فيديو
-    assert.equal(r.detail?.timing?.totalMinutes, r.totalMinutes);
+  assert.equal(fast.length, 3);
+  for (const { r, reason } of fast) {
+    if (r.totalMinutes == null) assert.ok(!/وقت كلي موثق/.test(reason));
+    else assert.equal(r.detail?.timing?.totalMinutes, r.totalMinutes);
   }
-  assert.deepEqual(
-    fast.map(({ r }) => r.slug),
-    ["milk-coffee-dessert"],
-  );
+  const first = fast[0].r;
+  const firstQuick =
+    first.totalMinutes ?? first.detail?.timing?.cookMinutes ?? first.detail?.timing?.prepMinutes;
+  assert.ok(firstQuick != null && firstQuick <= 15);
 });
 test("verified total time filters remain true even for high-view videos", () => {
   const a = { ...recipes[0], slug: "fast", totalMinutes: 12 },
     b = { ...recipes[1], slug: "slow", totalMinutes: 90 };
   const list = recommend([b, a], { taste: "any", time: "15", priority: "few" });
-  assert.deepEqual(
-    list.map((p) => p.r.slug),
-    ["fast"],
-  );
+  // الوقت بيفرّق في الترتيب مش بيحذف: الموثق الأقصر يتصدر دايمًا
+  assert.equal(list[0].r.slug, "fast");
 });
 test("replacements never return an excluded choice", () => {
   const a = recommend(recipes, {
@@ -216,7 +214,7 @@ test("step video link estimates a proportional timestamp", () => {
   assert.ok(link.url.includes("watch?v=Gk9MvbwrooY&t="));
   const sec = Number(link.url.split("&t=")[1].replace("s", ""));
   assert.ok(sec > 0 && sec < 554);
-  const noDur = recipes.find((r) => !r.sources[0]?.durationSec)!;
+  const noDur = recipes.find((r) => r.sources.every((x) => !x.durationSec))!;
   assert.equal(stepVideoUrl(noDur, 0, 3), null);
 });
 
@@ -235,4 +233,22 @@ test("every reviewed recipe has a step-video link and consistent publish dates",
           `${r.slug} published month mismatch`,
         );
   }
+});
+
+test("رشحلي: 3 نتائج دايمًا حتى مع حد زمني ضيق، من غير ادعاء وقت", () => {
+  for (const time of ["15", "45", "any"]) {
+    const picks = recommend(recipes, { taste: "any", time, priority: "any" });
+    assert.equal(picks.length, 3, `time=${time}`);
+    for (const p of picks)
+      if (p.r.totalMinutes == null)
+        assert.ok(!/وقت كلي موثق/.test(p.reason), "مينفعش ندّعي وقت كلي");
+  }
+  // أول نتيجة لأي حد زمني لازم يكون وقتها الموثق (كلي أو جزئي) جوه الحد
+  const quick = recommend(recipes, { taste: "any", time: "45", priority: "any" });
+  const q0 = quick[0].r;
+  const sig = q0.totalMinutes ?? q0.detail?.timing?.cookMinutes ?? q0.detail?.timing?.prepMinutes;
+  assert.ok(sig != null && sig <= 45);
+  const sweet = recommend(recipes, { taste: "sweet", time: "15", priority: "nooven" });
+  assert.equal(sweet.length, 3);
+  assert.ok(sweet.every((p) => isSweet(p.r)));
 });

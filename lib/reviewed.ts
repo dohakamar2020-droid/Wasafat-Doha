@@ -1,6 +1,7 @@
 import {STEP_LINKS} from "./step-links";
 import {REVIEWED_BATCH2} from "./reviewed-batch2";
 import { REVIEWED_BATCH3 } from "./reviewed-batch3";
+import { REVIEWED_BATCH4 } from "./reviewed-batch4";
 // وصفات قمر — أول دفعة «وصفات مكتملة» بعد المراجعة اليدوية (22 أكتوبر 2026)
 // منهج المراجعة: المقادير منقولة من وصف القناة الرسمية على يوتيوب، والخطوات ملخصة
 // بصياغة وصفات قمر من الترانسكريبت/شرح الفيديو نفسه، بنفس الترتيب.
@@ -326,6 +327,7 @@ export const REVIEWED: Record<string, ReviewedDetail> = {
 };
 Object.assign(REVIEWED, REVIEWED_BATCH2);
 Object.assign(REVIEWED, REVIEWED_BATCH3);
+Object.assign(REVIEWED, REVIEWED_BATCH4);
 // Group-qualified links disambiguate ingredients reused across different layers.
 for(const [slug,links] of Object.entries(STEP_LINKS)){
   const detail=REVIEWED[slug];
