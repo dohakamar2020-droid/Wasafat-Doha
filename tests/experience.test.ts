@@ -219,3 +219,20 @@ test("step video link estimates a proportional timestamp", () => {
   const noDur = recipes.find((r) => !r.sources[0]?.durationSec)!;
   assert.equal(stepVideoUrl(noDur, 0, 3), null);
 });
+
+test("every reviewed recipe has a step-video link and consistent publish dates", () => {
+  for (const r of recipes) {
+    if (r.detail)
+      assert.ok(
+        stepVideoUrl(r, 0, r.detail.steps.length),
+        `${r.slug} missing step video link`,
+      );
+    for (const s of r.sources)
+      if (s.uploadedAt)
+        assert.equal(
+          s.published,
+          `${s.uploadedAt.slice(5, 7)}/${s.uploadedAt.slice(0, 4)}`,
+          `${r.slug} published month mismatch`,
+        );
+  }
+});

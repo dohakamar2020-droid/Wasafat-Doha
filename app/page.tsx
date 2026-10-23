@@ -246,6 +246,8 @@ export default async function Home() {
           <SectionHead
             title="شوف الفكرة بسرعة"
             sub="شورتس للفرجة؛ وقت الطبخ بيتحدد من الوصفة"
+            href="/watch"
+            linkText="كل الشورتس"
           />
           <div className="shorts-row">
             {shorts.map((r) => (

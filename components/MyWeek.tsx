@@ -8,7 +8,7 @@ import { storageSet } from "@/lib/storage";
 import { useState } from "react";
 
 // «أسبوعي أنا»: خطة 7 أيام بيبنيها المستخدم من محفوظاته، وبتتحفظ على جهازه
-// (وبتتزامن مع حسابه ضمن حالة المطبخ لو دخل). التسوق بيتبني من الوصفات المكتملة بس.
+// الخطة محلية على الجهاز (المحفوظات/المشتريات هي المتزامنة مع الحساب). التسوق من الوصفات المكتملة بس.
 export const DAYS = ["السبت", "الأحد", "الاتنين", "التلات", "الأربع", "الخميس", "الجمعة"];
 export const MY_WEEK_KEY = "wasafat-Doha:my-week";
 
@@ -57,8 +57,9 @@ export default function MyWeek() {
     <section className="surface" aria-labelledby="myweek-h">
       <h2 id="myweek-h">أسبوعي أنا 🗓️</h2>
       <p style={{ color: "var(--muted)", marginTop: 4 }}>
-        رتّب 7 أيام على مزاجك من محفوظاتك. الخطة بتتحفظ على جهازك، ولو داخل
-        بحسابك هتتزامن مع مطبخك.
+        رتّب 7 أيام على مزاجك من محفوظاتك. الخطة بتتحفظ على الجهاز ده —
+        محفوظاتك ومشترياتك هي اللي بتتزامن مع حسابك، والخطة الأسبوعية لسه
+        محلية.
       </p>
       <div className="action-row" style={{ margin: "10px 0" }}>
         <button type="button" className="btn btn-primary" onClick={autoFill}>

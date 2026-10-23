@@ -2609,3 +2609,5 @@ fieldset.wiz-step legend {
 .attempt-list{display:grid;gap:10px}
 .attempt-card{border:1px solid rgba(52,72,61,.16);border-radius:12px;padding:12px 14px}
 .attempt-card p{margin:0 0 6px}
+
+.shorts-grid{flex-wrap:wrap}
