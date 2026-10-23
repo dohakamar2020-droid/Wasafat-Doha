@@ -7,6 +7,14 @@ export const attemptSchema = z.object({
   rating: z.number().int().min(1).max(5).optional(),
   photo: z.string().max(300).optional(),
   public: z.boolean().optional(),
+  // «الترند تحت التجربة»: حقول اختيارية بيملها صاحب التجربة نفسه —
+  // دي شهادته عن مطبخه، مش أرقام من عندنا
+  actualMinutes: z.number().int().min(1).max(10080).optional(),
+  hardest: z.string().max(300).optional(),
+  verdict: z
+    .enum(["worth", "tasty-slow", "fixed", "skip"])
+    .optional(),
+  verdictFor: z.string().max(200).optional(),
 });
 export type Attempt = z.infer<typeof attemptSchema>;
 const list = z.array(z.string().max(1200)).max(500);

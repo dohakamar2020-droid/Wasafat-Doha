@@ -13,6 +13,10 @@ export default function AttemptForm({
 }) {
   const { user } = useSync();
   const [note, setNote] = useState(""),
+    [actual, setActual] = useState(""),
+    [hardest, setHardest] = useState(""),
+    [verdict, setVerdict] = useState(""),
+    [verdictFor, setVerdictFor] = useState(""),
     [rating, setRating] = useState(""),
     [file, setFile] = useState<File | null>(null),
     [busy, setBusy] = useState(false),
@@ -47,8 +51,23 @@ export default function AttemptForm({
         rating ? Number(rating) : undefined,
         photo,
         share,
+        {
+          actualMinutes: actual ? Number(actual) : undefined,
+          hardest: hardest.trim() || undefined,
+          verdict: (verdict || undefined) as
+            | "worth"
+            | "tasty-slow"
+            | "fixed"
+            | "skip"
+            | undefined,
+          verdictFor: verdictFor.trim() || undefined,
+        },
       );
       setNote("");
+      setActual("");
+      setHardest("");
+      setVerdict("");
+      setVerdictFor("");
       setFile(null);
       setSaved(true);
       onDone?.();
@@ -87,6 +106,50 @@ export default function AttemptForm({
           </option>
         ))}
       </select>
+      <fieldset className="trial-fields">
+        <legend>بطاقة تجربتك في مطبخك (اختياري — دي «الترند تحت التجربة»)</legend>
+        <div className="scale-row">
+          <label>
+            الوقت الفعلي اللي خدته (دقيقة)
+            <input
+              type="number"
+              min="1"
+              max="10080"
+              value={actual}
+              onChange={(e) => setActual(e.target.value)}
+              placeholder="مثال: 45"
+            />
+          </label>
+          <label>
+            حكمك عليها
+            <select value={verdict} onChange={(e) => setVerdict(e.target.value)}>
+              <option value="">من غير حكم</option>
+              <option value="worth">تستاهل الضجة</option>
+              <option value="tasty-slow">حلوة بس تجهيزها طويل</option>
+              <option value="fixed">نجحت بعد تعديل</option>
+              <option value="skip">مش هكررها</option>
+            </select>
+          </label>
+        </div>
+        <label htmlFor={`hardest-${slug}`}>أصعب نقطة قابلتك</label>
+        <input
+          className="text-in"
+          id={`hardest-${slug}`}
+          value={hardest}
+          maxLength={300}
+          onChange={(e) => setHardest(e.target.value)}
+          placeholder="مثال: العجينة كانت بتلزق"
+        />
+        <label htmlFor={`vfor-${slug}`}>ترشحها لمين؟</label>
+        <input
+          className="text-in"
+          id={`vfor-${slug}`}
+          value={verdictFor}
+          maxLength={200}
+          onChange={(e) => setVerdictFor(e.target.value)}
+          placeholder="مثال: اللي بيحب الحلويات الباردة السريعة"
+        />
+      </fieldset>
       <label className="share-toggle" style={{ display: "flex", gap: 8, alignItems: "center" }}>
         <input
           type="checkbox"

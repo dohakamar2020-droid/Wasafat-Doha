@@ -6,6 +6,16 @@ import { storageSet } from "@/lib/storage";
 import { readJSON } from "@/lib/local-kitchen";
 import type { ReviewedDetail } from "@/lib/reviewed";
 import { stepVideoUrl } from "@/lib/trend";
+import { useMemo, useState } from "react";
+import {
+  factorForIngredient,
+  factorForPan,
+  factorForServings,
+  parsePanCm,
+  parseServingsCount,
+  scaleRecipe,
+  scalableIngredients,
+} from "@/lib/scaling";
 
 function fmt(n: number) {
   return Number.isInteger(n) ? String(n) : String(Math.round(n * 100) / 100);
@@ -28,6 +38,22 @@ export default function ReviewedSection({
     [],
   );
   const r = useCatalog().find((r) => r.slug === slug);
+  // «الوصفة على قد اللي عندي»: المعامل بيتحدد من اختيار اليوزر، وكل
+  // الحساب من المقادير الرقمية الموثقة بس (lib/scaling)
+  const [how, setHow] = useState("");
+  const [people, setPeople] = useState("");
+  const [ingName, setIngName] = useState("");
+  const [ingAmt, setIngAmt] = useState("");
+  const [panCm, setPanCm] = useState("");
+  const scaled = useMemo(() => scaleRecipe(detail, scale), [detail, scale]);
+  const servingsBase = parseServingsCount(detail);
+  const panBase = parsePanCm(detail);
+  const numericIngs = scalableIngredients(detail);
+  const applyFactor = (f: number | null, label: string) => {
+    if (f == null || !Number.isFinite(f) || f <= 0) return;
+    setScale(Math.min(10, Math.max(0.1, Math.round(f * 100) / 100)));
+    setHow(label);
+  };
   function toggle<T extends string | number>(
     key: T,
     list: T[],
@@ -88,14 +114,153 @@ export default function ReviewedSection({
             {[1, 2, 3].map((n) => (
               <button
                 key={n}
-                className={scale === n ? "on" : ""}
-                onClick={() => setScale(n)}
-                aria-pressed={scale === n}
+                className={scale === n && !how ? "on" : ""}
+                onClick={() => {
+                  setScale(n);
+                  setHow("");
+                }}
+                aria-pressed={scale === n && !how}
               >
                 ×{n}
               </button>
             ))}
           </div>
+        </div>
+        <div className="scale-modes">
+          <p style={{ fontWeight: 800, color: "var(--olive-2)", margin: "0 0 6px" }}>
+            أو ظبّطها على قد اللي عندك:
+          </p>
+          <div className="scale-row">
+            {servingsBase ? (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  applyFactor(
+                    factorForServings(detail, Number(people)),
+                    `على قد ${people} فرد (الأصل ${servingsBase})`,
+                  );
+                }}
+              >
+                <label>
+                  عدد الأفراد
+                  <input
+                    type="number"
+                    min="1"
+                    max="50"
+                    value={people}
+                    onChange={(e) => setPeople(e.target.value)}
+                    placeholder={String(servingsBase)}
+                  />
+                </label>
+                <button className="btn btn-olive btn-sm" type="submit">
+                  احسب
+                </button>
+              </form>
+            ) : null}
+            {numericIngs.length ? (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const ing = numericIngs.find((i) => i.name === ingName);
+                  if (!ing) return;
+                  applyFactor(
+                    factorForIngredient(
+                      detail,
+                      ing.name,
+                      Number(ingAmt),
+                      ing.unit!,
+                    )?.factor ?? null,
+                    `على قد ${ingAmt} ${ing.unit} ${ing.name}`,
+                  );
+                }}
+              >
+                <label>
+                  المكوّن المحدود عندي
+                  <select
+                    value={ingName}
+                    onChange={(e) => setIngName(e.target.value)}
+                    required
+                  >
+                    <option value="">اختار مكوّن…</option>
+                    {numericIngs.map((i) => (
+                      <option key={i.name} value={i.name}>
+                        {i.name} (الأصل {i.amount} {i.unit})
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  اللي عندي
+                  <input
+                    type="number"
+                    min="0"
+                    step="any"
+                    value={ingAmt}
+                    onChange={(e) => setIngAmt(e.target.value)}
+                    required
+                  />
+                </label>
+                <span>
+                  {numericIngs.find((i) => i.name === ingName)?.unit || ""}
+                </span>
+                <button className="btn btn-olive btn-sm" type="submit">
+                  ظبّط الوصفة عليه
+                </button>
+              </form>
+            ) : null}
+            {panBase ? (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  applyFactor(
+                    factorForPan(detail, Number(panCm))?.factor ?? null,
+                    `على قد صينية ${panCm} سم (الأصل ${panBase} سم)`,
+                  );
+                }}
+              >
+                <label>
+                  مقاس صينيتي (سم)
+                  <input
+                    type="number"
+                    min="10"
+                    max="60"
+                    value={panCm}
+                    onChange={(e) => setPanCm(e.target.value)}
+                    placeholder={String(panBase)}
+                  />
+                </label>
+                <button className="btn btn-olive btn-sm" type="submit">
+                  احسب
+                </button>
+              </form>
+            ) : null}
+          </div>
+          {scale !== 1 && (
+            <p className="results-note" role="status">
+              المعامل دلوقتي ×{fmt(scale)}
+              {how ? ` — ${how}` : ""}
+              {scaled.estimatedServings
+                ? ` · الناتج التقديري يكفي ~${scaled.estimatedServings} فرد (من عدد أفراد المصدر × المعامل)`
+                : " · المصدر مش محدد عدد أفراد، فالناتج بالنسبة للمقادير الأصلية بس"}
+              .{" "}
+              <button
+                type="button"
+                className="text-link"
+                onClick={() => {
+                  setScale(1);
+                  setHow("");
+                }}
+              >
+                رجّع الأصل
+              </button>
+            </p>
+          )}
+          {scale !== 1 &&
+            scaled.warnings.map((w) => (
+              <p className="results-note" key={w}>
+                ⚠ {w}
+              </p>
+            ))}
         </div>
         <button className="btn btn-olive" onClick={addShopping}>
           ضيف المقادير اللي لسه ما جهزتهاش للمشتريات
@@ -129,16 +294,12 @@ export default function ReviewedSection({
             </span>
           </div>
         )}
-        {detail.ingredients.map((g) => (
+        {scaled.groups.map((g) => (
           <div className="ing-group" key={g.group}>
             <h4>{g.group}</h4>
             <ul className="check-list">
-              {g.items.map((item) => {
+              {g.items.map(({ item, scaledText: scaled }) => {
                 const key = `${g.group}:${item.name}`;
-                const scaled =
-                  item.amount != null && item.unit
-                    ? `${fmt(item.amount * scale)} ${item.unit} — ${item.name}`
-                    : null;
                 return (
                   <li key={key}>
                     <label>

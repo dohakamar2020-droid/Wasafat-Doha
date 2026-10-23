@@ -22,6 +22,11 @@ export default function CookExperience({ r }: { r: Recipe }) {
       `wasafat-Doha:timers:${r.slug}`,
       [],
     );
+  const [duo, setDuo] = useStored<boolean>(`wasafat-Doha:duo:${r.slug}`, false),
+    [duoDone, setDuoDone] = useStored<number[]>(
+      `wasafat-Doha:duo-done:${r.slug}`,
+      [],
+    );
   const [now, setNow] = useState(() => Date.now()),
     [mins, setMins] = useState(10),
     [label, setLabel] = useState("مؤقت الطبخ"),
@@ -178,7 +183,60 @@ export default function CookExperience({ r }: { r: Recipe }) {
           </div>
           <h2>{step.title}</h2>
           <p className="cook-step-body">{step.body}</p>
-          {step.cue && <p className="cue">علامة النتيجة: {step.cue}</p>}
+          {step.cue && (
+            <div className="texture-box">
+              <b>🎯 القوام الصح في الخطوة دي</b>
+              <p>{step.cue}</p>
+              {stepVideoUrl(r, stepIndex, steps.length) && (
+                <span>
+                  لو مش باين من الكلام، شوفه بعينك في الفيديو من الرابط اللي
+                  تحت (عند{" "}
+                  {stepVideoUrl(r, stepIndex, steps.length)!.minuteLabel}{" "}
+                  تقريبًا).
+                </span>
+              )}
+            </div>
+          )}
+          <div className="duo-bar">
+            <button
+              type="button"
+              className={`btn btn-sm ${duo ? "btn-primary" : "btn-ghost"}`}
+              aria-pressed={duo}
+              onClick={() => setDuo((v) => !v)}
+            >
+              {duo ? "بنطبخها سوا: شغال" : "نطبخها سوا؟ قسّم الشغل على اتنين"}
+            </button>
+            {duo && (
+              <>
+                <span className="tag tag-need">
+                  الخطوة دي شغل: {stepIndex % 2 === 0 ? "الطباخ الأول" : "الطباخ الثاني"}
+                </span>
+                <button
+                  type="button"
+                  className="btn btn-olive btn-sm"
+                  aria-pressed={duoDone.includes(stepIndex)}
+                  onClick={() =>
+                    setDuoDone((old) =>
+                      old.includes(stepIndex)
+                        ? old.filter((x) => x !== stepIndex)
+                        : [...old, stepIndex],
+                    )
+                  }
+                >
+                  {duoDone.includes(stepIndex)
+                    ? "خلصها الطباخ ✓ (دوس للإلغاء)"
+                    : "علّم إن صاحب الخطوة خلصها"}
+                </button>
+                <span className="results-note" style={{ margin: 0 }}>
+                  الأول خلص {duoDone.filter((i) => i % 2 === 0).length} ·
+                  الثاني خلص {duoDone.filter((i) => i % 2 === 1).length} —
+                  التقسيم بيتناوب خطوة وخطوة، وعدّلوه بينكم براحتكم.
+                  المشاركة على نفس الجهاز دلوقتي؛ التزامن اللحظي بين
+                  موبايلين بيحتاج تسجيل الدخول وتفعيل المزامنة السحابية.
+                </span>
+              </>
+            )}
+          </div>
           {stepVideoUrl(r, stepIndex, steps.length) && (
             <a
               className="btn btn-ghost step-video-btn"

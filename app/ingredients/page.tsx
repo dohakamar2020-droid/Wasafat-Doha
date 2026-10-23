@@ -2,17 +2,25 @@
 import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useCatalog } from "@/components/CatalogProvider";
-import { RecipeCard, SectionHead, useLocalList } from "@/components/ui";
+import {
+  RecipeCard,
+  SectionHead,
+  useLocalList,
+  useSaved,
+} from "@/components/ui";
 import {
   ingredientKey,
   matchIngredients,
   parsePantryText,
 } from "@/lib/experience";
+import { unlockSuggestions } from "@/lib/pantry";
 
 function Ingredients() {
   const catalog = useCatalog();
   const sp = useSearchParams();
   const shop = useLocalList("wasafat-Doha:shopping");
+  const saved = useSaved();
+  const [unlockOpen, setUnlockOpen] = useState("");
   const [sel, setSel] = useState<string[]>(
       sp.get("ing")
         ? sp
@@ -86,6 +94,10 @@ function Ingredients() {
     for (const n of names) if (!shop.has(n)) shop.toggle(n);
     setShopped((s) => (s.includes(slug) ? s : [...s, slug]));
   };
+  const unlocks = useMemo(
+    () => (sel.length ? unlockSuggestions(catalog, sel, saved.list, 6) : []),
+    [catalog, sel, saved.list],
+  );
   const full = results.filter((x) => x.complete && !x.missing.length),
     near = results.filter((x) => x.complete && x.missing.length),
     ideas = results.filter((x) => !x.complete);
@@ -205,6 +217,61 @@ function Ingredients() {
           الحساسية. راجع المقادير والمصدر بنفسك.
         </p>
       </div>
+      {sel.length > 0 && unlocks.length > 0 && (
+        <section className="block unlock-box">
+          <SectionHead
+            title="اشتري حاجة واحدة… وافتح وصفات أكتر 🛒"
+            sub="محسوبة من المقادير المكتوبة فعليًا: المكوّن ده لوحده بيكمّل الوصفات دي على اللي عندك"
+          />
+          <div className="unlock-list">
+            {unlocks.map((u) => (
+              <div className="unlock-item" key={u.ingredient}>
+                <p>
+                  <b>زوّد «{u.ingredient}»</b> — هيكمّلك {u.unlocks.length}{" "}
+                  {u.unlocks.length === 1 ? "وصفة" : "وصفات"}
+                  {u.savedUnlocks.length > 0 &&
+                    ` (منها ${u.savedUnlocks.length} من محفوظاتك)`}
+                  {u.nearCount > 0 &&
+                    `، ويقرّبك خطوة في ${u.nearCount} تانية`}
+                </p>
+                <div className="pantry-actions">
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-sm"
+                    aria-expanded={unlockOpen === u.ingredient}
+                    onClick={() =>
+                      setUnlockOpen((k) => (k === u.ingredient ? "" : u.ingredient))
+                    }
+                  >
+                    {unlockOpen === u.ingredient ? "اخفي الوصفات" : "شوف الوصفات"}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-olive btn-sm"
+                    disabled={shop.has(u.ingredient)}
+                    onClick={() => !shop.has(u.ingredient) && shop.toggle(u.ingredient)}
+                  >
+                    {shop.has(u.ingredient)
+                      ? "في مشترياتك ✓"
+                      : `ضيف ${u.ingredient} للمشتريات`}
+                  </button>
+                </div>
+                {unlockOpen === u.ingredient && (
+                  <div className="grid" style={{ marginTop: 12 }}>
+                    {u.unlocks.map((r) => (
+                      <RecipeCard
+                        key={r.slug}
+                        r={r}
+                        reason={`بتكتمل عندك بزيادة ${u.ingredient}`}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
       {sel.length > 0 ? (
         <>
           <section className="block">

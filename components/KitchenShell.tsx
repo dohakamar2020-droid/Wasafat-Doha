@@ -9,6 +9,7 @@ import { useStored } from "./useStored";
 import { useSync } from "./SyncProvider";
 import ResumeCooking from "./ResumeCooking";
 import AttemptPhoto from "./AttemptPhoto";
+import LeftoversPanel from "./LeftoversPanel";
 import AuthStatus from "./AuthStatus";
 import type { Attempt } from "@/lib/kitchen-state";
 export function KitchenTabs() {
@@ -20,6 +21,7 @@ export function KitchenTabs() {
         ["/kitchen/saved", "محفوظاتي"],
         ["/kitchen/shopping", "مشترياتي"],
         ["/kitchen/attempts", "تجاربي"],
+        ["/passport", "جواز المذاق"],
       ].map(([href, t]) => (
         <Link
           key={href}
@@ -267,6 +269,7 @@ export function AttemptsPage() {
       </div>
       <KitchenTabs />
       <SyncBanner />
+      <LeftoversPanel />
       {attempts.map((a) => {
         const r = recipes.find((r) => r.slug === a.slug);
         return (
