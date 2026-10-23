@@ -60,7 +60,8 @@ export function stepVideoUrl(
   stepIndex: number,
   stepCount: number,
 ): { url: string; minuteLabel: string } | null {
-  const s = r.sources[0];
+  // نفضل أول مصدر مدته موثقة (بعض الوصفات مصدرها الأول شورت بلا مدة، والشرح الكامل في مصدر تانٍ موثق)
+  const s = r.sources.find((x) => x.durationSec) ?? r.sources[0];
   if (!s || !s.durationSec || stepCount < 1) return null;
   const sec = Math.floor(((stepIndex + 0.5) / stepCount) * s.durationSec);
   if (sec <= 0) return null;

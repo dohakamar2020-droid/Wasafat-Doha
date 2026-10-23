@@ -55,7 +55,7 @@ export const recipes: Recipe[] = [
     "kind": "short",
     "published": "06/2026",
     "views": 5250000,
-    "sourceNo": 1
+    "sourceNo": 1, "uploadedAt": "2026-06-02", "durationSec": 179
    }
   ],
   "views": 5250000,
@@ -137,7 +137,7 @@ export const recipes: Recipe[] = [
     "kind": "short",
     "published": "09/2026",
     "views": 1560000,
-    "sourceNo": 4
+    "sourceNo": 4, "uploadedAt": "2026-09-15", "durationSec": 179
    }
   ],
   "views": 1560000
@@ -287,7 +287,7 @@ export const recipes: Recipe[] = [
     "kind": "video",
     "published": "08/2025",
     "views": 734000,
-    "sourceNo": 17
+    "sourceNo": 17, "uploadedAt": "2025-08-14", "durationSec": 230
    }
   ],
   "views": 1974000
@@ -408,7 +408,7 @@ export const recipes: Recipe[] = [
     "kind": "short",
     "published": "08/2026",
     "views": 862000,
-    "sourceNo": 13
+    "sourceNo": 13, "uploadedAt": "2026-08-08", "durationSec": 178
    }
   ],
   "views": 862000
@@ -435,7 +435,7 @@ export const recipes: Recipe[] = [
     "kind": "short",
     "published": "08/2026",
     "views": 833000,
-    "sourceNo": 14
+    "sourceNo": 14, "uploadedAt": "2026-08-15", "durationSec": 175
    }
   ],
   "views": 833000
@@ -727,7 +727,7 @@ export const recipes: Recipe[] = [
     "kind": "short",
     "published": "10/2025",
     "views": 1400000,
-    "sourceNo": 26
+    "sourceNo": 26, "uploadedAt": "2025-10-30", "durationSec": 74
    }
   ],
   "views": 1400000
@@ -783,7 +783,7 @@ export const recipes: Recipe[] = [
     "kind": "short",
     "published": "05/2025",
     "views": 1160000,
-    "sourceNo": 28
+    "sourceNo": 28, "uploadedAt": "2025-05-16", "durationSec": 117
    }
   ],
   "views": 1160000
@@ -847,7 +847,7 @@ export const recipes: Recipe[] = [
     "kind": "short",
     "published": "04/2025",
     "views": 986000,
-    "sourceNo": 30
+    "sourceNo": 30, "uploadedAt": "2025-04-14", "durationSec": 151
    }
   ],
   "views": 986000
@@ -872,7 +872,7 @@ export const recipes: Recipe[] = [
     "kind": "short",
     "published": "03/2025",
     "views": 872000,
-    "sourceNo": 31
+    "sourceNo": 31, "uploadedAt": "2025-03-13", "durationSec": 106
    }
   ],
   "views": 872000
@@ -925,7 +925,7 @@ export const recipes: Recipe[] = [
     "kind": "short",
     "published": "04/2025",
     "views": 799000,
-    "sourceNo": 34
+    "sourceNo": 34, "uploadedAt": "2025-04-10", "durationSec": 164
    }
   ],
   "views": 799000
@@ -1271,7 +1271,7 @@ export const recipes: Recipe[] = [
     "kind": "short",
     "published": "02/2026",
     "views": 1270000,
-    "sourceNo": 47
+    "sourceNo": 47, "uploadedAt": "2026-02-19", "durationSec": 145
    }
   ],
   "views": 1270000

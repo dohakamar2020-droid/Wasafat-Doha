@@ -107,7 +107,7 @@ export default function PickPage() {
               <h2>
                 {picks.length
                   ? `لقينا ${picks.length} يناسبوا طلبك`
-                  : "لسه مفيش وصفات موثقة تحقق الشروط دي"}
+                  : "لسه بنجهز الترشيحات…"}
               </h2>
               <button
                 className="btn btn-ghost"

@@ -41,21 +41,38 @@ export function diverse(
   return selected;
 }
 export type PickOptions = { taste: string; time: string; priority: string };
+// «رشحلي 3»: الحلو/المالح فلتر حقيقي، والباقي أولويات لا شروط صلبة.
+// الوقت تحديدًا لا يصلح فلترًا صلبًا: الوقت الكلي موثق لوحدات قليلة بس،
+// فبنرتّب بيه (الموثق الأقصر أولًا) وبنكمل لحد 3 نتائج من «بدائل قريبة»
+// موسومة كده صراحة — من غير ما ندّعي وقت مش موثق لأي وصفة.
 export function recommend(
   catalog: Recipe[],
   o: PickOptions,
   excluded: string[] = [],
 ) {
-  let pool = catalog.filter((r) => !excluded.includes(r.slug));
-  if (o.taste === "sweet") pool = pool.filter(isSweet);
-  if (o.taste === "savory") pool = pool.filter((r) => !isSweet(r));
-  if (o.priority === "nooven") pool = pool.filter(noOven);
-  if (o.time === "15" || o.time === "45")
-    pool = pool.filter(
-      (r) => r.totalMinutes != null && r.totalMinutes <= Number(o.time),
-    );
+  const base = catalog.filter((r) => !excluded.includes(r.slug));
+  const tastePool =
+    o.taste === "sweet"
+      ? base.filter(isSweet)
+      : o.taste === "savory"
+        ? base.filter((r) => !isSweet(r))
+        : base;
+  const limit = o.time === "15" || o.time === "45" ? Number(o.time) : null;
+  const quickSignal = (r: Recipe) =>
+    r.totalMinutes != null
+      ? r.totalMinutes
+      : r.detail?.timing?.cookMinutes != null
+        ? r.detail.timing.cookMinutes
+        : r.detail?.timing?.prepMinutes != null
+          ? r.detail.timing.prepMinutes
+          : null;
   const score = (r: Recipe) => {
     let n = r.detail ? 20 : 0;
+    if (limit != null) {
+      const q = quickSignal(r);
+      if (q != null && q <= limit) n += 60;
+      else if (r.needs.some((x) => /قليل|سريع/.test(x))) n += 25;
+    }
     if (o.priority === "few" && r.detail)
       n += Math.max(
         0,
@@ -68,27 +85,55 @@ export function recommend(
     if (o.priority === "filling" && r.category === "أطباق رئيسية") n += 35;
     if (o.priority === "wow" && r.needs.includes("مناسبة للعزومات")) n += 35;
     if (o.priority === "different" && r.editorsPick) n += 35;
+    if (o.priority === "nooven" && noOven(r)) n += 35;
     return n;
   };
-  pool.sort((a, b) => score(b) - score(a) || b.views - a.views);
-  return diverse(pool, 3).map((r) => ({
-    r,
-    reason: [
-      o.priority === "nooven"
-        ? "مصنّفة بدون فرن"
-        : r.detail
-          ? "بمقادير وخطوات مكتوبة"
-          : "فيديو منتقى — المقادير في المصدر",
-      r.totalMinutes
-        ? `${r.totalMinutes} دقيقة موثقة`
-        : "وقت الطبخ لم يُوثّق بعد",
-      o.priority === "filling" && r.category === "أطباق رئيسية"
-        ? "طبق رئيسي"
-        : "",
-    ]
-      .filter(Boolean)
-      .join(" · "),
-  }));
+  const ranked = (list: Recipe[]) =>
+    [...list].sort((a, b) => score(b) - score(a) || b.views - a.views);
+  // مستويات الاسترخاء: اختياراتك بالضبط، ثم من غير أولوية «بدون فرن»، ثم الكل
+  const levels: { pool: Recipe[]; relaxed: boolean }[] = [
+    {
+      pool: o.priority === "nooven" ? tastePool.filter(noOven) : tastePool,
+      relaxed: false,
+    },
+    { pool: tastePool, relaxed: o.priority === "nooven" },
+    { pool: base, relaxed: true },
+  ];
+  const chosen: { r: Recipe; relaxed: boolean }[] = [];
+  for (const lvl of levels) {
+    if (chosen.length >= 3) break;
+    const fresh = ranked(lvl.pool).filter(
+      (r) => !chosen.some((c) => c.r.slug === r.slug),
+    );
+    for (const r of diverse(fresh, 3 - chosen.length))
+      chosen.push({ r, relaxed: lvl.relaxed });
+  }
+  return chosen.slice(0, 3).map(({ r, relaxed }) => {
+    const q = quickSignal(r);
+    const timeNote =
+      r.totalMinutes != null
+        ? `وقت كلي موثق ${r.totalMinutes} دقيقة`
+        : q != null
+          ? `وقت موثق في الشرح ${q} دقيقة (جزئي)`
+          : "وقت الطبخ مش موثق رقميًا";
+    return {
+      r,
+      reason: [
+        relaxed ? "بديل قريب من اختياراتك" : "",
+        o.priority === "nooven" && noOven(r)
+          ? "مصنّفة بدون فرن"
+          : r.detail
+            ? "بمقادير وخطوات مكتوبة"
+            : "ترشيح فيديو — المقادير في المصدر",
+        limit != null ? timeNote : r.detail ? "" : timeNote,
+        o.priority === "filling" && r.category === "أطباق رئيسية"
+          ? "طبق رئيسي"
+          : "",
+      ]
+        .filter(Boolean)
+        .join(" · "),
+    };
+  });
 }
 const ALIASES: [RegExp, string][] = [
   [/حليب.*بودره/, "حليب بودرة"],
