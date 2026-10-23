@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><meta name="robots" content="noindex" /><title>
+    مطبخي بدون إنترنت — وصفات قمر</title
+  ><style>
+    body {
+      font: 17px/1.8 system-ui;
+      background: #f8f5ee;
+      color: #34483d;
+      margin: 0;
+      padding: 24px;
+      max-width: 720px;
+      margin-inline: auto;
+    }
+    section {
+      background: #fffdf8;
+      padding: 20px;
+      border-radius: 20px;
+      margin: 20px 0;
+    }
+    a {
+      color: #a94f2e;
+    }
+    li {
+      margin-block: 10px;
+      overflow-wrap: anywhere;
+    }
+  </style>
+  <h1>مطبخي بدون إنترنت</h1>
+  <p>
+    دي بيانات الضيف الموجودة على الجهاز. بيانات الحساب محتاجة اتصال للتحقق من
+    الجلسة؛ محفوظاتك على السيرفر ما اتغيرتش.
+  </p>
+  <section>
+    <h2>المحفوظات</h2>
+    <ul id="saved"></ul>
+  </section>
+  <section>
+    <h2>المشتريات</h2>
+    <ul id="shopping"></ul>
+  </section>
+  <a href="/">ارجع للرئيسية</a>
+  <script>
+    for (const key of ["saved", "shopping"]) {
+      let items = [];
+      try {
+        items = JSON.parse(localStorage.getItem("wq:v2:guest:" + key) || "[]");
+      } catch {}
+      const list = document.getElementById(key);
+      for (const item of items) {
+        const li = document.createElement("li");
+        if (key === "saved") {
+          const a = document.createElement("a");
+          a.href = "/recipes/" + encodeURIComponent(item);
+          a.textContent = item;
+          li.append(a);
+        } else li.textContent = item;
+        list.append(li);
+      }
+      if (!items.length) {
+        const li = document.createElement("li");
+        li.textContent = "مفيش عناصر محفوظة للضيف.";
+        list.append(li);
+      }
+    }
+  </script>
+</html>

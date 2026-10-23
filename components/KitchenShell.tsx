@@ -1,77 +1,351 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { recipes } from "@/lib/data";
-import { RecipeCard, useSaved, usePlanned, useDone, useLocalList } from "@/components/ui";
-
+import { useState } from "react";
+import { useCatalog } from "./CatalogProvider";
+import { RecipeCard, useSaved, usePlanned, useDone, useLocalList } from "./ui";
+import { useStored } from "./useStored";
+import { useSync } from "./SyncProvider";
+import ResumeCooking from "./ResumeCooking";
+import AttemptPhoto from "./AttemptPhoto";
+import AuthStatus from "./AuthStatus";
+import type { Attempt } from "@/lib/kitchen-state";
 export function KitchenTabs() {
   const path = usePathname();
-  const tabs = [["/kitchen", "دفتري"], ["/kitchen/saved", "محفوظاتي"], ["/kitchen/shopping", "مشترياتي"], ["/kitchen/attempts", "تجاربي"]];
-  return <div className="tabs" role="navigation" aria-label="أقسام مطبخي">{tabs.map(([href, label]) => <Link key={href} href={href} className={path === href ? "on" : ""}>{label}</Link>)}</div>;
+  return (
+    <nav className="tabs" aria-label="أقسام مطبخي">
+      {[
+        ["/kitchen", "دفتري"],
+        ["/kitchen/saved", "محفوظاتي"],
+        ["/kitchen/shopping", "مشترياتي"],
+        ["/kitchen/attempts", "تجاربي"],
+      ].map(([href, t]) => (
+        <Link
+          key={href}
+          href={href}
+          className={path === href ? "on" : ""}
+          aria-current={path === href ? "page" : undefined}
+        >
+          {t}
+        </Link>
+      ))}
+    </nav>
+  );
 }
 export function SyncBanner() {
-  const [user, setUser] = useState<{ name: string } | null>(() => { try { return JSON.parse(localStorage.getItem("wasafat-Doha:user") || "null"); } catch { return null; } });
-  useEffect(() => { fetch("/api/auth/me").then((r) => r.json()).then((d) => setUser(d.user || null)).catch(() => {}); }, []);
-  return user
-    ? <p className="ok-box">🔄 أهلًا {user.name} — مطبخك ده <b>متزامن مع حسابك</b>: أي حفظ أو ملحوظة هنا هتلاقيها على أي جهاز تدخل منه.</p>
-    : <p className="notice">أنت في وضع الضيف: الحفظ على الجهاز ده بس. <a className="text-link" href="/login">سجل دخول</a> عشان تزامن محفوظاتك وملاحظاتك ومشترياتك بين أجهزتك — اللي حفظته هنا هيندمج في حسابك من غير تكرار.</p>;
+  const { user, available, status, importGuest, retry, resolve } = useSync();
+  const [imported, setImported] = useState(false);
+  return (
+    <aside className="surface sync-state" aria-live="polite">
+      {!user ? (
+        <p>
+          وضع الضيف: بياناتك محفوظة على الجهاز ده.{" "}
+          {available ? (
+            <Link className="text-link" href="/login">
+              ادخل لمزامنة مطبخك
+            </Link>
+          ) : (
+            "المزامنة السحابية غير متاحة مؤقتًا."
+          )}
+        </p>
+      ) : (
+        <>
+          <p>
+            أهلًا {user.name} ·{" "}
+            {status === "saved"
+              ? "آخر تغييراتك متزامنة"
+              : status === "saving"
+                ? "جاري الحفظ…"
+                : status === "conflict"
+                  ? "في تعديل من جهاز تاني"
+                  : status === "loading"
+                    ? "جاري تحميل حسابك…"
+                    : "الحفظ السحابي تعذّر؛ تغييراتك على الجهاز"}
+          </p>
+          {status === "conflict" ? (
+            <>
+              <button
+                className="btn btn-ghost"
+                onClick={() => void resolve("cloud")}
+              >
+                استخدم نسخة الحساب
+              </button>
+              <button
+                className="btn btn-olive"
+                onClick={() => void resolve("device")}
+              >
+                احتفظ بتغييرات الجهاز
+              </button>
+            </>
+          ) : (
+            status === "offline" && (
+              <button className="btn btn-ghost" onClick={retry}>
+                جرّب المزامنة تاني
+              </button>
+            )
+          )}
+          <AuthStatus />
+          <details>
+            <summary>نقل محفوظات الضيف للحساب</summary>
+            <p>
+              بيانات الحساب والضيف منفصلين. انقل بيانات الضيف فقط لو الجهاز شخصي
+              والبيانات دي تخصك.
+            </p>
+            <button
+              className="btn btn-ghost"
+              disabled={imported || status !== "saved"}
+              onClick={() => {
+                importGuest();
+                setImported(true);
+              }}
+            >
+              {imported ? "تم طلب الدمج" : "ادمج بيانات الضيف في حسابي"}
+            </button>
+          </details>
+          {user.isAdmin && (
+            <Link className="text-link" href="/admin">
+              إدارة المحتوى
+            </Link>
+          )}
+        </>
+      )}
+    </aside>
+  );
 }
 export function KitchenHome() {
-  const saved = useSaved(); const planned = usePlanned(); const done = useDone();
-  const shop = useLocalList("wasafat-Doha:shopping");
-  const cards = [
-    ["/kitchen/saved", saved.list.length, "وصفة محفوظة — عايز أجربها"],
-    ["/kitchen/saved", planned.list.length, "وصفة ناوي تعملها قريب"],
-    ["/kitchen/attempts", done.list.length, "وصفة عملتها وسجلتها"],
-    ["/kitchen/shopping", shop.list.length, "حاجة ناقصاك في المشتريات"],
-  ] as const;
-  const recent = saved.list.map((s) => recipes.find((r) => r.slug === s)).filter(Boolean).slice(0, 4) as typeof recipes;
+  const recipes = useCatalog(),
+    saved = useSaved(),
+    planned = usePlanned(),
+    done = useDone(),
+    shop = useLocalList("wasafat-Doha:shopping");
+  const recent = saved.list
+    .slice()
+    .reverse()
+    .map((s) => recipes.find((r) => r.slug === s))
+    .filter((r): r is NonNullable<typeof r> => !!r)
+    .slice(0, 4);
   return (
-    <div className="wrap"><div className="page-head"><h1>مطبخي 🍳</h1><p>دفترك الخفيف في وصفات قمر: اللي عايز تجربه، واللي هتعمله قريب، واللي عملته، وناقصك إيه. كل ده بيتحفظ على جهازك من غير حساب — الحساب هيضيف المزامنة بين أجهزتك لاحقًا.</p></div>
+    <div className="wrap">
+      <div className="page-head">
+        <h1>مطبخي</h1>
+        <p>اختياراتك وخطتك وتجاربك، في دفتر واحد.</p>
+      </div>
       <KitchenTabs />
       <SyncBanner />
-      <div className="kitchen-cards">{cards.map(([href, n, label], i) => <Link key={i} href={href}><b>{n}</b><span>{label}</span></Link>)}</div>
-      {recent.length > 0 && <><div className="section-head"><div><h2>آخر اللي حفظته</h2></div><Link className="text-link" href="/kitchen/saved">كل محفوظاتي ←</Link></div><div className="grid">{recent.map((r) => <RecipeCard key={r.slug} r={r} />)}</div></>}
-      {!recent.length && <div className="empty"><h3>دفترك فاضي لسه 🌙</h3><p>دوس «عايز أجربها» على أي وصفة وهتظهر هنا على طول.</p><Link className="btn btn-primary" href="/discover">اكتشف الوصفات</Link></div>}
+      <ResumeCooking />
+      <div className="kitchen-cards">
+        {[
+          ["/kitchen/saved", saved.list.length, "وصفة محفوظة"],
+          ["/kitchen/saved", planned.list.length, "في خطة قريب"],
+          ["/kitchen/attempts", done.list.length, "وصفة جرّبتها"],
+          ["/kitchen/shopping", shop.list.length, "بند مشتريات"],
+        ].map(([href, n, t]) => (
+          <Link key={t} href={String(href)}>
+            <b>{n}</b>
+            <span>{t}</span>
+          </Link>
+        ))}
+      </div>
+      {recent.length ? (
+        <>
+          <h2>آخر اختياراتك</h2>
+          <div className="grid">
+            {recent.map((r) => (
+              <RecipeCard key={r.slug} r={r} />
+            ))}
+          </div>
+        </>
+      ) : (
+        <div className="empty">
+          <h2>أول طبخة تبدأ باختيار</h2>
+          <p>احفظ وصفة أو خلّي «رشحلي 3» يساعدك.</p>
+          <Link className="btn btn-primary" href="/pick">
+            رشحلي 3
+          </Link>
+        </div>
+      )}
     </div>
   );
 }
 export function SavedPage() {
-  const saved = useSaved(); const planned = usePlanned();
-  const savedList = saved.list.map((s) => recipes.find((r) => r.slug === s)).filter(Boolean) as typeof recipes;
-  const plannedList = planned.list.map((s) => recipes.find((r) => r.slug === s)).filter(Boolean) as typeof recipes;
+  const recipes = useCatalog(),
+    saved = useSaved(),
+    planned = usePlanned();
   return (
-    <div className="wrap"><div className="page-head"><h1>محفوظاتي ♥</h1><p>اللقطات اللي مستنياك — محفوظة على جهازك وتفضل موجودة بعد تحديث الصفحة.</p></div><KitchenTabs />
-      <div className="section-head"><div><h2>عايز أجرب ({savedList.length})</h2></div></div>
-      {savedList.length ? <div className="grid">{savedList.map((r) => <RecipeCard key={r.slug} r={r} />)}</div> : <div className="empty"><h3>مفيش محفوظات لسه</h3><p>من أي كارت دوس «♡ عايز أجربها».</p><Link className="btn btn-primary" href="/pick">رشحلي 3 يختارولي</Link></div>}
-      <div className="section-head" style={{ marginTop: 34 }}><div><h2>هعملها قريب 📌 ({plannedList.length})</h2></div></div>
-      {plannedList.length ? <div className="grid">{plannedList.map((r) => <RecipeCard key={r.slug} r={r} />)}</div> : <p className="results-note">حدد من صفحة أي وصفة «هعملها قريب» وهتتجمع هنا.</p>}
+    <div className="wrap">
+      <div className="page-head">
+        <h1>محفوظاتي</h1>
+        <p>اللي نفسك تجربه واللي ناوي تعمله قريب.</p>
+      </div>
+      <KitchenTabs />
+      <SyncBanner />
+      {[
+        [saved.list, "عايز أجرب"],
+        [planned.list, "هعملها قريب"],
+      ].map(([ids, title]) => (
+        <section className="block" key={String(title)}>
+          <h2>{title}</h2>
+          <div className="grid">
+            {(ids as string[]).map((slug) => {
+              const r = recipes.find((r) => r.slug === slug);
+              return r ? <RecipeCard key={slug} r={r} /> : null;
+            })}
+          </div>
+          {!(ids as string[]).length && (
+            <p>
+              لسه مفيش وصفات في القسم ده.{" "}
+              <Link className="text-link" href="/discover">
+                اكتشف وصفة
+              </Link>
+            </p>
+          )}
+        </section>
+      ))}
     </div>
   );
 }
 export function AttemptsPage() {
-  const done = useDone();
-  const list = done.list.map((s) => recipes.find((r) => r.slug === s)).filter(Boolean) as typeof recipes;
+  const recipes = useCatalog();
+  const [attempts, setAttempts] = useStored<Attempt[]>(
+      "wasafat-Doha:attempts",
+      [],
+    ),
+    [done] = useStored<string[]>("wasafat-Doha:done", []);
+  const legacy = done.filter((slug) => !attempts.some((a) => a.slug === slug));
   return (
-    <div className="wrap"><div className="page-head"><h1>تجاربي 🍽️</h1><p>سجل الوصفات اللي عملتها فعلًا من وصفات قمر — ملاحظات تعديلاتك محفوظة داخل صفحة كل وصفة.</p></div><KitchenTabs />
-      {list.length ? <div className="grid">{list.map((r) => <RecipeCard key={r.slug} r={r} reason="عملتها — افتحها وشوف ملاحظاتك أو عدّلها" />)}</div> : <div className="empty"><h3>لسه معملتش حاجة؟ أول طبخة قريبة 🌙</h3><p>افتح وصفة وادخل «وضع الطبخ»، وبعد ما تخلص سجّلها من هناك.</p><Link className="btn btn-primary" href="/discover">اختار أول وصفة</Link></div>}
+    <div className="wrap">
+      <div className="page-head">
+        <h1>دفتر تجربتي</h1>
+        <p>
+          كل مرة بتاريخها وصورتها وتعديلاتها. سجّل تجربة جديدة من صفحة الوصفة أو
+          وضع الطبخ.
+        </p>
+      </div>
+      <KitchenTabs />
+      <SyncBanner />
+      {attempts.map((a) => {
+        const r = recipes.find((r) => r.slug === a.slug);
+        return (
+          <article className="attempt-item" key={a.id}>
+            <Link className="text-link" href={`/recipes/${a.slug}`}>
+              <h2>{r?.title || a.slug}</h2>
+            </Link>
+            <p>
+              {new Date(a.at).toLocaleString("ar-EG")}
+              {a.rating ? ` · تقييمك ${a.rating}/5` : ""}
+            </p>
+            {a.photo && <AttemptPhoto path={a.photo} />}
+            <label htmlFor={`note-${a.id}`}>ملاحظتي في التجربة دي</label>
+            <textarea
+              className="notes"
+              id={`note-${a.id}`}
+              value={a.note}
+              maxLength={4000}
+              onChange={(e) =>
+                setAttempts((old) =>
+                  old.map((x) =>
+                    x.id === a.id ? { ...x, note: e.target.value } : x,
+                  ),
+                )
+              }
+            />
+            <p className="results-note">
+              {attempts.filter((x) => x.slug === a.slug).length} تجربة للوصفة دي
+            </p>
+          </article>
+        );
+      })}
+      {legacy.map((slug) => (
+        <div className="surface" key={slug}>
+          <Link href={`/recipes/${slug}`}>
+            {recipes.find((r) => r.slug === slug)?.title || slug}
+          </Link>
+          <p>متسجلة من النسخة السابقة — بدون تاريخ موثّق.</p>
+        </div>
+      ))}
+      {!attempts.length && !legacy.length && (
+        <div className="empty">
+          <h2>دفترك مستني أول تجربة</h2>
+          <Link className="btn btn-primary" href="/discover?status=reviewed">
+            ابدأ بوصفة مكتملة
+          </Link>
+        </div>
+      )}
     </div>
   );
 }
 export function ShoppingPage() {
-  const shop = useLocalList("wasafat-Doha:shopping");
-  const checked = useLocalList("wasafat-Doha:shopping-checked");
-  const add = (v: string) => { if (v.trim() && !shop.list.includes(v.trim())) shop.toggle(v.trim()); };
-  return <ShoppingInner items={shop.list} toggleItem={shop.toggle} checked={checked.list} toggleChecked={checked.toggle} add={add} />;
-}
-function ShoppingInner({ items, toggleItem, checked, toggleChecked, add }: { items: string[]; toggleItem: (s: string) => void; checked: string[]; toggleChecked: (s: string) => void; add: (v: string) => void }) {
+  const shop = useLocalList("wasafat-Doha:shopping"),
+    checked = useLocalList("wasafat-Doha:shopping-checked");
   const [v, setV] = useState("");
+  const add = () => {
+    const s = v.trim();
+    if (s && !shop.has(s)) shop.toggle(s);
+    setV("");
+  };
   return (
-    <div className="wrap"><div className="page-head"><h1>مشترياتي 🛒</h1><p>المكونات الناقصة اللي ضفتها من صفحات الوصفات — متجمعة هنا وتفضل متاحة حتى من غير إنترنت على جهازك.</p></div><KitchenTabs />
-      <div className="shop-add" style={{ maxWidth: 560 }}><input type="text" value={v} onChange={(e) => setV(e.target.value)} placeholder="ضيف حاجة ناقصاك…" aria-label="إضافة للمشتريات" onKeyDown={(e) => { if (e.key === "Enter") { add(v); setV(""); } }} /><button className="btn btn-primary" onClick={() => { add(v); setV(""); }}>+ إضافة</button></div>
-      {items.length ? <ul className="check-list" style={{ maxWidth: 640, marginTop: 20 }}>{items.map((i) => <li key={i}><label><input type="checkbox" checked={checked.includes(i)} onChange={() => toggleChecked(i)} /><span style={checked.includes(i) ? { textDecoration: "line-through", opacity: .6 } : undefined}>{i}</span><button type="button" className="btn btn-ghost btn-sm" style={{ marginInlineStart: "auto" }} onClick={() => toggleItem(i)}>حذف</button></label></li>)}</ul>
-      : <div className="empty" style={{ marginTop: 20 }}><h3>قائمة المشتريات فاضية</h3><p>من صفحة أي وصفة اكتب «ناقصك إيه؟» وهيتضاف هنا.</p></div>}
+    <div className="wrap">
+      <div className="page-head">
+        <h1>مشترياتي</h1>
+        <p>مقادير الوصفات والسفرات، مع اللي ضفته بنفسك.</p>
+      </div>
+      <KitchenTabs />
+      <SyncBanner />
+      <form
+        className="shop-add"
+        onSubmit={(e) => {
+          e.preventDefault();
+          add();
+        }}
+      >
+        <input
+          aria-label="إضافة للمشتريات"
+          value={v}
+          maxLength={500}
+          onChange={(e) => setV(e.target.value)}
+          placeholder="ضيف حاجة ناقصاك…"
+        />
+        <button className="btn btn-primary">إضافة</button>
+      </form>
+      <ul className="shopping-list">
+        {shop.list.map((i) => (
+          <li className="shopping-row" key={i}>
+            <label>
+              <input
+                type="checkbox"
+                checked={checked.has(i)}
+                onChange={() => checked.toggle(i)}
+              />
+              <span
+                style={
+                  checked.has(i)
+                    ? { textDecoration: "line-through" }
+                    : undefined
+                }
+              >
+                {i}
+              </span>
+            </label>
+            <button
+              className="btn btn-ghost btn-sm"
+              aria-label={`حذف ${i}`}
+              onClick={() => {
+                shop.toggle(i);
+                if (checked.has(i)) checked.toggle(i);
+              }}
+            >
+              حذف
+            </button>
+          </li>
+        ))}
+      </ul>
+      {!shop.list.length && (
+        <div className="empty">
+          <p>
+            ضيف المقادير من أي وصفة مكتملة أو سفرة، وعلّم على اللي موجود عندك.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
-import { useState, useEffect } from "react";

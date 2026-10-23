@@ -1,78 +1,252 @@
 "use client";
-import { useEffect, useRef } from "react";
-
-export type SafeUser = { id: string; name: string; email: string; isAdmin: boolean };
-
-const read = (k: string, fb: string[]): string[] => { try { const v = localStorage.getItem(k); return v ? (JSON.parse(v) as string[]) : fb; } catch { return fb; } };
-const write = (k: string, v: unknown) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
-
-export function localState() {
-  return {
-    saved: read("wasafat-Doha:saved", []),
-    planned: read("wasafat-Doha:planned", []),
-    done: read("wasafat-Doha:done", []),
-    shopping: read("wasafat-Doha:shopping", []),
-    shoppingChecked: read("wasafat-Doha:shopping-checked", []),
-    notes: collectNotes(),
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+import type { SafeUser } from "@/lib/auth";
+import { applyKitchen, localKitchen } from "@/lib/local-kitchen";
+import { mergeGuest, syncDecision } from "@/lib/kitchen-state";
+import {
+  getScope,
+  setScope,
+  storageGet,
+  storageSet,
+  migrateGuest,
+} from "@/lib/storage";
+export type { SafeUser };
+type Status = "guest" | "loading" | "saved" | "saving" | "offline" | "conflict";
+type Sync = {
+  user: SafeUser | null;
+  available: boolean;
+  status: Status;
+  importGuest: () => void;
+  retry: () => void;
+  resolve: (source: "cloud" | "device") => Promise<void>;
+  flush: () => Promise<boolean>;
+};
+const Context = createContext<Sync>({
+  user: null,
+  available: false,
+  status: "loading",
+  importGuest: () => {},
+  retry: () => {},
+  resolve: async () => {},
+  flush: async () => true,
+});
+export const useSync = () => useContext(Context);
+export default function SyncProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<SafeUser | null>(null),
+    [available, setAvailable] = useState(false),
+    [status, setStatus] = useState<Status>("loading");
+  const userRef = useRef<SafeUser | null>(null),
+    revision = useRef(0),
+    applying = useRef(false),
+    dirty = useRef(false),
+    blocked = useRef(false),
+    hydrated = useRef(false),
+    inflight = useRef<Promise<boolean> | null>(null),
+    timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const flushRef = useRef<() => Promise<boolean>>(async () => true),
+    loadRef = useRef<() => Promise<void>>(async () => {});
+  const writeMeta = (key: string, value: string) => {
+    applying.current = true;
+    storageSet(`wasafat-Doha:${key}`, value);
+    applying.current = false;
   };
-}
-function collectNotes(): Record<string, string> {
-  const out: Record<string, string> = {};
-  try {
-    for (let i = 0; i < localStorage.length; i++) {
-      const k = localStorage.key(i);
-      if (k?.startsWith("wasafat-Doha:note:")) { const v = localStorage.getItem(k); if (v?.trim()) out[k.slice("wasafat-Doha:note:".length)] = v; }
+  const flush = async (): Promise<boolean> => {
+    if (inflight.current) return inflight.current;
+    if (!userRef.current) return true;
+    if (!hydrated.current)
+      return !dirty.current && storageGet("wasafat-Doha:sync-dirty") !== "1";
+    if (blocked.current) return false;
+    const task = (async () => {
+      while (dirty.current) {
+        dirty.current = false;
+        setStatus("saving");
+        const state = localKitchen();
+        try {
+          const res = await fetch("/api/kitchen", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ state, revision: revision.current }),
+          });
+          if (res.status === 409) {
+            dirty.current = true;
+            blocked.current = true;
+            setStatus("conflict");
+            return false;
+          }
+          if (!res.ok) throw new Error("sync");
+          const data = await res.json();
+          revision.current = data.revision;
+          writeMeta("sync-revision", String(data.revision));
+        } catch {
+          dirty.current = true;
+          setStatus("offline");
+          return false;
+        }
+      }
+      writeMeta("sync-dirty", "0");
+      setStatus("saved");
+      return true;
+    })();
+    inflight.current = task;
+    try {
+      return await task;
+    } finally {
+      inflight.current = null;
     }
-  } catch {}
-  return out;
-}
-const union = (a: string[] = [], b: string[] = []) => [...new Set([...a, ...b])];
-
-/** مزامنة مطبخي: الضيف على الجهاز، وبمجرد تسجيل الدخول بتتدمج حالة الجهاز مع الحساب وتتزامن تلقائيًا. */
-export default function SyncProvider() {
-  const userRef = useRef<SafeUser | null>(null);
-  const applyingRef = useRef(false);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
+  };
+  flushRef.current = flush;
+  loadRef.current = async () => {
+    if (!userRef.current) return;
+    try {
+      const res = await fetch("/api/kitchen", { cache: "no-store" });
+      if (!res.ok) throw new Error("load");
+      const data = await res.json();
+      revision.current = data.revision;
+      hydrated.current = true;
+      const cachedRevision = storageGet("wasafat-Doha:sync-revision");
+      const pending = storageGet("wasafat-Doha:sync-dirty") === "1";
+      const decision = syncDecision(
+        cachedRevision == null ? null : Number(cachedRevision),
+        data.revision,
+        pending,
+      );
+      if (decision === "conflict") {
+        dirty.current = true;
+        blocked.current = true;
+        setStatus("conflict");
+        return;
+      }
+      blocked.current = false;
+      if (decision === "push") {
+        dirty.current = true;
+        await flushRef.current();
+        return;
+      }
+      applying.current = true;
+      applyKitchen(data.state);
+      applying.current = false;
+      writeMeta("sync-revision", String(data.revision));
+      dirty.current = false;
+      setStatus("saved");
+    } catch {
+      setStatus("offline");
+    }
+  };
   useEffect(() => {
     let cancelled = false;
+    migrateGuest();
+    setScope(null);
     (async () => {
       try {
-        const me = await (await fetch("/api/auth/me")).json();
-        if (cancelled || !me.user) return;
+        const res = await fetch("/api/auth/me", { cache: "no-store" });
+        if (!res.ok) throw new Error("me");
+        const me = await res.json();
+        if (cancelled) return;
+        setAvailable(!!me.available);
+        if (!me.user) {
+          setStatus("guest");
+          return;
+        }
         userRef.current = me.user;
-        write("wasafat-Doha:user", me.user);
-        const res = await fetch("/api/kitchen");
-        if (!res.ok) return;
-        const { state } = await res.json();
-        const local = localState();
-        const merged = {
-          saved: union(local.saved, state.saved),
-          planned: union(local.planned, state.planned),
-          done: union(local.done, state.done),
-          shopping: union(local.shopping, state.shopping),
-          shoppingChecked: union(local.shoppingChecked, state.shoppingChecked),
-          notes: { ...local.notes, ...state.notes },
-        };
-        applyingRef.current = true;
-        write("wasafat-Doha:saved", merged.saved); write("wasafat-Doha:planned", merged.planned); write("wasafat-Doha:done", merged.done);
-        write("wasafat-Doha:shopping", merged.shopping); write("wasafat-Doha:shopping-checked", merged.shoppingChecked);
-        Object.entries(merged.notes as Record<string, string>).forEach(([slug, note]) => { try { localStorage.setItem(`wasafat-Doha:note:${slug}`, note); } catch {} });
-        window.dispatchEvent(new Event("wasafat-Doha:change"));
-        applyingRef.current = false;
-        await fetch("/api/kitchen", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(merged) });
-      } catch {}
+        setUser(me.user);
+        // The verified identity selects its own cache even if loading the cloud fails.
+        applying.current = true;
+        setScope(me.user.id);
+        applying.current = false;
+        await loadRef.current();
+      } catch {
+        if (!cancelled) setStatus("guest");
+      }
     })();
-
-    const onChange = () => {
-      if (!userRef.current || applyingRef.current) return;
+    const changed = () => {
+      if (
+        !userRef.current ||
+        applying.current ||
+        getScope() !== `user:${userRef.current.id}`
+      )
+        return;
+      dirty.current = true;
+      applying.current = true;
+      storageSet("wasafat-Doha:sync-dirty", "1");
+      applying.current = false;
+      if (!hydrated.current || blocked.current) return;
+      setStatus("saving");
       if (timer.current) clearTimeout(timer.current);
-      timer.current = setTimeout(() => {
-        fetch("/api/kitchen", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(localState()) }).catch(() => {});
-      }, 700);
+      timer.current = setTimeout(() => void flushRef.current(), 500);
     };
-    window.addEventListener("wasafat-Doha:change", onChange);
-    return () => { cancelled = true; window.removeEventListener("wasafat-Doha:change", onChange); };
+    const online = () => {
+      if (!hydrated.current) void loadRef.current();
+      else void flushRef.current();
+    };
+    window.addEventListener("wasafat-Doha:change", changed);
+    window.addEventListener("online", online);
+    return () => {
+      cancelled = true;
+      if (timer.current) clearTimeout(timer.current);
+      window.removeEventListener("wasafat-Doha:change", changed);
+      window.removeEventListener("online", online);
+    };
   }, []);
-  return null;
+  const resolve = async (source: "cloud" | "device") => {
+    try {
+      const res = await fetch("/api/kitchen", { cache: "no-store" });
+      if (!res.ok) throw new Error("load");
+      const data = await res.json();
+      revision.current = data.revision;
+      hydrated.current = true;
+      blocked.current = false;
+      if (source === "cloud") {
+        applying.current = true;
+        applyKitchen(data.state);
+        applying.current = false;
+        writeMeta("sync-dirty", "0");
+        writeMeta("sync-revision", String(data.revision));
+        dirty.current = false;
+        setStatus("saved");
+      } else {
+        dirty.current = true;
+        await flushRef.current();
+      }
+    } catch {
+      setStatus("offline");
+    }
+  };
+  const importGuest = () => {
+    if (!userRef.current || !hydrated.current || blocked.current) return;
+    const id = userRef.current.id;
+    applying.current = true;
+    setScope(null);
+    const guest = localKitchen();
+    setScope(id);
+    applyKitchen(mergeGuest(guest, localKitchen()));
+    applying.current = false;
+    dirty.current = true;
+    writeMeta("sync-dirty", "1");
+    void flushRef.current();
+  };
+  return (
+    <Context.Provider
+      value={{
+        user,
+        available,
+        status,
+        importGuest,
+        retry: () => {
+          if (!hydrated.current) void loadRef.current();
+          else void flushRef.current();
+        },
+        resolve,
+        flush,
+      }}
+    >
+      {children}
+    </Context.Provider>
+  );
 }

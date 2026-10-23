@@ -1,53 +1,117 @@
 import { NextResponse } from "next/server";
-import { eq, count } from "drizzle-orm";
-import { getDb } from "@/lib/db";
-import { recipes as recipesT, videoSources, creators as creatorsT } from "@/lib/db/schema";
-import { currentUser, isAdminUser } from "@/lib/auth";
-import { creators, recipes } from "@/lib/data";
-
-async function guard() {
-  const user = await currentUser();
-  if (!user) return { error: NextResponse.json({ error: "سجل دخول الأول." }, { status: 401 }) };
-  if (!isAdminUser(user)) return { error: NextResponse.json({ error: "الصفحة دي للأدمن بس (ADMIN_EMAIL)." }, { status: 403 }) };
-  const db = getDb();
-  if (!db) return { error: NextResponse.json({ error: "قاعدة البيانات مش مهيأة." }, { status: 503 }) };
-  return { db };
-}
-
+import { count, desc, eq, sql, and, isNull } from "drizzle-orm";
+import { z } from "zod";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { requireAdmin } from "@/lib/admin";
+import { sameOrigin, jsonBody, error } from "@/lib/http";
+import { recipes, videoSources } from "@/lib/db/schema";
+const input = z.object({
+  ytId: z.string().regex(/^[\w-]{11}$/),
+  title: z.string().trim().min(3).max(200),
+  creatorId: z.enum(["nadia", "heba", "abeer", "omar", "abujulia"]),
+  kind: z.enum(["video", "short"]),
+  published: z.string().regex(/^(0[1-9]|1[0-2])\/20\d{2}$/),
+  slug: z
+    .string()
+    .regex(/^[a-z0-9-]{1,100}$/)
+    .optional(),
+});
 export async function GET() {
-  const g = await guard(); if ("error" in g) return g.error;
-  const db = g.db!;
-  const [rc] = await db.select({ n: count() }).from(recipesT);
-  const [sc] = await db.select({ n: count() }).from(videoSources);
-  const [cc] = await db.select({ n: count() }).from(creatorsT);
-  const rows = await db.select().from(videoSources).orderBy(videoSources.id);
-  return NextResponse.json({ recipes: rc.n, sources: sc.n, creators: cc.n, items: rows.slice(-30).reverse() });
+  const g = await requireAdmin();
+  if (g.response) return g.response;
+  try {
+    const [[rc], [sc], items] = await Promise.all([
+      g.db!.select({ n: count() }).from(recipes),
+      g.db!.select({ n: count() }).from(videoSources),
+      g.db!.select().from(recipes).orderBy(desc(recipes.createdAt)),
+    ]);
+    return NextResponse.json(
+      { recipes: rc.n, sources: sc.n, items },
+      { headers: { "Cache-Control": "no-store" } },
+    );
+  } catch {
+    return error(
+      "تعذّر تحميل المكتبة. تأكد إن ترحيلات قاعدة البيانات اتطبقت.",
+      503,
+    );
+  }
 }
-
-/** إضافة مصدر فيديو: بيكشف التكرار بالـ ytId، ويربطه بوصفة موجودة بنفس الـ slug أو ينشئ وصفة «وارد» جديدة. */
 export async function POST(req: Request) {
-  const g = await guard(); if ("error" in g) return g.error;
-  const db = g.db!;
-  const { ytId, title, creatorId, kind, slug } = await req.json().catch(() => ({}));
-  if (!ytId || !/^[\w-]{6,}$/.test(String(ytId))) return NextResponse.json({ error: "معرف فيديو غير صحيح." }, { status: 400 });
-  const dup = await db.select().from(videoSources).where(eq(videoSources.ytId, String(ytId))).limit(1);
-  if (dup.length) {
-    const r = await db.select().from(recipesT).where(eq(recipesT.slug, dup[0].recipeSlug)).limit(1);
-    return NextResponse.json({ error: `الرابط ده موجود بالفعل — مرتبط بوصفة «${r[0]?.title || dup[0].recipeSlug}». التكرار اتكشف قبل أي إضافة.` }, { status: 409 });
+  if (!sameOrigin(req)) return error("الطلب غير مسموح.", 403);
+  const g = await requireAdmin();
+  if (g.response) return g.response;
+  try {
+    const p = input.safeParse(await jsonBody(req, 8000));
+    if (!p.success) return error("راجع الرابط، الشيف، العنوان وشهر النشر.");
+    const v = p.data;
+    const [dup] = await g
+      .db!.select()
+      .from(videoSources)
+      .where(eq(videoSources.ytId, v.ytId));
+    if (dup) return error(`الفيديو موجود في وصفة ${dup.recipeSlug}.`, 409);
+    const slug =
+      v.slug || `imported-${v.ytId.toLowerCase().replace(/_/g, "-")}`;
+    const [existing] = await g
+      .db!.select()
+      .from(recipes)
+      .where(eq(recipes.slug, slug));
+    if (existing) {
+      if (existing.creatorId !== v.creatorId)
+        return error("الشيف لا يطابق صاحب الوصفة الحالية.");
+      if (!existing.sourceData) {
+        const old = await g
+          .db!.select()
+          .from(videoSources)
+          .where(eq(videoSources.recipeSlug, slug));
+        await g
+          .db!.update(recipes)
+          .set({
+            sourceData: old.map((s) => ({
+              ytId: s.ytId,
+              kind: s.kind as "short" | "video",
+              published: s.published,
+              views: s.views,
+              sourceNo: s.sourceNo || 0,
+              embeddable: s.embeddable,
+            })),
+          })
+          .where(and(eq(recipes.slug, slug), isNull(recipes.sourceData)));
+      }
+    } else {
+      await g
+        .db!.insert(recipes)
+        .values({
+          slug,
+          title: v.title,
+          creatorId: v.creatorId,
+          category: "أطباق رئيسية",
+          why: "مصدر وارد — يحتاج مراجعة السبب التحريري والمقادير قبل النشر.",
+          stage: "draft",
+        })
+        .onConflictDoNothing();
+    }
+    const inserted = await g
+      .db!.insert(videoSources)
+      .values({
+        recipeSlug: slug,
+        ytId: v.ytId,
+        kind: v.kind,
+        published: v.published,
+        views: 0,
+        embeddable: true,
+      })
+      .onConflictDoNothing()
+      .returning({ id: videoSources.id });
+    if (!inserted.length)
+      return error("الفيديو اتضاف بالفعل. حدّث القائمة.", 409);
+    await g
+      .db!.update(recipes)
+      .set({ version: sql`${recipes.version}+1` })
+      .where(eq(recipes.slug, slug));
+    revalidateTag("catalog");
+    revalidatePath("/", "layout");
+    return NextResponse.json({ ok: true, recipeSlug: slug });
+  } catch {
+    return error("تعذّرت الإضافة. راجع البيانات والاتصال.", 503);
   }
-  const creator = creators.find((c) => c.id === creatorId) || creators[0];
-  const recipeSlug = String(slug || `imported-${String(ytId).toLowerCase()}`).replace(/[^\w-]/g, "-");
-  const existingRecipe = await db.select().from(recipesT).where(eq(recipesT.slug, recipeSlug)).limit(1);
-  if (!existingRecipe.length) {
-    const local = recipes.find((r) => r.slug === recipeSlug);
-    await db.insert(recipesT).values({
-      slug: recipeSlug, title: local?.title || String(title || "وصفة واردة — قيد المراجعة"),
-      creatorId: creator.id, category: local?.category || "أطباق رئيسية",
-      mainIngredients: local?.mainIngredients || [], textures: local?.textures || [], needs: local?.needs || [],
-      why: local?.why || "أُضيفت من لوحة الإدارة وحالتها: وارد — قيد المراجعة التحريرية.",
-      editorsPick: false, status: "video", views: 0,
-    });
-  }
-  await db.insert(videoSources).values({ recipeSlug, ytId: String(ytId), kind: kind === "short" ? "short" : "video", published: new Date().toISOString().slice(0, 7).split("-").reverse().join("/"), views: 0 });
-  return NextResponse.json({ ok: true, recipeSlug, stage: "وارد — قيد المراجعة" });
 }

@@ -8,6 +8,13 @@
       "when": 1792693066456,
       "tag": "0000_new_dust",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792715022503,
+      "tag": "0001_cynical_loners",
+      "breakpoints": true
     }
   ]
 }

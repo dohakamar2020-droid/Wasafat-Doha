@@ -1,60 +1,222 @@
 "use client";
 import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { recipes, allIngredients } from "@/lib/data";
-import { RecipeCard } from "@/components/ui";
-
-function IngInner() {
+import { useCatalog } from "@/components/CatalogProvider";
+import { RecipeCard, SectionHead } from "@/components/ui";
+import { ingredientKey, matchIngredients } from "@/lib/experience";
+function Ingredients() {
+  const catalog = useCatalog();
   const sp = useSearchParams();
-  const [sel, setSel] = useState<string[]>(() => { const i = sp.get("ing"); return i ? [i] : []; });
-  const [excluded, setExcluded] = useState("");
-  const toggle = (i: string) => setSel((s) => (s.includes(i) ? s.filter((x) => x !== i) : [...s, i]));
-
-  const { full, near } = useMemo(() => {
-    if (!sel.length) return { full: [], near: [] };
-    const ex = excluded.trim();
-    const usable = recipes.filter((r) => !ex || !`${r.title} ${r.mainIngredients.join(" ")}`.includes(ex));
-    const scored = usable.map((r) => {
-      const have = r.mainIngredients.filter((i) => sel.includes(i));
-      return { r, have: have.length, missing: r.mainIngredients.filter((i) => !sel.includes(i)) };
-    }).filter((x) => x.have > 0);
-    return {
-      full: scored.filter((x) => x.missing.length === 0).sort((a, b) => b.r.views - a.r.views),
-      near: scored.filter((x) => x.missing.length === 1).sort((a, b) => b.r.views - a.r.views),
-    };
-  }, [sel, excluded]);
-
-  const popular = [...recipes].sort((a, b) => b.views - a.views).slice(0, 4);
+  const [sel, setSel] = useState<string[]>(
+      sp.get("ing") ? [sp.get("ing")!] : [],
+    ),
+    [custom, setCustom] = useState(""),
+    [excluded, setExcluded] = useState("");
+  const ingredients = useMemo(
+    () =>
+      [
+        ...new Set(
+          catalog
+            .flatMap((r) =>
+              r.detail
+                ? r.detail.ingredients.flatMap((g) =>
+                    g.items.map((i) => ingredientKey(i.name)),
+                  )
+                : r.mainIngredients,
+            )
+            .concat(["ملح", "زيت", "فلفل أسود"]),
+        ),
+      ].sort((a, b) => a.localeCompare(b, "ar")),
+    [catalog],
+  );
+  const results = useMemo(
+    () =>
+      catalog
+        .map((r) =>
+          matchIngredients(
+            r,
+            sel,
+            excluded
+              .split(/[،,\n]/)
+              .map((x) => x.trim())
+              .filter(Boolean),
+          ),
+        )
+        .filter((x) => !x.forbidden && x.have > 0)
+        .sort((a, b) => a.missing.length - b.missing.length || b.have - a.have),
+    [catalog, sel, excluded],
+  );
+  const toggle = (i: string) =>
+    setSel((s) => (s.includes(i) ? s.filter((x) => x !== i) : [...s, i]));
+  const full = results.filter((x) => x.complete && !x.missing.length),
+    near = results.filter((x) => x.complete && x.missing.length),
+    ideas = results.filter((x) => !x.complete);
   return (
     <div className="wrap">
       <div className="page-head">
-        <h1>عندك إيه في البيت؟ 🧺</h1>
-        <p>اختار المكونات الموجودة عندك فعلًا، ووصفات قمر هتقسم لك النتائج: اللي مكوناتها الأساسية عندك، واللي ناقصك فيها مكوّن واحد بس. المطابقة على المكونات الظاهرة من عناوين الوصفات المراجعة — والتفاصيل الكاملة في الفيديو.</p>
+        <h1>عندك إيه في البيت؟</h1>
+        <p>
+          زوّد المكونات الموجودة فعلًا، بما فيها أساسيات المطبخ. الوصفات
+          المكتملة بتتقارن بالمقادير المكتوبة؛ الفيديوهات بنعرضها كأفكار
+          بالمكوّن الأساسي.
+        </p>
       </div>
-      <div className="chip-row" role="group" aria-label="المكونات الموجودة عندك">
-        {allIngredients.map((i) => <button key={i} className={`ing-chip ${sel.includes(i) ? "on" : ""}`} onClick={() => toggle(i)} aria-pressed={sel.includes(i)}>{sel.includes(i) ? "✓ " : ""}{i}</button>)}
+      <div
+        className="chip-row"
+        role="group"
+        aria-label="المكونات الموجودة عندك"
+      >
+        {[
+          "بطاطس",
+          "دجاج",
+          "مكرونة",
+          "دقيق",
+          "حليب",
+          "بيض",
+          "أرز",
+          "سكر",
+          "زبدة",
+          "زيت",
+          "ملح",
+          "ثوم",
+        ].map((i) => (
+          <button
+            className={`ing-chip ${sel.includes(i) ? "on" : ""}`}
+            aria-pressed={sel.includes(i)}
+            onClick={() => toggle(i)}
+            key={i}
+          >
+            {i}
+          </button>
+        ))}
       </div>
-      <div className="shop-add" style={{ maxWidth: 520, marginTop: 18 }}>
-        <input type="text" value={excluded} onChange={(e) => setExcluded(e.target.value)} placeholder="استبعد وصفات فيها… (مثال: جمبري)" aria-label="استبعاد مكوّن" />
-        {sel.length > 0 && <button className="btn btn-ghost" onClick={() => setSel([])}>امسح الاختيارات</button>}
+      <details className="surface details-menu">
+        <summary>كل المكونات المتاحة ({ingredients.length})</summary>
+        <div className="chip-row">
+          {ingredients.map((i) => (
+            <button
+              type="button"
+              key={i}
+              className={`ing-chip ${sel.includes(i) ? "on" : ""}`}
+              aria-pressed={sel.includes(i)}
+              onClick={() => toggle(i)}
+            >
+              {i}
+            </button>
+          ))}
+        </div>
+      </details>
+      {sel.length > 0 && (
+        <div className="chip-row">
+          {sel.map((i) => (
+            <button
+              className="af-chip"
+              key={i}
+              onClick={() => toggle(i)}
+              aria-label={`إزالة ${i}`}
+            >
+              {i} ×
+            </button>
+          ))}
+        </div>
+      )}
+      <form
+        className="shop-add"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (custom.trim()) {
+            setSel((s) => [...new Set([...s, custom.trim()])]);
+            setCustom("");
+          }
+        }}
+      >
+        <input
+          aria-label="أضف مكون موجود"
+          value={custom}
+          onChange={(e) => setCustom(e.target.value)}
+          placeholder="مكوّن مش في القائمة؟"
+        />
+        <button className="btn btn-olive">ضيف المكوّن</button>
+        <button
+          type="button"
+          className="btn btn-ghost"
+          onClick={() => setSel([])}
+        >
+          امسح الاختيارات
+        </button>
+      </form>
+      <div className="surface">
+        <label htmlFor="exclude">استبعد مكونات — افصل بينها بفاصلة</label>
+        <input
+          className="text-in"
+          id="exclude"
+          value={excluded}
+          onChange={(e) => setExcluded(e.target.value)}
+          placeholder="مثال: جمبري، مشروم"
+        />
+        <p className="results-note">
+          الاستبعاد للبحث في المكونات المسجلة، ومش ضمان لخلو الوصفة من مسببات
+          الحساسية. راجع المقادير والمصدر بنفسك.
+        </p>
       </div>
-
-      {sel.length === 0 ? (
-        <section className="block"><div className="section-head"><div><h2>لسه مخترتش حاجة</h2><p>ابدأ بمكوّن واحد على الأقل — أو بص على الأكثر انتشارًا دلوقتي</p></div></div>
-        <div className="grid">{popular.map((r) => <RecipeCard key={r.slug} r={r} />)}</div></section>
-      ) : (
+      {sel.length > 0 ? (
         <>
-          <section className="block"><div className="section-head"><div><h2>مكوناتها الأساسية عندك ✅ ({full.length})</h2><p>بناءً على المكونات الظاهرة من العنوان والتصنيف</p></div></div>
-            {full.length ? <div className="grid">{full.map(({ r }) => <RecipeCard key={r.slug} r={r} reason={`عندك: ${r.mainIngredients.join("، ")}`} />)}</div> : <div className="empty"><h3>مفيش وصفة مكوناتها كلها عندك بالاختيارات دي</h3><p>زوّد مكوّن أو جرّب اللي تحت — ناقصك فيهم حاجة واحدة بس.</p></div>}
+          <section className="block">
+            <SectionHead
+              title={`المقادير المطلوبة عندك (${full.length})`}
+              sub="مطابقة لقائمة المقادير المكتوبة، مع استثناء الإضافات الاختيارية"
+            />
+            <div className="grid">
+              {full.map(({ r }) => (
+                <RecipeCard
+                  key={r.slug}
+                  r={r}
+                  reason="كل المقادير الإلزامية مسجلة عندك"
+                />
+              ))}
+            </div>
+            {!full.length && <p>لسه مفيش تطابق كامل. شوف الناقص تحت.</p>}
           </section>
-          <section className="block"><div className="section-head"><div><h2>ناقصك مكوّن أساسي واحد 🛒 ({near.length})</h2><p>قريبين جدًا — مكوّن واحد وتكمل</p></div></div>
-            {near.length ? <div className="grid">{near.map(({ r, missing }) => <RecipeCard key={r.slug} r={r} reason={`ناقصك: ${missing.join("، ")}`} />)}</div> : <p className="results-note">لا يوجد — جرّب تزود أو تنقص مكون من اختياراتك.</p>}
+          <section className="block">
+            <SectionHead
+              title="قريبين من اللي عندك"
+              sub="الناقص محسوب من المقادير الفعلية"
+            />
+            <div className="grid">
+              {near.slice(0, 12).map(({ r, missing }) => (
+                <RecipeCard
+                  key={r.slug}
+                  r={r}
+                  reason={`ناقصك ${missing.length}: ${missing.map((i) => i.name).join("، ")}`}
+                />
+              ))}
+            </div>
+          </section>
+          <section className="block">
+            <SectionHead
+              title="أفكار بالمكوّن الأساسي"
+              sub="لسه مقاديرها مش مكتملة عندنا؛ عدد المكونات الناقصة غير معروف"
+            />
+            <div className="grid">
+              {ideas.slice(0, 12).map(({ r }) => (
+                <RecipeCard key={r.slug} r={r} />
+              ))}
+            </div>
           </section>
         </>
+      ) : (
+        <div className="empty">
+          <h2>ابدأ بمكوّن عندك</h2>
+          <p>كل ما تزود مكونات، المطابقة هتبقى أدق.</p>
+        </div>
       )}
     </div>
   );
 }
-export default function IngredientsPage() {
-  return <Suspense fallback={<div className="wrap"><p style={{ padding: 40 }}>بنجهز لك المطبخ…</p></div>}><IngInner /></Suspense>;
+export default function Page() {
+  return (
+    <Suspense fallback={<p>بنجهز المكونات…</p>}>
+      <Ingredients />
+    </Suspense>
+  );
 }

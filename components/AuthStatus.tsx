@@ -1,26 +1,51 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import type { SafeUser } from "./SyncProvider";
-
+import { useSync } from "./SyncProvider";
+import { clearAccountCache } from "@/lib/storage";
 export default function AuthStatus() {
-  const [user, setUser] = useState<SafeUser | null>(() => { try { return JSON.parse(localStorage.getItem("wasafat-Doha:user") || "null"); } catch { return null; } });
-  useEffect(() => {
-    fetch("/api/auth/me").then((r) => r.json()).then((d) => {
-      setUser(d.user || null);
-      try { if (d.user) localStorage.setItem("wasafat-Doha:user", JSON.stringify(d.user)); else localStorage.removeItem("wasafat-Doha:user"); } catch {}
-    }).catch(() => {});
-  }, []);
+  const { user, status, flush } = useSync();
+  const [err, setErr] = useState(""),
+    [busy, setBusy] = useState(false);
   const logout = async () => {
-    await fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
-    try { localStorage.removeItem("wasafat-Doha:user"); } catch {}
-    window.location.href = "/";
+    setBusy(true);
+    setErr("");
+    if (!(await flush())) {
+      setErr("في تغييرات لسه ما اتزامنتش. افتح مطبخي وراجع الحفظ قبل الخروج.");
+      setBusy(false);
+      return;
+    }
+    try {
+      const r = await fetch("/api/auth/logout", { method: "POST" });
+      if (!r.ok) throw new Error("logout");
+      clearAccountCache();
+      window.location.href = "/";
+    } catch {
+      setErr("تعذّر تسجيل الخروج. جرّب تاني.");
+      setBusy(false);
+    }
   };
-  if (!user) return <Link href="/login" className="btn btn-ghost btn-sm">دخول / حساب جديد</Link>;
+  if (!user)
+    return (
+      <Link href="/login" className="btn btn-ghost btn-sm">
+        دخول / حساب جديد
+      </Link>
+    );
   return (
-    <span style={{ display: "inline-flex", gap: 6, alignItems: "center" }}>
-      <Link href="/kitchen" className="btn btn-ghost btn-sm" title="مطبخك متزامن مع حسابك">👋 {user.name.split(" ")[0]}</Link>
-      <button className="btn btn-ghost btn-sm" onClick={logout}>خروج</button>
-    </span>
+    <div className="auth-status">
+      <Link href="/kitchen" className="btn btn-ghost btn-sm">
+        {user.name.split(" ")[0]}
+        {status === "saved" ? " ✓" : ""}
+      </Link>
+      {user.isAdmin && (
+        <Link className="btn btn-ghost btn-sm" href="/admin">
+          الإدارة
+        </Link>
+      )}
+      <button className="btn btn-ghost btn-sm" onClick={logout} disabled={busy}>
+        خروج
+      </button>
+      {err && <span role="alert">{err}</span>}
+    </div>
   );
 }
