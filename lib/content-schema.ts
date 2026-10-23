@@ -51,6 +51,8 @@ export const sourceSchema = z.object({
   views: z.number().int().min(0).max(2147483647),
   sourceNo: z.number().int().nonnegative().default(0),
   embeddable: z.boolean().default(true),
+  uploadedAt: z.string().regex(/^20\d{2}-\d{2}-\d{2}$/).optional(),
+  durationSec: z.number().int().positive().max(86400).optional(),
 });
 export const contentSchema = z.object({
   slug: z
@@ -58,7 +60,7 @@ export const contentSchema = z.object({
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
     .max(100),
   title: z.string().trim().min(3).max(200),
-  creatorId: z.enum(["nadia", "heba", "abeer", "omar", "abujulia"]),
+  creatorId: z.enum(["nadia", "heba", "abeer", "omar", "abujulia", "aya", "fatma", "om-anwar"]),
   category: z.string().min(1).max(100),
   mainIngredients: z.array(z.string().min(1).max(100)).max(60),
   textures: z.array(z.string().max(100)).max(20),

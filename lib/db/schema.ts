@@ -202,3 +202,14 @@ export const rateLimits = pgTable("rate_limits", {
   count: integer("count").notNull(),
   resetsAt: timestamp("resets_at").notNull(),
 });
+
+export const passwordResets = pgTable("password_resets", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id),
+  tokenHash: text("token_hash").notNull().unique(),
+  expiresAt: timestamp("expires_at").notNull(),
+  usedAt: timestamp("used_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});

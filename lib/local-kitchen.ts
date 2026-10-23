@@ -47,6 +47,7 @@ export function addAttempt(
   note: string,
   rating?: number,
   photo?: string,
+  isPublic?: boolean,
 ) {
   const attempts = readJSON<import("./kitchen-state").Attempt[]>(
     "attempts",
@@ -59,6 +60,7 @@ export function addAttempt(
     note,
     ...(rating ? { rating } : {}),
     ...(photo ? { photo } : {}),
+    ...(isPublic ? { public: true } : {}),
   };
   storageSet("wasafat-Doha:attempts", JSON.stringify([a, ...attempts]));
   const done = readJSON<string[]>("done", []);

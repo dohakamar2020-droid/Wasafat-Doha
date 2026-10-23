@@ -1,4 +1,6 @@
 import { getCatalog, getRecipe } from "@/lib/catalog";
+import SosPanel from "@/components/SosPanel";
+import CommunityAttempts from "@/components/CommunityAttempts";
 import { related } from "@/lib/experience";
 import { siteURL } from "@/lib/site";
 import type { Metadata } from "next";
@@ -69,6 +71,9 @@ export default async function RecipePage({
             `https://i.ytimg.com/vi/${r.sources[0].ytId}/hqdefault.jpg`,
           ],
           embedUrl: `https://www.youtube-nocookie.com/embed/${r.sources[0].ytId}`,
+          ...(r.sources[0].uploadedAt
+            ? { uploadDate: r.sources[0].uploadedAt }
+            : {}),
         },
       }
     : {
@@ -80,6 +85,9 @@ export default async function RecipePage({
           `https://i.ytimg.com/vi/${r.sources[0].ytId}/hqdefault.jpg`,
         ],
         embedUrl: `https://www.youtube-nocookie.com/embed/${r.sources[0].ytId}`,
+        ...(r.sources[0].uploadedAt
+          ? { uploadDate: r.sources[0].uploadedAt }
+          : {}),
       };
 
   return (
@@ -92,6 +100,8 @@ export default async function RecipePage({
       />
       <RecipeInteractive r={r} />
       {r.detail && <ReviewedSection detail={r.detail} slug={r.slug} />}
+      <SosPanel />
+      <CommunityAttempts slug={r.slug} />
 
       <section className="surface" aria-labelledby="src-h">
         <h2 id="src-h">المصدر الأصلي 📺</h2>

@@ -123,6 +123,9 @@ export default async function RootLayout({
                   <Link href="/creators/abeer">عبير الصغير</Link>
                   <Link href="/creators/omar">شيف عمر</Link>
                   <Link href="/creators/abujulia">أبو جوليا</Link>
+                  <Link href="/creators/aya">آية حبيب</Link>
+                  <Link href="/creators/fatma">فاطمة أبو حاتي</Link>
+                  <Link href="/creators/om-anwar">أم أنوار</Link>
                 </nav>
                 <nav aria-label="روابط مطبخي">
                   <h3>مطبخي</h3>

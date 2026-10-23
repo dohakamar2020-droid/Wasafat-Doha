@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import MyWeek from "./MyWeek";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useCatalog } from "./CatalogProvider";
@@ -146,6 +147,49 @@ export function KitchenHome() {
           </Link>
         ))}
       </div>
+      <section className="block" aria-labelledby="shelf-h">
+        <h2 id="shelf-h">رفّي الدائم 🧺</h2>
+        <p style={{ color: "var(--muted)" }}>
+          وصفاتك المحفوظة كلها هنا على طول — ابدأ أي واحدة في طبخها أو شيلها
+          من الرف.
+        </p>
+        {saved.list.length ? (
+          <div className="shelf-row">
+            {saved.list
+              .map((s) => recipes.find((r) => r.slug === s))
+              .filter((r): r is NonNullable<typeof r> => !!r)
+              .map((r) => (
+                <div key={r.slug} className="shelf-item">
+                  <Link href={`/recipes/${r.slug}`}>{r.title}</Link>
+                  <span>
+                    <Link
+                      className="text-link"
+                      href={`/recipes/${r.slug}/cook`}
+                    >
+                      ابدأ الطبخ ←
+                    </Link>{" "}
+                    ·{" "}
+                    <button
+                      type="button"
+                      className="shelf-remove"
+                      onClick={() => saved.toggle(r.slug)}
+                    >
+                      شيل من الرف
+                    </button>
+                  </span>
+                </div>
+              ))}
+          </div>
+        ) : (
+          <p>
+            رفّك فاضي لسه.{" "}
+            <Link className="text-link" href="/discover">
+              اكتشف وصفة واحفظها
+            </Link>
+          </p>
+        )}
+      </section>
+      <MyWeek />
       {recent.length ? (
         <>
           <h2>آخر اختياراتك</h2>

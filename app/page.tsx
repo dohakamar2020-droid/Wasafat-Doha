@@ -1,4 +1,5 @@
 import { siteURL } from "@/lib/site";
+import { trendingNow } from "@/lib/trend";
 import Link from "next/link";
 import {
   Search,
@@ -194,6 +195,21 @@ export default async function Home() {
             ))}
           </div>
         </section>
+        {trendingNow(recipes).length > 0 && (
+          <section className="block">
+            <SectionHead
+              title="الترند دلوقتي 🔥"
+              sub="أحدث الوصفات انتشارًا على يوتيوب من شيفاتنا — المشاهدات مشاهدات يوتيوب وقت آخر رصد، وتاريخ النشر ظاهر في صفحة كل وصفة"
+              href="/discover?sort=trend"
+              linkText="كل الترند"
+            />
+            <div className="grid">
+              {trendingNow(recipes).slice(0, 4).map((r) => (
+                <RecipeCard key={r.slug} r={r} reason={r.why} />
+              ))}
+            </div>
+          </section>
+        )}
         <SavedStrip />
         <section className="block">
           <SectionHead

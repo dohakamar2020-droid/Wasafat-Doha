@@ -80,6 +80,10 @@ export default function LoginPage() {
           <Link className="text-link" href="/register">
             اعمل حساب جديد ←
           </Link>
+          {" · "}
+          <Link className="text-link" href="/forgot">
+            نسيت كلمة السر؟
+          </Link>
         </p>
       </form>
     </div>

@@ -1,5 +1,6 @@
 "use client";
 import { newId } from "@/lib/id";
+import { stepVideoUrl } from "@/lib/trend";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { Recipe } from "@/lib/data";
@@ -178,6 +179,17 @@ export default function CookExperience({ r }: { r: Recipe }) {
           <h2>{step.title}</h2>
           <p className="cook-step-body">{step.body}</p>
           {step.cue && <p className="cue">علامة النتيجة: {step.cue}</p>}
+          {stepVideoUrl(r, stepIndex, steps.length) && (
+            <a
+              className="btn btn-ghost step-video-btn"
+              href={stepVideoUrl(r, stepIndex, steps.length)!.url}
+              target="_blank"
+              rel="noreferrer"
+            >
+              ▶ ورّيني الخطوة دي في الفيديو (تقريبًا عند{" "}
+              {stepVideoUrl(r, stepIndex, steps.length)!.minuteLabel})
+            </a>
+          )}
           <details className="details-menu step-ingredients-panel">
             <summary>
               🧺 مقادير الخطوة دي
