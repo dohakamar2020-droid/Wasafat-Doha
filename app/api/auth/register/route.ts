@@ -1,19 +1,49 @@
 import { NextResponse } from "next/server";
-import { eq } from "drizzle-orm";
+import { z } from "zod";
 import { getDb } from "@/lib/db";
 import { users } from "@/lib/db/schema";
-import { hashPassword, createSession } from "@/lib/auth";
-
+import { authConfigured, hashPassword, createSession } from "@/lib/auth";
+import { sameOrigin, jsonBody, error, allowRequest } from "@/lib/http";
+const input = z.object({
+  name: z.string().trim().min(2).max(80),
+  email: z.string().trim().toLowerCase().email().max(200),
+  password: z.string().min(10).max(72),
+});
 export async function POST(req: Request) {
+  if (!sameOrigin(req)) return error("الطلب غير مسموح.", 403);
   const db = getDb();
-  if (!db) return NextResponse.json({ error: "قاعدة البيانات مش مهيأة على السيرفر ده لسه (DATABASE_URL)." }, { status: 503 });
-  const { name, email, password } = await req.json().catch(() => ({}));
-  if (!name?.trim() || !/^\S+@\S+\.\S+$/.test(email || "") || (password || "").length < 6)
-    return NextResponse.json({ error: "اكتب اسم وبريد صحيح وكلمة سر 6 حروف على الأقل." }, { status: 400 });
-  const cleanEmail = String(email).trim().toLowerCase();
-  const exists = await db.select({ id: users.id }).from(users).where(eq(users.email, cleanEmail)).limit(1);
-  if (exists.length) return NextResponse.json({ error: "البريد ده مسجل قبل كده — جرّب تسجيل الدخول." }, { status: 409 });
-  const rows = await db.insert(users).values({ name: String(name).trim(), email: cleanEmail, passwordHash: await hashPassword(password) }).returning({ id: users.id, name: users.name, email: users.email, isAdmin: users.isAdmin });
-  await createSession(rows[0].id);
-  return NextResponse.json({ user: rows[0] });
+  if (!db || !authConfigured())
+    return error("الحسابات غير متاحة مؤقتًا. تقدر تكمل وتحفظ على جهازك.", 503);
+  try {
+    if (!(await allowRequest(req, "register", 5)))
+      return error("محاولات كتير. جرّب بعد ربع ساعة.", 429);
+    const parsed = input.safeParse(await jsonBody(req, 4000));
+    if (!parsed.success)
+      return error("راجع الاسم والبريد، واختار كلمة سر من 10 إلى 72 حرف.");
+    const { name, email, password } = parsed.data;
+    const rows = await db
+      .insert(users)
+      .values({
+        name,
+        email,
+        passwordHash: await hashPassword(password),
+        isAdmin: false,
+      })
+      .onConflictDoNothing({ target: users.email })
+      .returning({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        isAdmin: users.isAdmin,
+      });
+    if (!rows.length)
+      return error("البريد مستخدم بالفعل. جرّب تسجيل الدخول.", 409);
+    await createSession(rows[0].id);
+    return NextResponse.json(
+      { user: rows[0] },
+      { headers: { "Cache-Control": "no-store" } },
+    );
+  } catch {
+    return error("تعذّر إنشاء الحساب دلوقتي. جرّب تاني.", 503);
+  }
 }

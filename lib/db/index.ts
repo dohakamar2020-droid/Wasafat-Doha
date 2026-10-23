@@ -11,7 +11,12 @@ export function getDb(): NeonHttpDatabase<typeof schema> | null {
   tried = true;
   const url = process.env.DATABASE_URL_POOLED || process.env.DATABASE_URL;
   if (!url) return null;
-  try { db = drizzle(neon(url), { schema }); } catch { db = null; }
+  try {
+    db = drizzle(neon(url), { schema });
+  } catch {
+    db = null;
+  }
   return db;
 }
-export const dbConfigured = () => !!(process.env.DATABASE_URL_POOLED || process.env.DATABASE_URL);
+export const dbConfigured = () =>
+  !!(process.env.DATABASE_URL_POOLED || process.env.DATABASE_URL);

@@ -1,13 +1,29 @@
 import type { MetadataRoute } from "next";
-import { recipes, collections, creators } from "@/lib/data";
-const BASE = process.env.NEXT_PUBLIC_SITE_URL || "https://wasafat-Doha.vercel.app";
-export default function sitemap(): MetadataRoute.Sitemap {
-  const now = new Date();
-  const staticPages = ["", "/discover", "/pick", "/ingredients", "/collections", "/creators", "/about", "/privacy", "/contact"].map((p) => ({ url: `${BASE}${p}`, lastModified: now }));
+import { collections, creators } from "@/lib/data";
+import { getCatalog } from "@/lib/catalog";
+import { meals } from "@/lib/meals";
+import { siteURL } from "@/lib/site";
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const base = siteURL();
+  const recipes = await getCatalog();
   return [
-    ...staticPages,
-    ...recipes.map((r) => ({ url: `${BASE}/recipes/${r.slug}`, lastModified: now })),
-    ...collections.map((c) => ({ url: `${BASE}/collections/${c.slug}`, lastModified: now })),
-    ...creators.map((c) => ({ url: `${BASE}/creators/${c.id}`, lastModified: now })),
+    ...[
+      "",
+      "/discover",
+      "/pick",
+      "/ingredients",
+      "/same-ingredient",
+      "/weekly",
+      "/collections",
+      "/creators",
+      "/meals",
+      "/about",
+      "/privacy",
+      "/contact",
+    ].map((p) => ({ url: `${base}${p}` })),
+    ...recipes.map((r) => ({ url: `${base}/recipes/${r.slug}` })),
+    ...collections.map((c) => ({ url: `${base}/collections/${c.slug}` })),
+    ...creators.map((c) => ({ url: `${base}/creators/${c.id}` })),
+    ...meals.map((m) => ({ url: `${base}/meals/${m.slug}` })),
   ];
 }

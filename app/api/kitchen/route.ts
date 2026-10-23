@@ -1,68 +1,105 @@
 import { NextResponse } from "next/server";
-import { eq, desc } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
+import { z } from "zod";
 import { getDb } from "@/lib/db";
-import { savedRecipes, recipeNotes, shoppingItems, cookAttempts } from "@/lib/db/schema";
+import {
+  kitchenDocuments,
+  savedRecipes,
+  recipeNotes,
+  shoppingItems,
+  cookAttempts,
+} from "@/lib/db/schema";
 import { currentUser } from "@/lib/auth";
-
-export type KitchenState = {
-  saved: string[]; planned: string[]; done: string[];
-  shopping: string[]; shoppingChecked: string[];
-  notes: Record<string, string>;
-};
-
-async function loadState(userId: string): Promise<KitchenState> {
+import { emptyKitchen, kitchenSchema } from "@/lib/kitchen-state";
+import { sameOrigin, jsonBody, error } from "@/lib/http";
+async function documentFor(userId: string) {
   const db = getDb()!;
-  const savedRows = await db.select().from(savedRecipes).where(eq(savedRecipes.userId, userId));
-  const noteRows = await db.select().from(recipeNotes).where(eq(recipeNotes.userId, userId));
-  const shopRows = await db.select().from(shoppingItems).where(eq(shoppingItems.userId, userId)).orderBy(shoppingItems.id);
-  const attemptRows = await db.select().from(cookAttempts).where(eq(cookAttempts.userId, userId)).orderBy(desc(cookAttempts.createdAt));
-  return {
-    saved: savedRows.filter((r) => r.kind === "saved").map((r) => r.recipeSlug),
-    planned: savedRows.filter((r) => r.kind === "planned").map((r) => r.recipeSlug),
-    done: [...new Set(attemptRows.map((r) => r.recipeSlug))],
-    shopping: shopRows.map((r) => r.label),
-    shoppingChecked: shopRows.filter((r) => r.checked).map((r) => r.label),
-    notes: Object.fromEntries(noteRows.filter((r) => r.note.trim()).map((r) => [r.recipeSlug, r.note])),
+  let [row] = await db
+    .select()
+    .from(kitchenDocuments)
+    .where(eq(kitchenDocuments.userId, userId));
+  if (row) return row;
+  const [saved, notes, shopping, attempts] = await Promise.all([
+    db.select().from(savedRecipes).where(eq(savedRecipes.userId, userId)),
+    db.select().from(recipeNotes).where(eq(recipeNotes.userId, userId)),
+    db.select().from(shoppingItems).where(eq(shoppingItems.userId, userId)),
+    db.select().from(cookAttempts).where(eq(cookAttempts.userId, userId)),
+  ]);
+  const state = {
+    ...emptyKitchen(),
+    saved: saved.filter((r) => r.kind === "saved").map((r) => r.recipeSlug),
+    planned: saved.filter((r) => r.kind === "planned").map((r) => r.recipeSlug),
+    done: [...new Set(attempts.map((a) => a.recipeSlug))],
+    shopping: shopping.map((r) => r.label),
+    shoppingChecked: shopping.filter((r) => r.checked).map((r) => r.label),
+    notes: Object.fromEntries(notes.map((r) => [r.recipeSlug, r.note])),
+    attempts: attempts.map((a) => ({
+      id: crypto.randomUUID(),
+      slug: a.recipeSlug,
+      note: a.note || "",
+      at: a.createdAt.toISOString(),
+    })),
   };
+  await db
+    .insert(kitchenDocuments)
+    .values({ userId, state, revision: 0 })
+    .onConflictDoNothing();
+  [row] = await db
+    .select()
+    .from(kitchenDocuments)
+    .where(eq(kitchenDocuments.userId, userId));
+  return row;
 }
-
 export async function GET() {
   const user = await currentUser();
-  if (!user) return NextResponse.json({ error: "لازم تسجل دخول الأول." }, { status: 401 });
-  if (!getDb()) return NextResponse.json({ error: "قاعدة البيانات مش مهيأة." }, { status: 503 });
-  return NextResponse.json({ state: await loadState(user.id) });
-}
-
-/** حفظ حالة مطبخي كاملة (الحفظ/الخطط/المشتريات/الملاحظات/التجارب) — بتستبدل حالة الحساب. */
-export async function PUT(req: Request) {
-  const user = await currentUser();
-  if (!user) return NextResponse.json({ error: "لازم تسجل دخول الأول." }, { status: 401 });
-  const db = getDb();
-  if (!db) return NextResponse.json({ error: "قاعدة البيانات مش مهيأة." }, { status: 503 });
-  const body = (await req.json().catch(() => null)) as KitchenState | null;
-  if (!body) return NextResponse.json({ error: "بيانات غير صحيحة." }, { status: 400 });
-
-  await db.delete(savedRecipes).where(eq(savedRecipes.userId, user.id));
-  const savedRows = [
-    ...(body.saved || []).map((recipeSlug) => ({ userId: user.id, recipeSlug, kind: "saved" })),
-    ...(body.planned || []).map((recipeSlug) => ({ userId: user.id, recipeSlug, kind: "planned" })),
-  ];
-  if (savedRows.length) await db.insert(savedRecipes).values(savedRows).onConflictDoNothing();
-
-  await db.delete(recipeNotes).where(eq(recipeNotes.userId, user.id));
-  const noteRows = Object.entries(body.notes || {}).filter(([, v]) => v?.trim()).map(([recipeSlug, note]) => ({ userId: user.id, recipeSlug, note }));
-  if (noteRows.length) await db.insert(recipeNotes).values(noteRows);
-
-  const checkedSet = new Set(body.shoppingChecked || []);
-  await db.delete(shoppingItems).where(eq(shoppingItems.userId, user.id));
-  const shopRows = [...new Set(body.shopping || [])].map((label) => ({ userId: user.id, label, checked: checkedSet.has(label) }));
-  if (shopRows.length) await db.insert(shoppingItems).values(shopRows);
-
-  // التجارب: بنحتفظ بسجل محاولات — الجديد بس هو اللي يضاف (من غير تكرار الموجود في نفس اليوم)
-  const existing = await db.select().from(cookAttempts).where(eq(cookAttempts.userId, user.id));
-  const existingSlugs = new Set(existing.map((r) => r.recipeSlug));
-  for (const slug of body.done || []) {
-    if (!existingSlugs.has(slug)) await db.insert(cookAttempts).values({ userId: user.id, recipeSlug: slug, note: body.notes?.[slug] || null });
+  if (!user) return error("سجّل دخول الأول.", 401);
+  try {
+    const d = await documentFor(user.id);
+    return NextResponse.json(
+      { state: d.state, revision: d.revision },
+      { headers: { "Cache-Control": "no-store" } },
+    );
+  } catch {
+    return error("تعذّر تحميل مطبخك. بيانات الجهاز لسه محفوظة.", 503);
   }
-  return NextResponse.json({ state: await loadState(user.id) });
+}
+export async function PUT(req: Request) {
+  if (!sameOrigin(req)) return error("الطلب غير مسموح.", 403);
+  const user = await currentUser();
+  if (!user) return error("سجّل دخول الأول.", 401);
+  try {
+    const p = z
+      .object({
+        state: kitchenSchema,
+        revision: z.number().int().nonnegative(),
+      })
+      .safeParse(await jsonBody(req, 1000000));
+    if (!p.success) return error("بيانات غير صحيحة.");
+    await documentFor(user.id);
+    const rows = await getDb()!
+      .update(kitchenDocuments)
+      .set({
+        state: p.data.state,
+        revision: p.data.revision + 1,
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(kitchenDocuments.userId, user.id),
+          eq(kitchenDocuments.revision, p.data.revision),
+        ),
+      )
+      .returning({ revision: kitchenDocuments.revision });
+    if (!rows.length)
+      return error(
+        "مطبخك اتعدل من جهاز تاني. اختار النسخة اللي تحب تحتفظ بيها.",
+        409,
+      );
+    return NextResponse.json(
+      { revision: rows[0].revision },
+      { headers: { "Cache-Control": "no-store" } },
+    );
+  } catch {
+    return error("الحفظ السحابي تعذّر. تغييراتك محفوظة على الجهاز.", 503);
+  }
 }

@@ -5,7 +5,7 @@
 // "ترشيح فيديو" ولا نعرض أوقات طبخ أو مقادير مُخترعة — الأرقام هنا هي مشاهدات يوتيوب وقت المراجعة.
 
 export type Creator = { id: string; name: string; tagline: string; style: string; channelHint: string };
-export type VideoSource = { ytId: string; kind: "video" | "short"; published: string; views: number; sourceNo: number };
+export type VideoSource = { ytId: string; kind: "video" | "short"; published: string; views: number; sourceNo: number; embeddable?: boolean };
 import { REVIEWED, type ReviewedDetail } from "./reviewed";
 export type { ReviewedDetail };
 export type Recipe = {
@@ -14,6 +14,7 @@ export type Recipe = {
   why: string; sources: VideoSource[]; views: number; editorsPick?: boolean;
   status?: "reviewed" | "video"; // reviewed = وصفة مكتملة بعد مراجعة المقادير والخطوات | video = ترشيح فيديو
   detail?: ReviewedDetail;
+  totalMinutes?: number; viewsUpdatedAt?: string; testedNote?: string;
 };
 
 export const SITE_NAME = "وصفات قمر";
@@ -2106,11 +2107,11 @@ const SYN: Record<string, string[]> = {
 export function normalizeAr(s: string): string {
   return s.toLowerCase().replace(/[ً-ٰٟ]/g, "").replace(/ـ/g, "").replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").trim();
 }
-export function searchRecipes(q: string): Recipe[] {
+export function searchRecipes(q: string, catalog: Recipe[] = recipes): Recipe[] {
   const nq = normalizeAr(q); if (!nq) return [];
   const terms = new Set<string>([nq]);
   for (const [k, vals] of Object.entries(SYN)) if (nq.includes(normalizeAr(k))) vals.forEach(v => terms.add(normalizeAr(v)));
-  const scored = recipes.map(r => {
+  const scored = catalog.map(r => {
     const detailIngs = r.detail ? r.detail.ingredients.flatMap((g) => g.items.map((i) => i.name)) : [];
     const hay = [r.title, r.category, creatorById(r.creatorId).name, ...r.mainIngredients, ...r.textures, ...r.needs, ...detailIngs].map(normalizeAr).join(" ");
     let score = 0;

@@ -1,3 +1,4 @@
+import {STEP_LINKS} from "./step-links";
 // وصفات قمر — أول دفعة «وصفات مكتملة» بعد المراجعة اليدوية (22 أكتوبر 2026)
 // منهج المراجعة: المقادير منقولة من وصف القناة الرسمية على يوتيوب، والخطوات ملخصة
 // بصياغة وصفات قمر من الترانسكريبت/شرح الفيديو نفسه، بنفس الترتيب.
@@ -6,7 +7,7 @@
 
 export type RIngredient = { name: string; display: string; amount?: number; unit?: string; optional?: boolean };
 export type RGroup = { group: string; items: RIngredient[] };
-export type RStep = { title: string; body: string; cue?: string; minutes?: number };
+export type RStep = { title: string; body: string; cue?: string; minutes?: number; ingredients?: string[] };
 export type ReviewedDetail = {
   servings: string;
   tools: string[];
@@ -311,4 +312,9 @@ export const REVIEWED: Record<string, ReviewedDetail> = {
     reviewNote: SRC,
   },
 };
+// Group-qualified links disambiguate ingredients reused across different layers.
+for(const [slug,links] of Object.entries(STEP_LINKS)){
+  const detail=REVIEWED[slug];
+  links.forEach((groups,index)=>{detail.steps[index].ingredients=groups.flatMap(([g,items])=>items.map(i=>`${detail.ingredients[g].group}:${detail.ingredients[g].items[i].name}`));});
+}
 export const REVIEWED_SLUGS = Object.keys(REVIEWED);
