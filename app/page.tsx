@@ -10,6 +10,11 @@ import {
   Utensils,
   ChefHat,
   Layers3,
+  ShoppingBasket,
+  CookingPot,
+  FlaskConical,
+  NotebookPen,
+  Map,
 } from "lucide-react";
 import { getCatalog } from "@/lib/catalog";
 import { creators, ytThumb } from "@/lib/data";
@@ -56,6 +61,38 @@ export default async function Home() {
     8,
     used,
   );
+  const journey = [
+    {
+      n: "١",
+      title: "اتفرج",
+      sub: "شورتس وترند الشيفات",
+      href: "/watch",
+    },
+    {
+      n: "٢",
+      title: "اختار",
+      sub: "رشحلي 3 أو اكتشف بنفسك",
+      href: "/pick",
+    },
+    {
+      n: "٣",
+      title: "جهّز",
+      sub: "اكتب اللي عندك واعرف الناقص",
+      href: "/ingredients",
+    },
+    {
+      n: "٤",
+      title: "اطبخ",
+      sub: "وضع طبخ خطوة بخطوة",
+      href: "/discover?status=reviewed",
+    },
+    {
+      n: "٥",
+      title: "كبّر خبرتك",
+      sub: "نسختك وجواز مذاقك",
+      href: "/passport",
+    },
+  ];
   const moods = [
     {
       Icon: Flame,
@@ -128,6 +165,9 @@ export default async function Home() {
               <Link className="btn btn-primary" href="/pick">
                 <Sparkles size={18} aria-hidden="true" /> رشحلي 3
               </Link>
+              <Link className="btn btn-ghost" href="/features">
+                كل المزايا
+              </Link>
             </div>
             <div className="hero-stats">
               <div>
@@ -166,22 +206,27 @@ export default async function Home() {
       </section>
       <div className="wrap">
         <ResumeCooking />
-        <section className="block">
-          <SectionHead title="على مزاجك" sub="ابدأ من الباب اللي يناسب يومك" />
-          <div className="mood-grid">
-            {moods.map(({ Icon, ...m }) => (
-              <Link className="mood" key={m.href} href={m.href}>
-                <Icon size={26} aria-hidden="true" />
-                <b>{m.title}</b>
-                <span>{m.sub}</span>
-              </Link>
+        <section className="block" aria-labelledby="journey-h">
+          <SectionHead
+            title="ابدأ من خطوتك"
+            sub="رحلة واحدة من الفرجة لنسختك الخاصة — ادخل من أي باب"
+          />
+          <ol className="journey-strip">
+            {journey.map((j) => (
+              <li key={j.n}>
+                <Link className="journey-step" href={j.href}>
+                  <span className="journey-num">{j.n}</span>
+                  <b>{j.title}</b>
+                  <span>{j.sub}</span>
+                </Link>
+              </li>
             ))}
-          </div>
+          </ol>
         </section>
         <section className="block">
           <SectionHead
             title="جاهزين للطبخ"
-            sub="مقادير مكتوبة، خطوات مرتبة، وعلامات تعرف بيها النتيجة"
+            sub="مقادير مكتوبة وخطوات مرتبة — وتقدر تظبط الكمية على قد اللي عندك أو عدد أفرادك من جوه الوصفة"
             href="/discover?status=reviewed"
             linkText="كل الوصفات المكتملة"
           />
@@ -212,6 +257,18 @@ export default async function Home() {
         )}
         <SavedStrip />
         <section className="block">
+          <SectionHead title="على مزاجك" sub="ابدأ من الباب اللي يناسب يومك" />
+          <div className="mood-grid">
+            {moods.map(({ Icon, ...m }) => (
+              <Link className="mood" key={m.href} href={m.href}>
+                <Icon size={26} aria-hidden="true" />
+                <b>{m.title}</b>
+                <span>{m.sub}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+        <section className="block">
           <SectionHead
             title="فكرة مختلفة تستاهل التجربة"
             sub="اختيارات متنوعة بين الشيفات — الفيديو الأصلي مرجعك"
@@ -223,12 +280,12 @@ export default async function Home() {
             ))}
           </div>
         </section>
-        <section className="block">
+        <section className="block pantry-home">
           <SectionHead
             title="عندك إيه في البيت؟"
-            sub="اكتب اللي عندك وهنرشحلك على أساسه — ونقولك الناقص بالظبط عشان تكمل عليه"
+            sub="ثلاث خطوات: اكتب اللي عندك، هنقولك الناقص بالظبط، ولو مكوّن واحد هيفتحلك وصفات أكتر هنقترحه عليك"
             href="/ingredients"
-            linkText="افتح المكونات"
+            linkText="اكتب اللي عندك"
           />
           <div className="chip-row">
             {["بطاطس", "دجاج", "بيض", "حليب", "مكرونة", "أرز"].map((i) => (
@@ -240,6 +297,9 @@ export default async function Home() {
                 {i}
               </Link>
             ))}
+            <Link className="btn btn-primary btn-sm" href="/ingredients">
+              <ShoppingBasket size={16} aria-hidden="true" /> افتح مطبخك
+            </Link>
           </div>
         </section>
         <section className="block">
@@ -258,7 +318,7 @@ export default async function Home() {
         <section className="block">
           <SectionHead
             title="من وصفة لسفرة"
-            sub="أطباق متوافقة، مقادير متجمعة، وترتيب تجهيز"
+            sub="أطباق متوافقة ومقادير متجمعة — ولو الضيوف جايين الساعة ٨، صفحة السفرة بترتب التنفيذ بالعكس"
             href="/meals"
             linkText="كل السفرات"
           />
@@ -288,6 +348,12 @@ export default async function Home() {
               ) : null;
             })}
           </div>
+          <p className="results-note">
+            بتدور على توليفة جاهزة لموقف معين؟{" "}
+            <Link className="text-link" href="/collections">
+              شوف المجموعات المحررة
+            </Link>
+          </p>
         </section>
         <section className="block">
           <SectionHead
@@ -312,6 +378,57 @@ export default async function Home() {
             المشاهدات أرقام يوتيوب وقت آخر رصد؛ بيانات الدفعة الأولى بتاريخ{" "}
             {CAPTURED_AT}.
           </p>
+        </section>
+        <section className="block" aria-labelledby="grow-h">
+          <SectionHead
+            title="من أول تجربة… لنسختك الخاصة"
+            sub="الوصفة ما بتخلصش عند الطبخة: جرّب، احكم، عدّل، وافتح بيها طبخة بكرة"
+            href="/features"
+            linkText="كل المزايا"
+          />
+          <div className="feat-grid">
+            {[
+              {
+                Icon: FlaskConical,
+                title: "الترند تحت التجربة",
+                desc: "جرّبت وصفة منتشرة؟ سجّل وقتك الفعلي وأصعب نقطة وحكمك، وهيظهر على كارتها.",
+                href: "/discover?sort=trend",
+                linkText: "جرّب واحكم",
+              },
+              {
+                Icon: NotebookPen,
+                title: "دي نسختي",
+                desc: "تعديلاتك المنظمة على أي وصفة مكتملة محفوظة بتاريخها — نسختك الأخيرة دايمًا جنب الأصل.",
+                href: "/discover?status=reviewed",
+                linkText: "اختار وصفة وعدّلها",
+              },
+              {
+                Icon: CookingPot,
+                title: "نطبخها سوا + القوام الصح",
+                desc: "وضع طبخ بيقسّم الشغل على اتنين، وفي كل خطوة علامة القوام ولحظة الفيديو.",
+                href: "/discover?status=reviewed",
+                linkText: "ابدأ طبخة",
+              },
+              {
+                Icon: Map,
+                title: "جواز سفر المذاق",
+                desc: "مسارات متدرجة من ٣ وصفات مراجعة، وكل تجربة ختم في جوازك.",
+                href: "/passport",
+                linkText: "افتح جوازي",
+              },
+            ].map(({ Icon, ...f }) => (
+              <article className="feat-card" key={f.title}>
+                <span className="feat-icon">
+                  <Icon size={24} aria-hidden="true" />
+                </span>
+                <h3>{f.title}</h3>
+                <p>{f.desc}</p>
+                <Link className="text-link" href={f.href}>
+                  {f.linkText} ←
+                </Link>
+              </article>
+            ))}
+          </div>
         </section>
         <section className="block">
           <SectionHead

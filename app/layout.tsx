@@ -10,7 +10,8 @@ import Link from "next/link";
 import "./globals.css";
 import SyncProvider from "@/components/SyncProvider";
 import AuthStatus from "@/components/AuthStatus";
-import { Search, Sparkles, Heart, House, CookingPot, Moon } from "lucide-react";
+import { Search, Sparkles, Heart, Moon } from "lucide-react";
+import { TopNav, BottomBar } from "@/components/NavLinks";
 import CatalogProvider from "@/components/CatalogProvider";
 import { getCatalog } from "@/lib/catalog";
 import { siteURL } from "@/lib/site";
@@ -73,12 +74,7 @@ export default async function RootLayout({
             </a>
             <header className="topbar glass">
               <Logo />
-              <nav className="topnav" aria-label="التنقل الرئيسي">
-                <Link href="/discover">اكتشف</Link>
-                <Link href="/collections">المجموعات</Link>
-                <Link href="/creators">الشيفات</Link>
-                <Link href="/kitchen">مطبخي</Link>
-              </nav>
+              <TopNav />
               <div className="top-actions">
                 <Link href="/discover" className="icon-btn" aria-label="البحث">
                   <Search size={20} aria-hidden="true" />
@@ -109,12 +105,24 @@ export default async function RootLayout({
                     — إحنا بننتقي ونرتّب ونقرّبك من الطبخة.
                   </p>
                 </div>
-                <nav aria-label="روابط الموقع">
-                  <h3>وصفات قمر</h3>
+                <nav aria-label="روابط الاكتشاف والاختيار">
+                  <h3>اتفرج واختار</h3>
                   <Link href="/discover">اكتشف الوصفات</Link>
+                  <Link href="/watch">الشورتس</Link>
                   <Link href="/pick">رشحلي 3</Link>
-                  <Link href="/ingredients">عندك إيه في البيت؟</Link>
                   <Link href="/collections">المجموعات</Link>
+                  <Link href="/meals">السفرات</Link>
+                  <Link href="/weekly">اختيارات الأسبوع</Link>
+                  <Link href="/same-ingredient">نفس المكوّن، 3 تجارب</Link>
+                  <Link href="/compare">قارن وصفات</Link>
+                </nav>
+                <nav aria-label="روابط التجهيز والطبخ">
+                  <h3>جهّز واطبخ</h3>
+                  <Link href="/ingredients">اكتب اللي عندك</Link>
+                  <Link href="/features">كل المزايا</Link>
+                  <Link href="/kitchen/shopping">مشترياتي</Link>
+                  <Link href="/kitchen/saved">محفوظاتي</Link>
+                  <Link href="/passport">جواز سفر المذاق</Link>
                 </nav>
                 <nav aria-label="روابط الشيفات">
                   <h3>الشيفات</h3>
@@ -127,11 +135,10 @@ export default async function RootLayout({
                   <Link href="/creators/fatma">فاطمة أبو حاتي</Link>
                   <Link href="/creators/om-anwar">أم أنوار</Link>
                 </nav>
-                <nav aria-label="روابط مطبخي">
-                  <h3>مطبخي</h3>
+                <nav aria-label="روابط مطبخي والموقع">
+                  <h3>مطبخي والموقع</h3>
                   <Link href="/kitchen">دفتري</Link>
-                  <Link href="/kitchen/saved">محفوظاتي</Link>
-                  <Link href="/kitchen/shopping">مشترياتي</Link>
+                  <Link href="/kitchen/attempts">تجاربي والبواقي</Link>
                   <Link href="/about">فكرة وصفات قمر ومنهج الانتقاء</Link>
                   <Link href="/privacy">الخصوصية وبياناتك</Link>
                   <Link href="/contact">تواصل وابلاغ عن مصدر</Link>
@@ -144,28 +151,7 @@ export default async function RootLayout({
               </p>
             </footer>
 
-            <nav className="bottombar glass" aria-label="تنقل الموبايل">
-              <Link href="/">
-                <House size={22} aria-hidden="true" />
-                <span>الرئيسية</span>
-              </Link>
-              <Link href="/discover">
-                <Search size={22} aria-hidden="true" />
-                <span>اكتشف</span>
-              </Link>
-              <Link href="/pick" className="bottom-pick">
-                <Sparkles size={22} aria-hidden="true" />
-                <span>رشحلي</span>
-              </Link>
-              <Link href="/kitchen/saved">
-                <Heart size={22} aria-hidden="true" />
-                <span>محفوظاتي</span>
-              </Link>
-              <Link href="/kitchen">
-                <CookingPot size={22} aria-hidden="true" />
-                <span>مطبخي</span>
-              </Link>
-            </nav>
+<BottomBar />
           </SyncProvider>
         </CatalogProvider>
       </body>
