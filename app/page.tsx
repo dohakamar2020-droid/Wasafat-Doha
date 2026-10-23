@@ -226,7 +226,7 @@ export default async function Home() {
         <section className="block">
           <SectionHead
             title="عندك إيه في البيت؟"
-            sub="ابدأ بمكوّن وهنفرّقلك بين التطابق الفعلي وأفكار الفيديو"
+            sub="اكتب اللي عندك وهنرشحلك على أساسه — ونقولك الناقص بالظبط عشان تكمل عليه"
             href="/ingredients"
             linkText="افتح المكونات"
           />

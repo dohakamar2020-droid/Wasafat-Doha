@@ -9,6 +9,7 @@ import {
   related,
   matchIngredients,
   shoppingLines,
+  parsePantryText,
   weeklySelection,
 } from "../lib/experience";
 import { meals, mealRecipes } from "../lib/meals";
@@ -251,4 +252,40 @@ test("رشحلي: 3 نتائج دايمًا حتى مع حد زمني ضيق، �
   const sweet = recommend(recipes, { taste: "sweet", time: "15", priority: "nooven" });
   assert.equal(sweet.length, 3);
   assert.ok(sweet.every((p) => isSweet(p.r)));
+});
+
+test("كتابة المقادير بحرية: تحليل النص والمرادفات والتقريب للمعروف", () => {
+  const known = ["بطاطس", "دجاج", "بصل", "طماطم", "بيض", "حليب", "جبنة"];
+  assert.deepEqual(
+    parsePantryText("عندي بطاطس وفراخ وبصل، وطماطم وبيض", known),
+    ["بطاطس", "دجاج", "بصل", "طماطم", "بيض"],
+  );
+  // مرادف البطاطا بيقرب لبطاطس، والمجهول بيترجع زي ما هو من غير تخمين
+  assert.deepEqual(parsePantryText("بطاطا، كوسة", known), ["بطاطس", "كوسه"]);
+  assert.deepEqual(parsePantryText("", known), []);
+  assert.deepEqual(parsePantryText("بطاطس، بطاطس", known), ["بطاطس"]);
+});
+test("من اللي عندك للناقص: الترشيح بيقول الناقص وبيكمل لما يتوفر", () => {
+  // بندور على وصفة مراجعة أسماء مقاديرها نظيفة (من غير بدائل/عطف بيتلخبط)
+  // ونطابقها بنفس أسمائها: كاملة تبقى 0 ناقص، وشيل اسم يبينه ناقص
+  let checked = 0;
+  for (const r of recipes) {
+    if (!r.detail) continue;
+    const names = [
+      ...new Set(
+        r.detail.ingredients
+          .flatMap((g) => g.items)
+          .filter((i) => !i.optional)
+          .map((i) => i.name),
+      ),
+    ];
+    if (names.length < 3) continue;
+    if (matchIngredients(r, names, []).missing.length !== 0) continue;
+    const before = matchIngredients(r, names.slice(0, -1), []);
+    if (before.missing.length < 1) continue;
+    assert.equal(matchIngredients(r, names, []).missing.length, 0);
+    checked++;
+    break;
+  }
+  assert.ok(checked === 1, "لازم نلاقي وصفة تتطابق بالكامل بأسمائها");
 });

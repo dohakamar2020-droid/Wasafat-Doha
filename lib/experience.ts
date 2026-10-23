@@ -264,6 +264,42 @@ export function shoppingLines(list: Recipe[], scale = 1): ShoppingLine[] {
 export function shoppingLabel(line: ShoppingLine) {
   return `${line.amount != null ? `${Math.round(line.amount * 100) / 100} ${line.unit} — ` : ""}${line.name}${line.optional ? " (اختياري)" : ""}${line.amount == null ? ": " + line.displays.join("؛ ") : ""}`;
 }
+/**
+ * بيحوّل نص حر كتبه اليوزر («عندي بطاطس، فراخ وبصل وطماطم») لقايمة مكونات.
+ * بيفصل على الفواصل و«و»، وبيشيل كلمات الحشو اللي في أول الكلام، وبيقرّب كل
+ * مكوّن لأقرب مفتاح معروف في الكتالوج لو التطابق واضح (فراخ ← دجاج).
+ * اللي مش معروف بيترجع زي ما اتكتب — المطابقة نفسها بتطبّع المرادفات.
+ */
+export function parsePantryText(text: string, knownKeys: string[] = []): string[] {
+  const known = [...new Set(knownKeys.map((k) => ingredientKey(k)))];
+  const out: string[] = [];
+  // الفصل على الفواصل الأول، وبعدين على « و» اللي بتلزق في الكلمة اللي
+  // بعدها («بطاطس وفراخ وبصل») — مع حماية كلمات بتبدأ أصلًا بواو («ورق عنب»)
+  const chunks = text
+    .split(/[،,؛;\n]+/)
+    .flatMap((c) => c.split(/\s+و\s+|\s+و(?=\S)/));
+  for (const raw of chunks) {
+    let t = raw.trim();
+    t = t.replace(/^(عندي|معايا|موجود عندي|عندنا|في البيت)\s+/, "").trim();
+    if (t.startsWith("و") && t.length > 2) {
+      const stripped = t.slice(1).trim();
+      // نشيل الواو بس لو اللي بعدها مكون معروف والكلمة الأصلية مش معروفة
+      if (known.includes(ingredientKey(stripped)) && !known.includes(ingredientKey(t)))
+        t = stripped;
+    }
+    if (!t || t.length > 40) continue;
+    const key = ingredientKey(t);
+    if (!key) continue;
+    let snapped = key;
+    if (!known.includes(key)) {
+      const cand = known.filter((k) => k.includes(key) || key.includes(k));
+      // نقرّب بس لو فيه مرشح وحيد واضح، ومفيش تخمين لو فيه أكتر من احتمال
+      if (cand.length === 1) snapped = cand[0];
+    }
+    if (!out.includes(snapped)) out.push(snapped);
+  }
+  return out;
+}
 export function related(r: Recipe, catalog: Recipe[]) {
   const other = catalog.filter((x) => x.slug !== r.slug);
   const out: { recipe: Recipe; reason: string }[] = [];
