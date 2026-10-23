@@ -5,6 +5,7 @@ import { useCatalog } from "./CatalogProvider";
 import { storageSet } from "@/lib/storage";
 import { readJSON } from "@/lib/local-kitchen";
 import type { ReviewedDetail } from "@/lib/reviewed";
+import { stepVideoUrl } from "@/lib/trend";
 
 function fmt(n: number) {
   return Number.isInteger(n) ? String(n) : String(Math.round(n * 100) / 100);
@@ -235,6 +236,17 @@ export default function ReviewedSection({
               </label>
               <p style={{ margin: "4px 0 0" }}>{st.body}</p>
               {st.cue && <span className="cue">علامة النتيجة: {st.cue}</span>}
+              {r && stepVideoUrl(r, i, detail.steps.length) && (
+                <a
+                  className="text-link step-video-link"
+                  href={stepVideoUrl(r, i, detail.steps.length)!.url}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  ▶ ورّيني الخطوة دي في الفيديو (تقريبًا عند{" "}
+                  {stepVideoUrl(r, i, detail.steps.length)!.minuteLabel})
+                </a>
+              )}
             </div>
           </div>
         ))}

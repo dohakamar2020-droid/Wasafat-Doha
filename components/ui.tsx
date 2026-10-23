@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { trendInfo } from "@/lib/trend";
 import Link from "next/link";
 import { Heart, Play, CheckCircle2 } from "lucide-react";
 import { type Recipe, creatorById, formatViews, ytThumb } from "@/lib/data";
@@ -69,6 +70,12 @@ export function RecipeCard({ r, reason }: { r: Recipe; reason?: string }) {
         <span className={r.detail ? "reviewed-badge" : "video-badge"}>
           {r.detail ? "مقادير وخطوات" : "ترشيح فيديو"}
         </span>
+        {trendInfo(r).isTrending && (
+          <span className="trend-badge">{trendInfo(r).label}</span>
+        )}
+        {!trendInfo(r).isTrending && trendInfo(r).isNew && (
+          <span className="new-badge">جديد</span>
+        )}
         <SaveButton slug={r.slug} title={r.title} />
       </div>
       <div className="card-body">

@@ -1,5 +1,6 @@
 "use client";
 import { useCatalog } from "@/components/CatalogProvider";
+import { byTrend } from "@/lib/trend";
 import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -13,7 +14,7 @@ import {
 } from "@/lib/data";
 import { RecipeCard } from "@/components/ui";
 
-type Sort = "editor" | "views" | "newest" | "az";
+type Sort = "editor" | "views" | "newest" | "az" | "trend";
 
 function DiscoverInner() {
   const recipes = useCatalog();
@@ -48,6 +49,7 @@ function DiscoverInner() {
         }),
       );
     if (sort === "views") list.sort((a, b) => b.views - a.views);
+    else if (sort === "trend") list.sort((a, b) => byTrend(a, b));
     else if (sort === "newest") list.sort((a, b) => byDate(b) - byDate(a));
     else if (sort === "az")
       list.sort((a, b) => a.title.localeCompare(b.title, "ar"));
@@ -249,6 +251,7 @@ function DiscoverInner() {
         >
           <option value="editor">اختيارات المحرر</option>
           <option value="views">الأكثر مشاهدة على يوتيوب</option>
+          <option value="trend">🔥 الأكثر انتشارًا حديثًا</option>
           <option value="newest">الأحدث نشرًا</option>
           <option value="az">أبجدي</option>
         </select>

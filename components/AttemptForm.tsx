@@ -17,7 +17,8 @@ export default function AttemptForm({
     [file, setFile] = useState<File | null>(null),
     [busy, setBusy] = useState(false),
     [err, setErr] = useState(""),
-    [saved, setSaved] = useState(false);
+    [saved, setSaved] = useState(false),
+    [share, setShare] = useState(false);
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
@@ -45,6 +46,7 @@ export default function AttemptForm({
           "",
         rating ? Number(rating) : undefined,
         photo,
+        share,
       );
       setNote("");
       setFile(null);
@@ -60,7 +62,8 @@ export default function AttemptForm({
     <form className="surface admin-form" onSubmit={submit}>
       <h2>جرّبتها؟ سجّل تجربتك</h2>
       <p>
-        كل مرة ليها تاريخ وتعديلات خاصة بيها. تجاربك شخصية، ومش بتتنشر للناس.
+        كل مرة ليها تاريخ وتعديلات خاصة بيها. تجاربك شخصية افتراضيًا ومش
+        بتتنشر — المشاركة اختيارية بالكامل من اختيارك تحت.
       </p>
       <label htmlFor={`attempt-note-${slug}`}>إيه اللي فرق معاك؟</label>
       <textarea
@@ -84,6 +87,16 @@ export default function AttemptForm({
           </option>
         ))}
       </select>
+      <label className="share-toggle" style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        <input
+          type="checkbox"
+          checked={share}
+          onChange={(e) => setShare(e.target.checked)}
+          style={{ width: 18, height: 18, accentColor: "var(--orange)" }}
+        />
+        شارك تجربتي في قسم «تجارب اللي جرّبوا» على صفحة الوصفة (على الجهاز ده،
+        وبين أجهزتك لو داخل بحسابك)
+      </label>
       <label htmlFor={`photo-${slug}`}>صورة النتيجة (اختيارية)</label>
       <input
         id={`photo-${slug}`}

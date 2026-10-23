@@ -6,6 +6,7 @@ export const attemptSchema = z.object({
   note: z.string().max(4000),
   rating: z.number().int().min(1).max(5).optional(),
   photo: z.string().max(300).optional(),
+  public: z.boolean().optional(),
 });
 export type Attempt = z.infer<typeof attemptSchema>;
 const list = z.array(z.string().max(1200)).max(500);

@@ -2588,3 +2588,24 @@ fieldset.wiz-step legend {
     line-height: 1.9;
   }
 }
+
+/* ===== Trending, shelf, my-week, SOS, step-video (Oct 2026 batch) ===== */
+.trend-badge{position:absolute;inset-inline-start:8px;bottom:8px;background:#B33A1F;color:#fff;font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:999px}
+.new-badge{position:absolute;inset-inline-start:8px;bottom:8px;background:#2F6B4F;color:#fff;font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:999px}
+.card-media{position:relative}
+.step-video-link{display:inline-block;margin-top:6px;font-weight:600}
+.step-video-btn{margin-top:8px}
+.shelf-row{display:grid;gap:8px}
+.shelf-item{display:flex;justify-content:space-between;gap:10px;align-items:center;background:var(--card,#fff);border:1px solid rgba(52,72,61,.14);border-radius:12px;padding:10px 14px;flex-wrap:wrap}
+.shelf-item>a{font-weight:700;color:inherit;text-decoration:none}
+.shelf-remove{background:none;border:none;color:#B33A1F;cursor:pointer;font:inherit;padding:0}
+.week-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:12px}
+.week-day{display:grid;gap:6px;background:var(--card,#fff);border:1px solid rgba(52,72,61,.14);border-radius:12px;padding:10px}
+.week-day select{max-width:100%;padding:8px;border-radius:8px}
+.sos-list{display:grid;gap:8px;margin-top:10px}
+.sos-item{border:1px solid rgba(52,72,61,.16);border-radius:12px;overflow:hidden}
+.sos-toggle{width:100%;display:flex;justify-content:space-between;gap:8px;background:none;border:none;padding:12px 14px;font:inherit;font-weight:700;cursor:pointer;text-align:start}
+.sos-body{padding:0 14px 12px;margin:0;color:var(--muted)}
+.attempt-list{display:grid;gap:10px}
+.attempt-card{border:1px solid rgba(52,72,61,.16);border-radius:12px;padding:12px 14px}
+.attempt-card p{margin:0 0 6px}

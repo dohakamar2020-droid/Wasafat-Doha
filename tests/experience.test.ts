@@ -18,7 +18,7 @@ import { emptyKitchen, mergeGuest, kitchenSchema } from "../lib/kitchen-state";
 test("source IDs are unique and review badges require actual complete details", () => {
   const ids = recipes.flatMap((r) => r.sources.map((s) => s.ytId));
   assert.equal(new Set(ids).size, ids.length);
-  assert.equal(ids.length, 80);
+  assert.equal(ids.length, 89); // 80 أصلية + 9 من بحث الترند (أكتوبر 2026)
   for (const r of recipes) {
     for (const s of r.sources) assert.match(s.ytId, /^[\w-]{11}$/);
     if (r.detail) assert.ok(detailSchema.safeParse(r.detail).success, r.slug);
@@ -195,4 +195,27 @@ test("an offline cache without a confirmed cloud baseline cannot overwrite the a
   assert.equal(syncDecision(2, 3, true), "conflict");
   assert.equal(syncDecision(3, 3, true), "push");
   assert.equal(syncDecision(2, 3, false), "apply");
+});
+
+
+import { trendInfo, byTrend, stepVideoUrl } from "../lib/trend";
+
+test("trending: recent high-view upload is trending, old evergreen is not", () => {
+  const now = new Date("2026-10-23T00:00:00Z");
+  const cake = recipes.find((r) => r.slug === "asari-cake")!;
+  assert.equal(trendInfo(cake, now).isTrending, true);
+  const baklava = recipes.find((r) => r.slug === "baklava-fingers")!;
+  assert.ok(baklava.views > 1_000_000);
+  assert.equal(trendInfo(baklava, now).isTrending, false);
+  assert.ok(byTrend(cake, baklava, now) < 0);
+});
+
+test("step video link estimates a proportional timestamp", () => {
+  const pie = recipes.find((r) => r.slug === "chicken-pie-puff")!;
+  const link = stepVideoUrl(pie, 0, 6)!;
+  assert.ok(link.url.includes("watch?v=Gk9MvbwrooY&t="));
+  const sec = Number(link.url.split("&t=")[1].replace("s", ""));
+  assert.ok(sec > 0 && sec < 554);
+  const noDur = recipes.find((r) => !r.sources[0]?.durationSec)!;
+  assert.equal(stepVideoUrl(noDur, 0, 3), null);
 });

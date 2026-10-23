@@ -8,7 +8,7 @@ import { recipes, videoSources } from "@/lib/db/schema";
 const input = z.object({
   ytId: z.string().regex(/^[\w-]{11}$/),
   title: z.string().trim().min(3).max(200),
-  creatorId: z.enum(["nadia", "heba", "abeer", "omar", "abujulia"]),
+  creatorId: z.enum(["nadia", "heba", "abeer", "omar", "abujulia", "aya", "fatma", "om-anwar"]),
   kind: z.enum(["video", "short"]),
   published: z.string().regex(/^(0[1-9]|1[0-2])\/20\d{2}$/),
   slug: z
