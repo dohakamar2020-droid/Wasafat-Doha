@@ -8,6 +8,16 @@ export const ingredientSchema = z.object({
 });
 export const detailSchema = z.object({
   servings: z.string().min(1).max(200),
+  servingsCount: z.number().int().positive().max(1000).optional(),
+  timing: z
+    .object({
+      prepMinutes: z.number().int().positive().max(10080).optional(),
+      cookMinutes: z.number().int().positive().max(10080).optional(),
+      waitMinutes: z.number().int().positive().max(10080).optional(),
+      totalMinutes: z.number().int().positive().max(10080).optional(),
+      sourceNote: z.string().min(1).max(1000),
+    })
+    .optional(),
   tools: z.array(z.string().min(1).max(150)).min(1).max(40),
   ingredients: z
     .array(

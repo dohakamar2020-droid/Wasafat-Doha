@@ -20,7 +20,8 @@
     "test": "node --import tsx --test tests/*.test.ts",
     "check": "npm run lint && npm run typecheck && npm test",
     "db:migrate": "node --env-file-if-exists=.env.local --import tsx scripts/migrate.ts",
-    "admin:grant": "node --env-file-if-exists=.env.local --import tsx scripts/grant-admin.ts"
+    "admin:grant": "node --env-file-if-exists=.env.local --import tsx scripts/grant-admin.ts",
+    "ops:check": "node --env-file-if-exists=.env.local --import tsx scripts/ops-check.ts"
   },
   "dependencies": {
     "@fontsource/alexandria": "^5.3.0",

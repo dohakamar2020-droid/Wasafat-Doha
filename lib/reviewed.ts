@@ -1,4 +1,5 @@
 import {STEP_LINKS} from "./step-links";
+import {REVIEWED_BATCH2} from "./reviewed-batch2";
 // وصفات قمر — أول دفعة «وصفات مكتملة» بعد المراجعة اليدوية (22 أكتوبر 2026)
 // منهج المراجعة: المقادير منقولة من وصف القناة الرسمية على يوتيوب، والخطوات ملخصة
 // بصياغة وصفات قمر من الترانسكريبت/شرح الفيديو نفسه، بنفس الترتيب.
@@ -8,8 +9,16 @@ import {STEP_LINKS} from "./step-links";
 export type RIngredient = { name: string; display: string; amount?: number; unit?: string; optional?: boolean };
 export type RGroup = { group: string; items: RIngredient[] };
 export type RStep = { title: string; body: string; cue?: string; minutes?: number; ingredients?: string[] };
+export type RTiming = {
+  // أوقات موثقة من المصدر فقط (تصريح الشيف أو وصف القناة). أي خانة غير موثقة تفضل فاضية —
+  // ممنوع اشتقاق «وقت كلي» من جمع مدد خطوات متفرقة.
+  prepMinutes?: number; cookMinutes?: number; waitMinutes?: number; totalMinutes?: number;
+  sourceNote: string;
+};
 export type ReviewedDetail = {
   servings: string;
+  servingsCount?: number; // عدد أشخاص رقمي لما المصدر يحدده — بيتستخدم في التكبير والحاسبة
+  timing?: RTiming;
   tools: string[];
   ingredients: RGroup[];
   steps: RStep[];
@@ -106,10 +115,10 @@ export const REVIEWED: Record<string, ReviewedDetail> = {
         { name: "صدور دجاج", display: "300-500 جرام شرائح وسط أو مكعبات (استخدمت 500)", amount: 500, unit: "جرام" },
         { name: "ملح وبابريكا وفلفل أسود وبودرة بصل", display: "نصف ملعقة صغيرة من كل نوع" },
         { name: "زيت زيتون", display: "ملعقة كبيرة" },
-        { name: "ثوم مفروم", display: "3 فصوص" },
-        { name: "بصل", display: "حبة جوليان" },
-        { name: "فلفل أخضر", display: "حبة" },
-        { name: "فلفل حار", display: "3 قرون (2-3 حسب الذوق)" },
+        { name: "ثوم مفروم", display: "3 فصوص", amount: 3, unit: "فص" },
+        { name: "بصل", display: "حبة جوليان", amount: 1, unit: "حبة" },
+        { name: "فلفل أخضر", display: "حبة", amount: 1, unit: "حبة" },
+        { name: "فلفل حار", display: "3 قرون (2-3 حسب الذوق)", amount: 3, unit: "قرن" },
         { name: "مشروم", display: "250 جرام", amount: 250, unit: "جرام", optional: true },
         { name: "زيتون أسود شرائح", display: "ربع كوب", optional: true },
         { name: "زيت وزبدة للتسوية", display: "ملعقة زيت ومكعب زبدة" },
@@ -180,6 +189,7 @@ export const REVIEWED: Record<string, ReviewedDetail> = {
     successTips: ["أهم سرّين: طاسة واسعة على قد الكمية، وزيت سخن خالص — كده الكبدة متوقعش مية.", "التتبيلة 10-15 دقيقة بس، مش أكتر.", "سلطة الطحينة على السندوتش اختيار نادية الشخصي (وهي بتعتذر للإسكندرانية بنفسها في الفيديو!)."],
     commonMistakes: ["كمية كبيرة في طاسة صغيرة بتنزل مية وبتسلق الكبدة بدل تشويحها.", "تقليب كتير في الأول بيمنع الكبدة تاخد لون."],
     reviewNote: SRC,
+    timing: { waitMinutes: 15, cookMinutes: 10, sourceNote: "التتبيلة 10-15 دقيقة فقط؛ الكبدة كلها حوالي 10 دقائق على النار — من الشرح." },
   },
 
   "qudrat-qadir-chocoflan": {
@@ -276,6 +286,7 @@ export const REVIEWED: Record<string, ReviewedDetail> = {
     successTips: ["القهوة لازم تكون قوية — ده أساس طعم التيراميسو، وسكره هادي بطبعه.", "البسكوت ثانية واحدة في القهوة، أكتر من كده بيتهري ويسيل.", "لو هتستخدم كريم شانتيه باكيتات هيبقى مسكر زيادة — الخام أفضل هنا."],
     commonMistakes: ["بيض ني — النسخة التسوية على البخار بتدي نفس النتيجة بأمان.", "تقديمها قبل 8 ساعات تبريد بيخليها سايحة."],
     reviewNote: SRC,
+    timing: { waitMinutes: 480, sourceNote: "التبريد في الثلاجة 8 ساعات على الأقل (الأفضل 8-10) — تصريح نادية." },
   },
 
   "elham-kabsa": {
@@ -312,6 +323,7 @@ export const REVIEWED: Record<string, ReviewedDetail> = {
     reviewNote: SRC,
   },
 };
+Object.assign(REVIEWED, REVIEWED_BATCH2);
 // Group-qualified links disambiguate ingredients reused across different layers.
 for(const [slug,links] of Object.entries(STEP_LINKS)){
   const detail=REVIEWED[slug];

@@ -39,9 +39,17 @@ test("savory and no-oven preferences are hard constraints", () => {
   assert.ok(!p.some((p) => p.r.slug === "raspberry-jam"));
 });
 test("shorts never count as proof of cooking time", () => {
-  assert.equal(
-    recommend(recipes, { taste: "any", time: "15", priority: "few" }).length,
-    0,
+  // بس الوصفات اللي مصدرها صرّح بوقت كلي هي اللي تعدي فلتر الوقت —
+  // ومدة الشورت أو الفيديو نفسها مش دليل طبخ أبدًا
+  const fast = recommend(recipes, { taste: "any", time: "15", priority: "few" });
+  for (const { r } of fast) {
+    assert.ok(r.totalMinutes != null && r.totalMinutes <= 15);
+    // الوقت الكلي لازم يكون مصرحًا به في تفاصيل المراجعة نفسها — مش مستنتج من مدة أي فيديو
+    assert.equal(r.detail?.timing?.totalMinutes, r.totalMinutes);
+  }
+  assert.deepEqual(
+    fast.map(({ r }) => r.slug),
+    ["milk-coffee-dessert"],
   );
 });
 test("verified total time filters remain true even for high-view videos", () => {

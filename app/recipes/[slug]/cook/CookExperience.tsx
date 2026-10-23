@@ -176,33 +176,39 @@ export default function CookExperience({ r }: { r: Recipe }) {
             />
           </div>
           <h2>{step.title}</h2>
-          <div className="step-ingredients">
-            <b>
-              {activeIngredients.length
-                ? "مرجع مقادير الخطوة"
-                : "قائمة المقادير متاحة تحت الخطوة"}
-            </b>
-            {activeIngredients.length > 0 && (
-              <p className="results-note">
-                الكميات إجمالية للوصفة؛ استخدم الجزء المذكور في شرح الخطوة لو
-                المكوّن بيتقسم على مراحل.
-              </p>
-            )}
-            {activeIngredients.length > 0 && (
-              <ul>
-                {activeIngredients.map((i) => (
-                  <li key={i.name}>
-                    {i.amount != null && i.unit
-                      ? `${Math.round(i.amount * scale * 100) / 100} ${i.unit}`
-                      : i.display}{" "}
-                    — {i.name}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
           <p className="cook-step-body">{step.body}</p>
           {step.cue && <p className="cue">علامة النتيجة: {step.cue}</p>}
+          <details className="details-menu step-ingredients-panel">
+            <summary>
+              🧺 مقادير الخطوة دي
+              {activeIngredients.length
+                ? ` (${activeIngredients.length})`
+                : " — شوف كل المقادير تحت"}
+            </summary>
+            {activeIngredients.length > 0 ? (
+              <>
+                <p className="results-note">
+                  الكميات إجمالية للوصفة؛ استخدم الجزء المذكور في شرح الخطوة لو
+                  المكوّن بيتقسم على مراحل.
+                </p>
+                <ul>
+                  {activeIngredients.map((i) => (
+                    <li key={i.name}>
+                      {i.amount != null && i.unit
+                        ? `${Math.round(i.amount * scale * 100) / 100} ${i.unit}`
+                        : i.display}{" "}
+                      — {i.name}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : (
+              <p className="results-note">
+                مرجع مقادير الخطوة دي مش مربوط لسه — افتح «كل المقادير» اللي
+                تحت واشتغل منها.
+              </p>
+            )}
+          </details>
           <div className="action-row">
             <button
               className="btn btn-ghost"
@@ -261,6 +267,46 @@ export default function CookExperience({ r }: { r: Recipe }) {
             والملاحظات هنا.
           </p>
         </div>
+      )}
+      {step && (
+        <nav className="cook-nav" aria-label="التنقل بين الخطوات">
+          <button
+            className="btn btn-ghost"
+            disabled={stepIndex === 0}
+            onClick={() => next(stepIndex - 1)}
+          >
+            → السابق
+          </button>
+          <span className="cook-nav-count">
+            {stepIndex + 1} / {steps.length}
+          </span>
+          {step.minutes ? (
+            <button
+              className="btn btn-olive"
+              onClick={() => startTimer(step.minutes!, step.title)}
+            >
+              ⏱ {step.minutes}د
+            </button>
+          ) : null}
+          {stepIndex < steps.length - 1 ? (
+            <button
+              className="btn btn-primary"
+              onClick={() => next(stepIndex + 1)}
+            >
+              التالي ←
+            </button>
+          ) : (
+            <button
+              className="btn btn-primary"
+              onClick={() => {
+                setFinished(true);
+                storageRemove("wasafat-Doha:last-cook");
+              }}
+            >
+              خلصت ✓
+            </button>
+          )}
+        </nav>
       )}
       {finished && (
         <div className="ok-box" role="status">
