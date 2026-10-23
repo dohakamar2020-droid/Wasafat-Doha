@@ -1,0 +1,483 @@
+diff --git a/app/features/page.tsx b/app/features/page.tsx
+index 8148cc4..428a078 100644
+--- a/app/features/page.tsx
++++ b/app/features/page.tsx
+@@ -1,4 +1,5 @@
+ import Link from "next/link";
++import InstallApp from "@/components/InstallApp";
+ import {
+   Search,
+   Sparkles,
+@@ -257,6 +258,7 @@ export default function FeaturesPage() {
+           ))}
+         </div>
+       </div>
++      <InstallApp />
+       {GROUPS.map((g, i) => (
+         <section
+           className="block"
+diff --git a/app/globals.css b/app/globals.css
+index ba015a6..ff7c572 100644
+--- a/app/globals.css
++++ b/app/globals.css
+@@ -2844,3 +2844,62 @@ fieldset.wiz-step legend {
+   .journey-strip { grid-template-columns: repeat(2, 1fr); }
+   .journey-strip li:last-child { grid-column: span 2; }
+ }
++
++/* ==== زرار «ثبّت التطبيق» — هوية وصفات قمر ==== */
++.install-wrap { margin: 14px 0; }
++.install-card {
++  position: relative;
++  display: flex;
++  align-items: center;
++  gap: 14px;
++  width: 100%;
++  text-align: start;
++  border: 1px solid rgba(248, 245, 238, 0.25);
++  background: linear-gradient(135deg, var(--olive-2, #2b3d33), var(--olive));
++  color: var(--cream);
++  border-radius: 999px;
++  padding: 12px 18px;
++  cursor: pointer;
++  font-family: inherit;
++  box-shadow: var(--shadow);
++  transition: transform 0.15s ease, box-shadow 0.15s ease;
++}
++.install-card:hover { transform: translateY(-2px); }
++.install-orb {
++  width: 52px;
++  height: 52px;
++  flex-shrink: 0;
++  border-radius: 50%;
++  background: var(--orange);
++  color: #fff;
++  display: inline-flex;
++  align-items: center;
++  justify-content: center;
++  box-shadow: 0 4px 14px rgba(201, 101, 63, 0.45);
++}
++.install-orb.ok { background: var(--cream); color: var(--olive); box-shadow: none; }
++.install-texts { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
++.install-texts b { font-size: 1.05rem; font-weight: 800; }
++.install-texts small { opacity: 0.78; font-size: 0.84rem; }
++.install-moon {
++  position: absolute;
++  inset-inline-end: 18px;
++  top: 10px;
++  color: var(--orange);
++  transform: rotate(-12deg);
++}
++.install-help {
++  margin-top: 10px;
++  background: var(--card);
++  border: 1px dashed var(--orange);
++  border-radius: 16px;
++  padding: 12px 16px;
++  color: var(--olive-2);
++}
++.install-wrap.slim .install-card { padding: 10px 14px; }
++.install-wrap.slim .install-orb { width: 42px; height: 42px; }
++.install-wrap.slim .install-texts small { display: none; }
++@media (max-width: 480px) {
++  .install-texts b { font-size: 0.98rem; }
++  .install-moon { display: none; }
++}
+diff --git a/app/layout.tsx b/app/layout.tsx
+index 5ce552e..6084e86 100644
+--- a/app/layout.tsx
++++ b/app/layout.tsx
+@@ -12,6 +12,7 @@ import SyncProvider from "@/components/SyncProvider";
+ import AuthStatus from "@/components/AuthStatus";
+ import { Search, Sparkles, Heart, Moon } from "lucide-react";
+ import { TopNav, BottomBar } from "@/components/NavLinks";
++import InstallApp from "@/components/InstallApp";
+ import CatalogProvider from "@/components/CatalogProvider";
+ import { getCatalog } from "@/lib/catalog";
+ import { siteURL } from "@/lib/site";
+@@ -65,6 +66,7 @@ export default async function RootLayout({
+           rel="icon"
+           href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌙</text></svg>"
+         />
++        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+       </head>
+       <body>
+         <CatalogProvider recipes={recipes}>
+@@ -104,6 +106,7 @@ export default async function RootLayout({
+                     كل وصفة منسوبة لصاحبها، والفيديو الأصلي على يوتيوب هو المصدر
+                     — إحنا بننتقي ونرتّب ونقرّبك من الطبخة.
+                   </p>
++                  <InstallApp variant="slim" />
+                 </div>
+                 <nav aria-label="روابط الاكتشاف والاختيار">
+                   <h3>اتفرج واختار</h3>
+diff --git a/app/page.tsx b/app/page.tsx
+index dbaaee7..c11a466 100644
+--- a/app/page.tsx
++++ b/app/page.tsx
+@@ -24,6 +24,7 @@ import { RecipeCard, ShortCard, SectionHead } from "@/components/ui";
+ import FoodImage from "@/components/FoodImage";
+ import ResumeCooking from "@/components/ResumeCooking";
+ import SavedStrip from "./SavedStrip";
++import InstallApp from "@/components/InstallApp";
+ export const metadata = { alternates: { canonical: siteURL() } };
+ export default async function Home() {
+   const recipes = await getCatalog();
+@@ -223,6 +224,7 @@ export default async function Home() {
+             ))}
+           </ol>
+         </section>
++        <InstallApp />
+         <section className="block">
+           <SectionHead
+             title="جاهزين للطبخ"
+diff --git a/components/InstallApp.tsx b/components/InstallApp.tsx
+new file mode 100644
+index 0000000..2af76c4
+--- /dev/null
++++ b/components/InstallApp.tsx
+@@ -0,0 +1,125 @@
++"use client";
++import { useEffect, useState } from "react";
++import { Download, Moon, Share, CheckCircle2 } from "lucide-react";
++
++// «ثبّت التطبيق»: زرار تثبيت PWA بهوية وصفات قمر.
++// - كروم/أندرويد: بيستخدم حدث beforeinstallprompt الحقيقي.
++// - آيفون (سفاري): مفيش واجهة تثبيت برمجية، فبنعرض خطوات الشير.
++// - متصفحات تانية: خطوات عامة (قائمة المتصفح ← تثبيت).
++// ولو التطبيق متثبت أصلًا وفاتح منه، الزرار بيختفي أو يقول «مثبّت».
++
++type BIPEvent = Event & {
++  prompt: () => Promise<void>;
++  userChoice: Promise<{ outcome: string }>;
++};
++
++function isStandalone() {
++  return (
++    window.matchMedia("(display-mode: standalone)").matches ||
++    (window.navigator as unknown as { standalone?: boolean }).standalone === true
++  );
++}
++function isIOS() {
++  return /iphone|ipad|ipod/i.test(window.navigator.userAgent);
++}
++
++export default function InstallApp({
++  variant = "card",
++}: {
++  variant?: "card" | "slim";
++}) {
++  const [mounted, setMounted] = useState(false);
++  const [deferred, setDeferred] = useState<BIPEvent | null>(null);
++  const [installed, setInstalled] = useState(false);
++  const [showHelp, setShowHelp] = useState(false);
++  const [ios, setIos] = useState(false);
++
++  useEffect(() => {
++    setMounted(true);
++    setInstalled(isStandalone());
++    setIos(isIOS());
++    const onBIP = (e: Event) => {
++      e.preventDefault();
++      setDeferred(e as BIPEvent);
++    };
++    const onInstalled = () => {
++      setInstalled(true);
++      setDeferred(null);
++    };
++    window.addEventListener("beforeinstallprompt", onBIP);
++    window.addEventListener("appinstalled", onInstalled);
++    return () => {
++      window.removeEventListener("beforeinstallprompt", onBIP);
++      window.removeEventListener("appinstalled", onInstalled);
++    };
++  }, []);
++
++  if (!mounted) return null;
++
++  const onClick = async () => {
++    if (deferred) {
++      await deferred.prompt();
++      const choice = await deferred.userChoice;
++      if (choice.outcome === "accepted") setDeferred(null);
++      else setShowHelp(false);
++      return;
++    }
++    setShowHelp((v) => !v);
++  };
++
++  if (installed)
++    return variant === "card" ? (
++      <div className="install-card installed" role="status">
++        <span className="install-orb ok">
++          <CheckCircle2 size={26} aria-hidden="true" />
++        </span>
++        <span className="install-texts">
++          <b>تطبيق وصفات قمر مثبّت عندك ✓</b>
++          <small>هتلاقيه على شاشتك الرئيسية وبيفتح على طول</small>
++        </span>
++      </div>
++    ) : null;
++
++  return (
++    <div className={`install-wrap ${variant}`}>
++      <button
++        type="button"
++        className="install-card"
++        onClick={onClick}
++        aria-expanded={showHelp}
++        aria-label="ثبّت تطبيق وصفات قمر على شاشتك الرئيسية"
++      >
++        <span className="install-orb">
++          <Download size={26} aria-hidden="true" />
++        </span>
++        <span className="install-texts">
++          <b>ثبّت تطبيق وصفات قمر</b>
++          <small>أضِفه لشاشتك الرئيسية — يفتح أسرع ومن غير متصفح</small>
++        </span>
++        <Moon
++          className="install-moon"
++          size={20}
++          fill="currentColor"
++          aria-hidden="true"
++        />
++      </button>
++      {showHelp && (
++        <div className="install-help" role="note">
++          {ios ? (
++            <p>
++              من سفاري: دوس زرار المشاركة{" "}
++              <Share size={15} aria-hidden="true" /> تحت، وبعده اختار «أضف
++              إلى الشاشة الرئيسية» — وهتلاقي قمر على شاشتك.
++            </p>
++          ) : (
++            <p>
++              من متصفحك: افتح قائمة المتصفح (⋮) واختار «تثبيت التطبيق» أو
++              «أضف إلى الشاشة الرئيسية». لو الخيار لسه مش ظاهر، كمّل تصفح
++              شوية وارجع — المتصفح بيقترحه بعد ما يتعرف على استخدامك.
++            </p>
++          )}
++        </div>
++      )}
++    </div>
++  );
++}
+diff --git a/public/icons/apple-touch-icon.png b/public/icons/apple-touch-icon.png
+new file mode 100644
+index 0000000..6049b39
+Binary files /dev/null and b/public/icons/apple-touch-icon.png differ
+diff --git a/public/icons/icon-192.png b/public/icons/icon-192.png
+new file mode 100644
+index 0000000..6124d8e
+Binary files /dev/null and b/public/icons/icon-192.png differ
+diff --git a/public/icons/icon-512.png b/public/icons/icon-512.png
+new file mode 100644
+index 0000000..1cd91a6
+Binary files /dev/null and b/public/icons/icon-512.png differ
+diff --git a/public/icons/icon-maskable-512.png b/public/icons/icon-maskable-512.png
+new file mode 100644
+index 0000000..c9195cf
+Binary files /dev/null and b/public/icons/icon-maskable-512.png differ
+diff --git a/public/manifest.webmanifest b/public/manifest.webmanifest
+index 66523b7..48a3713 100644
+--- a/public/manifest.webmanifest
++++ b/public/manifest.webmanifest
+@@ -2,9 +2,37 @@
+   "name": "وصفات قمر",
+   "short_name": "وصفات قمر",
+   "description": "وصفات قمر — وصفات تستاهل التجربة: مكتبة عربية منتقاة من فيديوهات الشيفات",
+-  "lang": "ar", "dir": "rtl",
+-  "start_url": "/", "scope": "/",
++  "lang": "ar",
++  "dir": "rtl",
++  "start_url": "/",
++  "scope": "/",
+   "display": "standalone",
+-  "background_color": "#F8F5EE", "theme_color": "#34483D",
+-  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+-}
++  "background_color": "#F8F5EE",
++  "theme_color": "#34483D",
++  "icons": [
++    {
++      "src": "/icons/icon-192.png",
++      "sizes": "192x192",
++      "type": "image/png",
++      "purpose": "any"
++    },
++    {
++      "src": "/icons/icon-512.png",
++      "sizes": "512x512",
++      "type": "image/png",
++      "purpose": "any"
++    },
++    {
++      "src": "/icons/icon-maskable-512.png",
++      "sizes": "512x512",
++      "type": "image/png",
++      "purpose": "maskable"
++    },
++    {
++      "src": "/icon.svg",
++      "sizes": "any",
++      "type": "image/svg+xml",
++      "purpose": "any"
++    }
++  ]
++}
+\ No newline at end of file
+diff --git a/scripts/generate-icons.py b/scripts/generate-icons.py
+new file mode 100644
+index 0000000..bc1b8a7
+--- /dev/null
++++ b/scripts/generate-icons.py
+@@ -0,0 +1,84 @@
++#!/usr/bin/env python3
++"""توليد أيقونات تطبيق «وصفات قمر» (PWA) برمجيًا من غير أي مكتبات خارجية.
++
++الهوية: خلفية أخضر زيتوني #34483D، هلال برتقالي #C9653F، ونجمة كريمي
++#F8F5EE. بنرسم بدقة 4x وبنصغّر (supersampling) عشان الحواف تبقى ناعمة.
++الاستخدام: python3 scripts/generate-icons.py
++"""
++import struct
++import zlib
++import os
++
++BG = (0x34, 0x48, 0x3D)      # أخضر زيتوني
++ORANGE = (0xC9, 0x65, 0x3F)  # برتقالي الهوية
++CREAM = (0xF8, 0xF5, 0xEE)   # كريمي
++
++
++def render(size: int, pad_ratio: float) -> list:
++    """بيرجع بكسلات RGB بحجم size×size. pad_ratio = هامش أمان للماسكابل."""
++    ss = 4
++    S = size * ss
++    cx = cy = S / 2
++    # الهلال: قرص برتقالي بينقص منه قرص مزاح بلون الخلفية
++    r_main = S * (0.30 if pad_ratio == 0 else 0.26)
++    cut_r = r_main * 0.86
++    cut_dx, cut_dy = r_main * 0.48, -r_main * 0.34
++    star_r = S * 0.045
++    star_x, star_y = cx + r_main * 0.78, cy - r_main * 0.92
++    rows = []
++    for y in range(size):
++        row = bytearray()
++        for x in range(size):
++            r_acc = g_acc = b_acc = 0
++            for sy in range(ss):
++                for sx in range(ss):
++                    px, py = x * ss + sx + 0.5, y * ss + sy + 0.5
++                    col = BG
++                    d_main = ((px - cx) ** 2 + (py - cy) ** 2) ** 0.5
++                    if d_main <= r_main:
++                        d_cut = (
++                            (px - (cx + cut_dx)) ** 2 + (py - (cy + cut_dy)) ** 2
++                        ) ** 0.5
++                        if d_cut > cut_r:
++                            col = ORANGE
++                    d_star = ((px - star_x) ** 2 + (py - star_y) ** 2) ** 0.5
++                    if d_star <= star_r:
++                        col = CREAM
++                    r_acc += col[0]
++                    g_acc += col[1]
++                    b_acc += col[2]
++            n = ss * ss
++            row += bytes((r_acc // n, g_acc // n, b_acc // n))
++        rows.append(b"\x00" + bytes(row))
++    return rows
++
++
++def write_png(path: str, size: int, pad_ratio: float = 0.0) -> None:
++    raw = b"".join(render(size, pad_ratio))
++
++    def chunk(kind: bytes, data: bytes) -> bytes:
++        return (
++            struct.pack(">I", len(data))
++            + kind
++            + data
++            + struct.pack(">I", zlib.crc32(kind + data) & 0xFFFFFFFF)
++        )
++
++    png = (
++        b"\x89PNG\r\n\x1a\n"
++        + chunk(b"IHDR", struct.pack(">IIBBBBB", size, size, 8, 2, 0, 0, 0))
++        + chunk(b"IDAT", zlib.compress(raw, 9))
++        + chunk(b"IEND", b"")
++    )
++    os.makedirs(os.path.dirname(path), exist_ok=True)
++    with open(path, "wb") as f:
++        f.write(png)
++    print("wrote", path, len(png), "bytes")
++
++
++if __name__ == "__main__":
++    root = os.path.join(os.path.dirname(__file__), "..", "public", "icons")
++    write_png(os.path.join(root, "icon-192.png"), 192)
++    write_png(os.path.join(root, "icon-512.png"), 512)
++    write_png(os.path.join(root, "icon-maskable-512.png"), 512, pad_ratio=0.1)
++    write_png(os.path.join(root, "apple-touch-icon.png"), 180)
+diff --git a/tests/pwa.test.ts b/tests/pwa.test.ts
+new file mode 100644
+index 0000000..a9cb828
+--- /dev/null
++++ b/tests/pwa.test.ts
+@@ -0,0 +1,59 @@
++import { test } from "node:test";
++import assert from "node:assert/strict";
++import { existsSync, readFileSync } from "node:fs";
++
++const manifest = JSON.parse(
++  readFileSync("public/manifest.webmanifest", "utf8"),
++);
++
++test("ثبّت التطبيق: المانيفست بهوية وصفات قمر وأيقونات PNG حقيقية", () => {
++  assert.equal(manifest.name, "وصفات قمر");
++  assert.equal(manifest.display, "standalone");
++  assert.equal(manifest.dir, "rtl");
++  assert.equal(manifest.theme_color, "#34483D");
++  assert.equal(manifest.background_color, "#F8F5EE");
++  const pngs = manifest.icons.filter(
++    (i: { type: string }) => i.type === "image/png",
++  );
++  assert.ok(pngs.some((i: { sizes: string }) => i.sizes === "192x192"));
++  assert.ok(pngs.some((i: { sizes: string }) => i.sizes === "512x512"));
++  assert.ok(
++    pngs.some((i: { purpose: string }) => i.purpose === "maskable"),
++    "لازم أيقونة maskable لأندرويد",
++  );
++  for (const icon of pngs) {
++    const path = `public${icon.src}`;
++    assert.ok(existsSync(path), `${path} لازم تكون مولّدة وموجودة`);
++    const buf = readFileSync(path);
++    // توقيع PNG + الأبعاد من IHDR
++    assert.equal(buf.subarray(1, 4).toString(), "PNG");
++    const w = buf.readUInt32BE(16),
++      h = buf.readUInt32BE(20);
++    const [ew, eh] = icon.sizes.split("x").map(Number);
++    assert.equal(w, ew, `${icon.src} العرض`);
++    assert.equal(h, eh, `${icon.src} الارتفاع`);
++  }
++  assert.ok(existsSync("public/icons/apple-touch-icon.png"));
++});
++
++test("ثبّت التطبيق: الزرار بيستخدم واجهة التثبيت الحقيقية وبدائل صادقة", () => {
++  const src = readFileSync("components/InstallApp.tsx", "utf8");
++  assert.match(src, /beforeinstallprompt/);
++  assert.match(src, /appinstalled/);
++  assert.match(src, /display-mode: standalone/);
++  // آيفون مالوش تثبيت برمجي — لازم تعليمات شير مش وعد كاذب
++  assert.match(src, /أضف\s*\n?\s*إلى الشاشة الرئيسية/);
++  assert.match(src, /ثبّت تطبيق وصفات قمر/);
++});
++
++test("ثبّت التطبيق: متوصل في أماكن ظاهرة (رئيسية/مزايا/فوتر)", () => {
++  assert.match(readFileSync("app/page.tsx", "utf8"), /<InstallApp \/>/);
++  assert.match(
++    readFileSync("app/features/page.tsx", "utf8"),
++    /<InstallApp \/>/,
++  );
++  assert.match(
++    readFileSync("app/layout.tsx", "utf8"),
++    /<InstallApp variant="slim" \/>/,
++  );
++});
