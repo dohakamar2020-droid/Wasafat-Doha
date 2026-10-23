@@ -104,6 +104,30 @@ export default function ReviewedSection({
           (جرام/مللي/كوب/حبة) — اللي مكتوب وصفًا بيفضل زي ما هو. علّم على اللي
           جهزته.
         </p>
+        {detail.servingsCount ? (
+          <p style={{ marginTop: 0 }}>
+            <span className="tag tag-need">
+              تكفي {detail.servingsCount} أشخاص (من المصدر)
+            </span>
+          </p>
+        ) : null}
+        {detail.timing && (
+          <div className="timing-box" role="note" aria-label="أوقات موثقة من المصدر">
+            <b>⏱ أوقات موثقة من المصدر:</b>{" "}
+            {[
+              detail.timing.prepMinutes ? `تحضير ~${detail.timing.prepMinutes} د` : null,
+              detail.timing.cookMinutes ? `طبخ ~${detail.timing.cookMinutes} د` : null,
+              detail.timing.waitMinutes ? `انتظار/تبريد ~${detail.timing.waitMinutes} د` : null,
+              detail.timing.totalMinutes ? `إجمالي مصرح به ~${detail.timing.totalMinutes} د` : null,
+            ]
+              .filter(Boolean)
+              .join(" · ") || "لا يوجد وقت كلي مصرح به"}
+            <span style={{ color: "var(--muted)" }}>
+              {" "}
+              — {detail.timing.sourceNote}
+            </span>
+          </div>
+        )}
         {detail.ingredients.map((g) => (
           <div className="ing-group" key={g.group}>
             <h4>{g.group}</h4>

@@ -28,6 +28,7 @@ function DiscoverInner() {
   const [sort, setSort] = useState<Sort>("editor");
   const [status, setStatus] = useState(sp.get("status") || "");
   const [shown, setShown] = useState(24);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const results = useMemo(() => {
     let list = q.trim() ? searchRecipes(q, recipes) : [...recipes];
@@ -123,7 +124,54 @@ function DiscoverInner() {
         )}
       </form>
 
-      <div className="filter-bar glass" role="group" aria-label="فلاتر الوصفات">
+      <div className="quick-chips" role="group" aria-label="اختيارات سريعة">
+        <button
+          type="button"
+          className={`qchip ${status === "reviewed" ? "on" : ""}`}
+          aria-pressed={status === "reviewed"}
+          onClick={() => setStatus(status === "reviewed" ? "" : "reviewed")}
+        >
+          ✓ وصفات مكتملة
+        </button>
+        <button
+          type="button"
+          className={`qchip ${kind === "short" ? "on" : ""}`}
+          aria-pressed={kind === "short"}
+          onClick={() => setKind(kind === "short" ? "" : "short")}
+        >
+          ⚡ شورتس
+        </button>
+        <button
+          type="button"
+          className={`qchip ${need === "بدون فرن" ? "on" : ""}`}
+          aria-pressed={need === "بدون فرن"}
+          onClick={() => setNeed(need === "بدون فرن" ? "" : "بدون فرن")}
+        >
+          🔥 بدون فرن
+        </button>
+        <button
+          type="button"
+          className={`qchip ${need === "مكونات قليلة" ? "on" : ""}`}
+          aria-pressed={need === "مكونات قليلة"}
+          onClick={() => setNeed(need === "مكونات قليلة" ? "" : "مكونات قليلة")}
+        >
+          🧺 مكونات قليلة
+        </button>
+        <button
+          type="button"
+          className="qchip qchip-filters"
+          aria-expanded={filtersOpen}
+          onClick={() => setFiltersOpen((v) => !v)}
+        >
+          ⚙️ الفلاتر{active.length ? ` (${active.length})` : ""}
+        </button>
+      </div>
+
+      <div
+        className={`filter-bar glass ${filtersOpen ? "open" : ""}`}
+        role="group"
+        aria-label="فلاتر الوصفات"
+      >
         <select
           value={cat}
           onChange={(e) => setCat(e.target.value)}

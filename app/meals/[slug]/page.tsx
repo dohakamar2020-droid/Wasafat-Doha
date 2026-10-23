@@ -3,7 +3,7 @@ import MealPlanner from "@/components/MealPlanner";
 import { getCatalog } from "@/lib/catalog";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { meals, mealBySlug, mealRecipes } from "@/lib/meals";
+import { meals, mealBySlug, mealRecipes, mealAllReviewed } from "@/lib/meals";
 import { RecipeCard } from "@/components/ui";
 import ShareMeal from "./ShareMeal";
 
@@ -43,10 +43,31 @@ export default async function MealPage({
           {m.desc} — {list.length} أطباق متجمعة عشان متحتارش. قائمة المشتريات
           بتجمع المقادير الرقمية المتوافقة مع توضيح المقادير الوصفية.
         </p>
+        {mealAllReviewed(m, recipes) ? (
+          <p>
+            <span className="tag tag-need">
+              ✓ كل أطباق السفرة دي وصفات مكتملة بمقادير وخطوات مراجعة
+            </span>
+          </p>
+        ) : (
+          <p>
+            <span className="tag">
+              بعض أطباقها لسه ترشيحات فيديو — مشترياتها مش كاملة لحد ما تكتمل
+              مراجعتها
+            </span>
+          </p>
+        )}
       </div>
       <div className="grid">
         {list.map((r) => (
-          <RecipeCard key={r.slug} r={r} />
+          <div key={r.slug}>
+            {m.roles[r.slug] && (
+              <p style={{ margin: "0 0 6px" }}>
+                <span className="tag tag-need">{m.roles[r.slug]}</span>
+              </p>
+            )}
+            <RecipeCard r={r} />
+          </div>
         ))}
       </div>
       <section className="surface">
