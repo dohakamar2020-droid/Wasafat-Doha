@@ -1,4 +1,5 @@
 import Link from "next/link";
+import InstallApp from "@/components/InstallApp";
 import {
   Search,
   Sparkles,
@@ -257,6 +258,7 @@ export default function FeaturesPage() {
           ))}
         </div>
       </div>
+      <InstallApp />
       {GROUPS.map((g, i) => (
         <section
           className="block"

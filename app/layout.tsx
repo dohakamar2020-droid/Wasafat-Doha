@@ -12,6 +12,7 @@ import SyncProvider from "@/components/SyncProvider";
 import AuthStatus from "@/components/AuthStatus";
 import { Search, Sparkles, Heart, Moon } from "lucide-react";
 import { TopNav, BottomBar } from "@/components/NavLinks";
+import InstallApp from "@/components/InstallApp";
 import CatalogProvider from "@/components/CatalogProvider";
 import { getCatalog } from "@/lib/catalog";
 import { siteURL } from "@/lib/site";
@@ -65,6 +66,7 @@ export default async function RootLayout({
           rel="icon"
           href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌙</text></svg>"
         />
+        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
       </head>
       <body>
         <CatalogProvider recipes={recipes}>
@@ -104,6 +106,7 @@ export default async function RootLayout({
                     كل وصفة منسوبة لصاحبها، والفيديو الأصلي على يوتيوب هو المصدر
                     — إحنا بننتقي ونرتّب ونقرّبك من الطبخة.
                   </p>
+                  <InstallApp variant="slim" />
                 </div>
                 <nav aria-label="روابط الاكتشاف والاختيار">
                   <h3>اتفرج واختار</h3>
