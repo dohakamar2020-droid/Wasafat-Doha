@@ -11,6 +11,7 @@ import {
   ytThumb,
 } from "@/lib/data";
 import FoodImage from "@/components/FoodImage";
+import SourcePackPanel from "./SourcePackPanel";
 type Content = z.infer<typeof contentSchema>;
 const split = (s: string) =>
   s
@@ -645,6 +646,26 @@ export default function ContentEditor({ slug }: { slug: string }) {
                 : "احفظ المرحلة"}
           </button>
         </div>
+        <SourcePackPanel
+          slug={slug}
+          onIngredients={(groups) =>
+            update("detail", {
+              ...(data.detail ?? {
+                servings: "",
+                tools: [],
+                ingredients: [],
+                steps: [],
+                successTips: [""],
+                commonMistakes: [""],
+                reviewNote: "",
+              }),
+              ingredients: [
+                ...(data.detail?.ingredients ?? []),
+                ...groups,
+              ],
+            })
+          }
+        />
         <aside className="surface editor-preview">
           <span className="eyebrow">معاينة قبل النشر</span>
           <FoodImage
