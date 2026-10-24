@@ -1,0 +1,4 @@
+{
+  "description": "1 kg flour\n850 g unsalted butter\n4 eggs\nJoin me:\nhttps://example.com",
+  "html": "{\"responseContext\":{},\"videoDetails\":{\"title\":\"x\"},\"shortDescription\":\"1 kg flour\\n850 g unsalted butter\\n4 eggs\\nJoin me:\\nhttps://example.com\",\"captions\":{\"playerCaptionsTracklistRenderer\":{\"captionTracks\":[{\"baseUrl\":\"https://www.youtube.com/api/timedtext?v=ABC&lang=en&kind=asr\"}]}}}"
+}

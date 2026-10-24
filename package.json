@@ -21,7 +21,8 @@
     "check": "npm run lint && npm run typecheck && npm test",
     "db:migrate": "node --env-file-if-exists=.env.local --import tsx scripts/migrate.ts",
     "admin:grant": "node --env-file-if-exists=.env.local --import tsx scripts/grant-admin.ts",
-    "ops:check": "node --env-file-if-exists=.env.local --import tsx scripts/ops-check.ts"
+    "ops:check": "node --env-file-if-exists=.env.local --import tsx scripts/ops-check.ts",
+    "harvest:sources": "node --env-file-if-exists=.env.local --import tsx scripts/harvest-recipe-sources.ts"
   },
   "dependencies": {
     "@fontsource/alexandria": "^5.3.0",
