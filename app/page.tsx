@@ -24,7 +24,6 @@ import { RecipeCard, ShortCard, SectionHead } from "@/components/ui";
 import FoodImage from "@/components/FoodImage";
 import ResumeCooking from "@/components/ResumeCooking";
 import SavedStrip from "./SavedStrip";
-import InstallApp from "@/components/InstallApp";
 export const metadata = { alternates: { canonical: siteURL() } };
 export default async function Home() {
   const recipes = await getCatalog();
@@ -224,7 +223,6 @@ export default async function Home() {
             ))}
           </ol>
         </section>
-        <InstallApp />
         <section className="block">
           <SectionHead
             title="جاهزين للطبخ"

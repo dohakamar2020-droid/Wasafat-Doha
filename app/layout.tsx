@@ -106,7 +106,6 @@ export default async function RootLayout({
                     كل وصفة منسوبة لصاحبها، والفيديو الأصلي على يوتيوب هو المصدر
                     — إحنا بننتقي ونرتّب ونقرّبك من الطبخة.
                   </p>
-                  <InstallApp variant="slim" />
                 </div>
                 <nav aria-label="روابط الاكتشاف والاختيار">
                   <h3>اتفرج واختار</h3>
@@ -154,7 +153,8 @@ export default async function RootLayout({
               </p>
             </footer>
 
-<BottomBar />
+            <InstallApp />
+            <BottomBar />
           </SyncProvider>
         </CatalogProvider>
       </body>
