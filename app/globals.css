@@ -3000,3 +3000,65 @@ fieldset.wiz-step legend {
     height: 46px;
   }
 }
+
+/* ==== إتمام خطوات الطبخ + إخفاء + بدائل + نصايح ==== */
+.cook-steps-nav {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 10px 0;
+}
+.cook-steps-nav button {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line);
+  background: var(--card);
+  color: var(--olive-2);
+  font-family: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+.cook-steps-nav button.on {
+  border-color: var(--orange);
+  background: rgba(201, 101, 63, 0.12);
+}
+.cook-steps-nav button.done {
+  background: var(--olive);
+  border-color: var(--olive);
+  color: #fff;
+}
+.step-done-bar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 14px 0;
+  padding: 12px;
+  border: 1.5px dashed rgba(201, 101, 63, 0.5);
+  border-radius: 16px;
+  background: rgba(201, 101, 63, 0.05);
+}
+.step-done-btn { font-size: 1.05rem; padding: 12px 22px; }
+.done-note { font-weight: 900; color: var(--olive); }
+.hide-btn {
+  position: absolute;
+  inset-inline-start: 10px;
+  bottom: 10px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 0;
+  background: rgba(248, 245, 238, 0.92);
+  color: var(--olive);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  z-index: 3;
+}
+.hide-btn:hover { background: var(--orange); color: #fff; }
+.sub-line { color: var(--orange); font-size: 0.88rem; font-weight: 600; }
+.tips-list { line-height: 2; }
+.tips-list li { margin-bottom: 6px; }

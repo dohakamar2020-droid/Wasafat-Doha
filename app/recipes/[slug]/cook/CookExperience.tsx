@@ -22,6 +22,10 @@ export default function CookExperience({ r }: { r: Recipe }) {
       `wasafat-Doha:timers:${r.slug}`,
       [],
     );
+  const [cookDone, setCookDone] = useStored<number[]>(
+    `wasafat-Doha:cookdone:${r.slug}`,
+    [],
+  );
   const [duo, setDuo] = useStored<boolean>(`wasafat-Doha:duo:${r.slug}`, false),
     [duoDone, setDuoDone] = useStored<number[]>(
       `wasafat-Doha:duo-done:${r.slug}`,
@@ -122,6 +126,22 @@ export default function CookExperience({ r }: { r: Recipe }) {
     setIdx(Math.max(0, Math.min(n, steps.length - 1)));
     setFinished(false);
   };
+  // «خلّصت الخطوة دي»: تعليم فعلي محفوظ + انتقال تلقائي للي بعدها
+  const completeStep = () => {
+    setCookDone((old) =>
+      old.includes(stepIndex) ? old : [...old, stepIndex],
+    );
+    if (stepIndex < steps.length - 1) {
+      setMessage(`تمام! الخطوة ${stepIndex + 1} خلصت — على اللي بعدها.`);
+      next(stepIndex + 1);
+    } else {
+      setFinished(true);
+      storageRemove("wasafat-Doha:last-cook");
+      setMessage("بالهنا! خلصت كل الخطوات.");
+    }
+  };
+  const uncompleteStep = () =>
+    setCookDone((old) => old.filter((x) => x !== stepIndex));
   const prepItems = [
     ["watched", "شفت شرح الوصفة مرة"],
     ["ingredients", "جهّزت المقادير المطلوبة"],
@@ -165,7 +185,9 @@ export default function CookExperience({ r }: { r: Recipe }) {
           aria-label="خطوة الطبخ الحالية"
         >
           <p>
-            الخطوة {stepIndex + 1} من {steps.length}
+            الخطوة {stepIndex + 1} من {steps.length} · أنجزت {cookDone.length}{" "}
+            من {steps.length}
+            {cookDone.includes(stepIndex) ? " · الخطوة دي متعلّمة ✓" : ""}
           </p>
           <div
             className="progress"
@@ -173,13 +195,30 @@ export default function CookExperience({ r }: { r: Recipe }) {
             aria-label="تقدم الطبخ"
             aria-valuemin={0}
             aria-valuemax={steps.length}
-            aria-valuenow={finished ? steps.length : stepIndex}
+            aria-valuenow={finished ? steps.length : cookDone.length}
           >
             <i
               style={{
-                width: `${(finished ? 1 : stepIndex / steps.length) * 100}%`,
+                width: `${
+                  (finished ? 1 : cookDone.length / Math.max(1, steps.length)) *
+                  100
+                }%`,
               }}
             />
+          </div>
+          <div className="cook-steps-nav" role="group" aria-label="كل الخطوات">
+            {steps.map((st, i) => (
+              <button
+                key={i}
+                type="button"
+                className={`${i === stepIndex ? "on" : ""} ${cookDone.includes(i) ? "done" : ""}`}
+                aria-current={i === stepIndex ? "step" : undefined}
+                aria-label={`الخطوة ${i + 1}: ${st.title}${cookDone.includes(i) ? " (خلصت)" : ""}`}
+                onClick={() => next(i)}
+              >
+                {cookDone.includes(i) ? "✓" : i + 1}
+              </button>
+            ))}
           </div>
           <h2>{step.title}</h2>
           <p className="cook-step-body">{step.body}</p>
@@ -197,6 +236,38 @@ export default function CookExperience({ r }: { r: Recipe }) {
               )}
             </div>
           )}
+          <div className="step-done-bar">
+            {cookDone.includes(stepIndex) ? (
+              <>
+                <span className="done-note">الخطوة دي خلصت ✓</span>
+                {stepIndex < steps.length - 1 && (
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => next(stepIndex + 1)}
+                  >
+                    روح للخطوة اللي بعدها
+                  </button>
+                )}
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm"
+                  onClick={uncompleteStep}
+                >
+                  لأ، لسه مخلصتش (تراجع)
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                className="btn btn-primary step-done-btn"
+                onClick={completeStep}
+              >
+                ✓ خلّصت الخطوة دي
+                {stepIndex < steps.length - 1 ? " — اللي بعدها" : " — خلصنا!"}
+              </button>
+            )}
+          </div>
           <div className="duo-bar">
             <button
               type="button"
@@ -359,21 +430,12 @@ export default function CookExperience({ r }: { r: Recipe }) {
             </button>
           ) : null}
           {stepIndex < steps.length - 1 ? (
-            <button
-              className="btn btn-primary"
-              onClick={() => next(stepIndex + 1)}
-            >
-              التالي ←
+            <button className="btn btn-primary" onClick={completeStep}>
+              ✓ خلّصت — التالي
             </button>
           ) : (
-            <button
-              className="btn btn-primary"
-              onClick={() => {
-                setFinished(true);
-                storageRemove("wasafat-Doha:last-cook");
-              }}
-            >
-              خلصت ✓
+            <button className="btn btn-primary" onClick={completeStep}>
+              ✓ خلّصت الطبخة
             </button>
           )}
         </nav>

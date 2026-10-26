@@ -123,6 +123,8 @@ export default async function RootLayout({
                   <Link href="/ingredients">اكتب اللي عندك</Link>
                   <Link href="/features">كل المزايا</Link>
                   <Link href="/kitchen/shopping">مشترياتي</Link>
+                  <Link href="/tips">أسرار نجاح الأكل</Link>
+                  <Link href="/kitchen/hidden">الوصفات المخفية</Link>
                   <Link href="/kitchen/saved">محفوظاتي</Link>
                   <Link href="/passport">جواز سفر المذاق</Link>
                 </nav>

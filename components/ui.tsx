@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { trendInfo } from "@/lib/trend";
 import Link from "next/link";
-import { Heart, Play, CheckCircle2 } from "lucide-react";
+import { Heart, Play, CheckCircle2, EyeOff } from "lucide-react";
 import { type Recipe, creatorById, formatViews, ytThumb } from "@/lib/data";
 import { useStored } from "./useStored";
 import { VERDICT_LABELS } from "./TrialCard";
@@ -20,6 +20,23 @@ export function useLocalList(key: string) {
   };
 }
 export const useSaved = () => useLocalList("wasafat-Doha:saved");
+export const useHidden = () => useLocalList("wasafat-Doha:hidden");
+export function HideButton({ slug, title }: { slug: string; title?: string }) {
+  const { has, toggle } = useHidden();
+  const hidden = has(slug);
+  return (
+    <button
+      type="button"
+      aria-pressed={hidden}
+      aria-label={`${hidden ? "إظهار" : "إخفاء"} ${title || "الوصفة"} من قوائمك`}
+      title={hidden ? "مخفي — دوس للإظهار" : "مش مناسبة؟ اخفيها"}
+      className={`hide-btn ${hidden ? "is-hidden" : ""}`}
+      onClick={() => toggle(slug)}
+    >
+      <EyeOff size={17} aria-hidden="true" />
+    </button>
+  );
+}
 export const usePlanned = () => useLocalList("wasafat-Doha:planned");
 export const useDone = () => useLocalList("wasafat-Doha:done");
 export function SaveButton({
@@ -57,7 +74,8 @@ export function RecipeCard({ r, reason }: { r: Recipe; reason?: string }) {
   const myVerdict = attempts.find(
     (a) => a.slug === r.slug && a.verdict,
   )?.verdict;
-  if (!s) return null;
+  const hidden = useHidden();
+  if (!s || hidden.has(r.slug)) return null;
   return (
     <article className="card">
       <div className="card-media">
@@ -83,6 +101,7 @@ export function RecipeCard({ r, reason }: { r: Recipe; reason?: string }) {
           <span className="new-badge">جديد</span>
         )}
         <SaveButton slug={r.slug} title={r.title} />
+        <HideButton slug={r.slug} title={r.title} />
       </div>
       <div className="card-body">
         <Link href={`/recipes/${r.slug}`} className="card-title">
@@ -125,7 +144,8 @@ export function RecipeCard({ r, reason }: { r: Recipe; reason?: string }) {
 }
 export function ShortCard({ r }: { r: Recipe }) {
   const s = r.sources.find((x) => x.kind === "short") || r.sources[0];
-  if (!s) return null;
+  const hidden = useHidden();
+  if (!s || hidden.has(r.slug)) return null;
   return (
     <article className="short-card">
       <div className="short-media">
@@ -142,6 +162,7 @@ export function ShortCard({ r }: { r: Recipe }) {
           </span>
         </Link>
         <SaveButton slug={r.slug} title={r.title} />
+        <HideButton slug={r.slug} title={r.title} />
       </div>
       <Link href={`/recipes/${r.slug}`} className="short-title">
         {r.title}
