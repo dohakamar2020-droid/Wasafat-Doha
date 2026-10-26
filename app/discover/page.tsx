@@ -12,6 +12,7 @@ import {
   allIngredients,
   searchRecipes,
 } from "@/lib/data";
+import { MEAL_TYPES, mealTypesOf, type MealType } from "@/lib/meal-types";
 import { RecipeCard } from "@/components/ui";
 
 type Sort = "editor" | "views" | "newest" | "az" | "trend";
@@ -28,6 +29,7 @@ function DiscoverInner() {
   const [ing, setIng] = useState(sp.get("ing") || "");
   const [sort, setSort] = useState<Sort>("editor");
   const [status, setStatus] = useState(sp.get("status") || "");
+  const [meal, setMeal] = useState(sp.get("meal") || "");
   const [shown, setShown] = useState(24);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
@@ -39,7 +41,8 @@ function DiscoverInner() {
     if (texture) list = list.filter((r) => r.textures.includes(texture));
     if (need) list = list.filter((r) => r.needs.includes(need));
     if (ing) list = list.filter((r) => r.mainIngredients.includes(ing));
-    if (status) list = list.filter((r) => r.status === status);
+  if (status) list = list.filter((r) => r.status === status);
+    if (meal) list = list.filter((r) => mealTypesOf(r).includes(meal as MealType));
     const byDate = (r: (typeof recipes)[0]) =>
       Math.max(
         0,
@@ -60,7 +63,7 @@ function DiscoverInner() {
           b.views - a.views,
       );
     return list;
-  }, [q, cat, creator, kind, texture, need, ing, sort, status, recipes]);
+  }, [q, cat, creator, kind, texture, need, ing, sort, status, meal, recipes]);
 
   const active: [string, () => void][] = [];
   if (q) active.push([`بحث: ${q}`, () => setQ("")]);
@@ -78,12 +81,14 @@ function DiscoverInner() {
   if (texture) active.push([texture, () => setTexture("")]);
   if (need) active.push([need, () => setNeed("")]);
   if (ing) active.push([ing, () => setIng("")]);
+  if (meal) active.push([meal, () => setMeal("")]);
   if (status)
     active.push([
       status === "reviewed" ? "وصفات مكتملة" : "ترشيحات فيديو",
       () => setStatus(""),
     ]);
   const clearAll = () => {
+    setMeal("");
     setQ("");
     setCat("");
     setCreator("");
@@ -159,6 +164,17 @@ function DiscoverInner() {
         >
           🧺 مكونات قليلة
         </button>
+        {MEAL_TYPES.map((t) => (
+          <button
+            key={t}
+            type="button"
+            className={`qchip ${meal === t ? "on" : ""}`}
+            aria-pressed={meal === t}
+            onClick={() => setMeal(meal === t ? "" : t)}
+          >
+            🍽️ {t}
+          </button>
+        ))}
         <button
           type="button"
           className="qchip qchip-filters"

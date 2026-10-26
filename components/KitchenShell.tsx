@@ -22,6 +22,7 @@ export function KitchenTabs() {
         ["/kitchen/shopping", "مشترياتي"],
         ["/kitchen/attempts", "تجاربي"],
         ["/passport", "جواز المذاق"],
+        ["/kitchen/hidden", "المخفيات"],
       ].map(([href, t]) => (
         <Link
           key={href}

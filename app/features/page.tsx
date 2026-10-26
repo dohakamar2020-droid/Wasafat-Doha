@@ -22,6 +22,7 @@ import {
   Heart,
   ListChecks,
   LifeBuoy,
+  Lightbulb,
   Calculator,
 } from "lucide-react";
 
@@ -179,6 +180,13 @@ const GROUPS: Group[] = [
         desc: "آخر طبخة وخطوتك محفوظين — ارجع كمّل من نفس النقطة.",
         href: "/",
         linkText: "من الرئيسية",
+      },
+      {
+        Icon: Lightbulb,
+        title: "أسرار نجاح الأكل",
+        desc: "نصايح مطبخ عامة حسب الموقف: عجين، بشاميل، قرمشة، تتبيلات، وتخزين آمن.",
+        href: "/tips",
+        linkText: "افتح الأسرار",
       },
       {
         Icon: LifeBuoy,

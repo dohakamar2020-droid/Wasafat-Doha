@@ -7,6 +7,7 @@ import { readJSON } from "@/lib/local-kitchen";
 import type { ReviewedDetail } from "@/lib/reviewed";
 import { stepVideoUrl } from "@/lib/trend";
 import { useMemo, useState } from "react";
+import { substituteFor, SUBSTITUTE_DISCLAIMER } from "@/lib/substitutes";
 import {
   factorForIngredient,
   factorForPan,
@@ -277,6 +278,11 @@ export default function ReviewedSection({
             </span>
           </p>
         ) : null}
+        {detail.ingredients
+          .flatMap((g) => g.items)
+          .some((i) => substituteFor(i.name)) && (
+          <p className="results-note">↔ {SUBSTITUTE_DISCLAIMER}</p>
+        )}
         {detail.timing && (
           <div className="timing-box" role="note" aria-label="أوقات موثقة من المصدر">
             <b>⏱ أوقات موثقة من المصدر:</b>{" "}
@@ -327,6 +333,13 @@ export default function ReviewedSection({
                           <span style={{ color: "var(--muted)" }}>
                             {" "}
                             — {item.name}
+                          </span>
+                        )}
+                        {substituteFor(item.name) && (
+                          <span className="sub-line">
+                            {" "}
+                            ⇄ بديل ممكن: {substituteFor(item.name)!.alt} (
+                            {substituteFor(item.name)!.note})
                           </span>
                         )}
                         {item.optional && (
