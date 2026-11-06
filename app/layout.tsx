@@ -110,6 +110,7 @@ export default async function RootLayout({
                   <h3>اتفرج واختار</h3>
                   <Link href="/discover">اكتشف الوصفات</Link>
                   <Link href="/watch">الشورتس</Link>
+                  <Link href="/videos">الفيديوهات</Link>
                   <Link href="/pick">رشحلي 3</Link>
                   <Link href="/pick-five">رشحلي ٥ بـ٥ مكونات</Link>
                   <Link href="/collections">المجموعات</Link>

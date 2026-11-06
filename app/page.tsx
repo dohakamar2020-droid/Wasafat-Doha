@@ -133,6 +133,10 @@ export default async function Home() {
   ];
   return (
     <>
+      <section className="home-watch wrap" aria-label="اتفرج حسب التصنيف">
+        <div className="home-watch-head"><div><span>مساحتك للفرجة</span><h2>نبدأ بحاجة تفتح النفس؟</h2></div><Link href="/videos">كل الفيديوهات ←</Link></div>
+        <div className="home-watch-links"><Link className="home-watch-main" href="/watch">▶ قلّب في الشورتس</Link>{Array.from(new Set(recipes.filter(r => r.sources.some(s => s.kind === "short")).map(r => r.category))).slice(0, 6).map(category => <Link key={category} href={`/watch?cat=${encodeURIComponent(category)}`}>{category}</Link>)}</div>
+      </section>
       <section className="hero">
         <div className="wrap hero-inner">
           <div>

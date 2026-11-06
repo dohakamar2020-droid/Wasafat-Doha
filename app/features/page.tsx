@@ -264,43 +264,38 @@ export default function FeaturesPage() {
           الموقع مش مكتبة وصفات وخلاص — دي رحلة: اتفرج، اختار، جهّز،
           اطبخ، وبعده كبّر خبرتك. كل ميزة مكانها في خطوة من الرحلة:
         </p>
-        <div className="chip-row" aria-label="خطوات الرحلة">
-          {GROUPS.map((g, i) => (
-            <a className="ing-chip" key={g.title} href={`#feat-group-${i}`}>
-              {g.title}
-            </a>
-          ))}
-        </div>
+        <p className="features-hint">اختار المرحلة اللي تهمك وافتحها عشان تشوف مزاياها.</p>
       </div>
-      {GROUPS.map((g, i) => (
-        <section
-          className="block"
-          key={g.title}
-          id={`feat-group-${i}`}
-          aria-labelledby={`feat-h-${i}`}
-        >
-          <div className="section-head">
-            <div>
-              <h2 id={`feat-h-${i}`}>{g.title}</h2>
-              <p>{g.sub}</p>
+      <div className="features-groups" aria-label="مراحل رحلة وصفات قمر">
+        {GROUPS.map((g, i) => (
+          <details className="features-group" key={g.title} id={`feat-group-${i}`}>
+            <summary className="features-summary">
+              <span className="features-summary-text">
+                <strong>{g.title}</strong>
+                <span>{g.sub}</span>
+              </span>
+              <span className="features-summary-meta">
+                <span>{g.feats.length} مزايا</span>
+                <span className="features-chevron" aria-hidden="true">⌄</span>
+              </span>
+            </summary>
+            <div className="feat-grid features-grid">
+              {g.feats.map(({ Icon, ...f }) => (
+                <article className="feat-card" key={f.title}>
+                  <span className="feat-icon">
+                    <Icon size={24} aria-hidden="true" />
+                  </span>
+                  <h3>{f.title}</h3>
+                  <p>{f.desc}</p>
+                  <Link className="text-link" href={f.href}>
+                    {f.linkText} ←
+                  </Link>
+                </article>
+              ))}
             </div>
-          </div>
-          <div className="feat-grid">
-            {g.feats.map(({ Icon, ...f }) => (
-              <article className="feat-card" key={f.title}>
-                <span className="feat-icon">
-                  <Icon size={24} aria-hidden="true" />
-                </span>
-                <h3>{f.title}</h3>
-                <p>{f.desc}</p>
-                <Link className="text-link" href={f.href}>
-                  {f.linkText} ←
-                </Link>
-              </article>
-            ))}
-          </div>
-        </section>
-      ))}
+          </details>
+        ))}
+      </div>
       <section className="surface">
         <h2>مش لاقي حاجة؟</h2>
         <p>

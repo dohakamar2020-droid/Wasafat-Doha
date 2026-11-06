@@ -3,17 +3,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Search,
-  Sparkles,
   House,
   CookingPot,
   LayoutGrid,
-  ShoppingBasket,
+  Clapperboard,
+  Video,
 } from "lucide-react";
 
 // التنقل الرئيسي: نفس الأقسام في الهيدر وشريط الموبايل عشان اليوزر
 // يلاقي كل حاجة من أي مكان، والرابط النشط واضح دايمًا.
 
 export const MAIN_NAV = [
+  { href: "/watch", label: "الشورتس" },
+  { href: "/videos", label: "الفيديوهات" },
   { href: "/discover", label: "اكتشف" },
   { href: "/pick", label: "رشحلي 3" },
   { href: "/pick-five", label: "رشحلي ٥" },
@@ -51,19 +53,19 @@ export function BottomBar() {
   const path = usePathname();
   const items = [
     { href: "/", label: "الرئيسية", Icon: House },
+    { href: "/watch", label: "شورتس", Icon: Clapperboard },
+    { href: "/videos", label: "فيديوهات", Icon: Video },
     { href: "/discover", label: "اكتشف", Icon: Search },
-    { href: "/pick", label: "رشحلي", Icon: Sparkles, pick: true },
-    { href: "/ingredients", label: "عندك إيه؟", Icon: ShoppingBasket },
     { href: "/features", label: "المزايا", Icon: LayoutGrid },
     { href: "/kitchen", label: "مطبخي", Icon: CookingPot },
   ];
   return (
     <nav className="bottombar glass" aria-label="تنقل الموبايل">
-      {items.map(({ href, label, Icon, pick }) => (
+      {items.map(({ href, label, Icon }) => (
         <Link
           key={href}
           href={href}
-          className={`${pick ? "bottom-pick" : ""} ${isActive(path, href) ? "on" : ""}`}
+          className={isActive(path, href) ? "on" : ""}
           aria-current={isActive(path, href) ? "page" : undefined}
         >
           <Icon size={22} aria-hidden="true" />
