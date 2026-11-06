@@ -4,12 +4,14 @@ import { readFileSync } from "node:fs";
 import { recipes, creators, collections } from "../lib/data";
 import { IMPORT_CANDIDATES, IMPORT_CREATORS } from "../lib/import-candidates";
 
-test("ملف الاستيراد يضيف فيديوهات فقط دون اعتماد مقادير أو أوقات غير مراجعة", () => {
+test("ملف الاستيراد يحتفظ بالترشيحات ويظهر التفاصيل المراجعة فقط", () => {
   assert.equal(IMPORT_CANDIDATES.length, 96);
   assert.equal(new Set(IMPORT_CREATORS.map((c) => c.id)).size, IMPORT_CREATORS.length);
   for (const r of IMPORT_CANDIDATES) {
     const published = recipes.find((item) => item.slug === r.slug);
-    assert.ok(published && published.status === "video" && !published.detail && !published.totalMinutes, r.slug);
+    assert.ok(published, r.slug);
+    if (published.status === "video") assert.ok(!published.detail && !published.totalMinutes, r.slug);
+    else assert.ok(published.status === "reviewed" && published.detail, r.slug);
     assert.ok(creators.some((c) => c.id === r.creatorId), r.slug);
     assert.equal(r.sources.length, 1);
     assert.match(r.sources[0].ytId, /^[\w-]{11}$/);
@@ -38,4 +40,22 @@ test("مصادر المعلقات الأقرب تحفظ اختلافاتها و�
     const r = IMPORT_CANDIDATES.find((item) => item.slug === slug);
     assert.ok(r && r.sources[0].ytId === video && r.why.includes("ترشيح فيديو"), slug);
   }
+});
+
+test("المجموعة الجديدة من الترشيحات لها تفاصيل موثقة صالحة", async () => {
+  const { detailSchema } = await import("../lib/content-schema");
+  for (const slug of ["date-oat-energy-balls", "cottage-cheese-egg-bites", "iced-ube-latte", "bang-bang-chicken", "parmesan-cabbage-steaks", "pistachio-latte"]) {
+    const r = recipes.find((item) => item.slug === slug);
+    assert.ok(r && r.status === "reviewed" && detailSchema.safeParse(r.detail).success, slug);
+    assert.ok(r.detail?.reviewNote.includes("لم تُجر تجربة"), slug);
+  }
+});
+
+test("دليل المزايا قابل للطي ويحافظ على الروابط", () => {
+  const page = readFileSync("app/features/page.tsx", "utf8");
+  const css = readFileSync("app/globals.css", "utf8");
+  assert.match(page, /<details className="features-group"/);
+  assert.match(page, /<summary className="features-summary"/);
+  assert.match(page, /href=\{f.href\}/);
+  assert.match(css, /\.features-grid \{ grid-template-columns: 1fr/);
 });
