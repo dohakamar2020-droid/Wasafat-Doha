@@ -3176,3 +3176,5 @@ fieldset.wiz-step legend {
 .feed-swipe-right { right:0; }.feed-swipe-left { left:0; }
 .feed-empty { padding-top:100px; }.feed-empty button { cursor:pointer; }
 @media (max-width:600px) { .feed-shell { padding:0; } .feed-scroll { height:100dvh; min-height:0; } .feed-info { padding-bottom:calc(env(safe-area-inset-bottom, 0px) + 20px); } }
+.feed-sound { position:absolute; z-index:5; right:16px; bottom:calc(env(safe-area-inset-bottom, 0px) + 182px); display:flex; align-items:center; gap:6px; border:1px solid #ffffff80; border-radius:999px; background:#1c2d23e8; color:#fff; padding:9px 12px; cursor:pointer; font-size:.78rem; font-weight:700; }
+.feed-sound:focus-visible { outline:3px solid white; outline-offset:3px; }
