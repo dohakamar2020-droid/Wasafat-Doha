@@ -372,7 +372,7 @@ export default async function Home() {
               )
               .slice(0, 3)
               .map((r) => (
-                <RecipeCard key={r.slug} r={r} reason={r.why} />
+                <RecipeCard key={r.slug} r={r} reason={r.detail?.successTips[0] || r.why} />
               ))}
           </div>
           <p className="results-note">

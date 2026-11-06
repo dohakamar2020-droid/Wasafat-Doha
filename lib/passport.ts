@@ -42,8 +42,8 @@ export const TASTE_PATHS: TastePath[] = [
   },
   {
     slug: "chocolate-journey",
-    title: "رحلة الشوكولاتة",
-    desc: "آيس كريم بيتي، حلو قهوة سريع، وبعده التيراميسو الأصلي",
+    title: "رحلة الحلويات المنزلية",
+    desc: "آيس كريم مانجا بيتي، حلو بارد، وبعده التيراميسو الأصلي",
     steps: [
       { slug: "mango-ice-cream", level: "بداية سهلة" },
       { slug: "cold-dessert-5-min", level: "تجربة مختلفة" },
