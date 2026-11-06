@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { trendInfo } from "@/lib/trend";
+import { recipeCardReason } from "@/lib/recipe-card-copy";
 import Link from "next/link";
 import { Heart, Play, CheckCircle2, EyeOff } from "lucide-react";
 import { type Recipe, creatorById, formatViews, ytThumb } from "@/lib/data";
@@ -75,6 +76,7 @@ export function RecipeCard({ r, reason }: { r: Recipe; reason?: string }) {
     (a) => a.slug === r.slug && a.verdict,
   )?.verdict;
   const hidden = useHidden();
+  const cardReason = recipeCardReason(r, reason);
   if (!s || hidden.has(r.slug)) return null;
   return (
     <article className="card">
@@ -125,9 +127,7 @@ export function RecipeCard({ r, reason }: { r: Recipe; reason?: string }) {
             </span>
           ))}
         </div>
-        {(reason || r.editorsPick) && (
-          <p className="card-why">{reason || r.why}</p>
-        )}
+        {cardReason && <p className="card-why">{cardReason}</p>}
         {r.testedNote && (
           <span className="tag tag-need">
             <CheckCircle2 size={12} aria-hidden="true" /> تجربة موثقة من الفريق
