@@ -11,7 +11,7 @@ import Image from "next/image";
 import "./globals.css";
 import SyncProvider from "@/components/SyncProvider";
 import AuthStatus from "@/components/AuthStatus";
-import { Search, Sparkles, Heart } from "lucide-react";
+import { Search, Sparkles, Heart, MessageCircle } from "lucide-react";
 import { TopNav, BottomBar } from "@/components/NavLinks";
 import InstallApp from "@/components/InstallApp";
 import CatalogProvider from "@/components/CatalogProvider";
@@ -80,6 +80,9 @@ export default async function RootLayout({
                 <Link href="/discover" className="icon-btn" aria-label="البحث">
                   <Search size={20} aria-hidden="true" />
                 </Link>
+                <Link href="/chat" className="icon-btn" aria-label="اسأل مساعد قمر">
+                  <MessageCircle size={20} aria-hidden="true" />
+                </Link>
                 <Link href="/pick" className="btn btn-primary btn-sm">
                   <Sparkles size={17} aria-hidden="true" /> رشحلي 3
                 </Link>
@@ -122,6 +125,7 @@ export default async function RootLayout({
                 <nav aria-label="روابط التجهيز والطبخ">
                   <h3>جهّز واطبخ</h3>
                   <Link href="/ingredients">اكتب اللي عندك</Link>
+                  <Link href="/chat">اسأل مساعد قمر</Link>
                   <Link href="/features">كل المزايا</Link>
                   <Link href="/kitchen/shopping">مشترياتي</Link>
                   <Link href="/tips">أسرار نجاح الأكل</Link>

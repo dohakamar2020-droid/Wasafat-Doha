@@ -20,6 +20,7 @@ export const MAIN_NAV = [
   { href: "/pick", label: "رشحلي 3" },
   { href: "/pick-five", label: "رشحلي ٥" },
   { href: "/ingredients", label: "عندك إيه؟" },
+  { href: "/chat", label: "اسأل قمر" },
   { href: "/meals", label: "السفرات" },
   { href: "/creators", label: "الشيفات" },
   { href: "/features", label: "كل المزايا" },
