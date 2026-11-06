@@ -19,7 +19,7 @@ import { emptyKitchen, mergeGuest, kitchenSchema } from "../lib/kitchen-state";
 test("source IDs are unique and review badges require actual complete details", () => {
   const ids = recipes.flatMap((r) => r.sources.map((s) => s.ytId));
   assert.equal(new Set(ids).size, ids.length);
-  assert.equal(ids.length, 89); // 80 أصلية + 9 من بحث الترند (أكتوبر 2026)
+  assert.equal(ids.length, 111); // 80 أصلية + 9 من بحث أكتوبر 2026 + 22 من بحث الترند الموسّع (نوفمبر 2026)
   for (const r of recipes) {
     for (const s of r.sources) assert.match(s.ytId, /^[\w-]{11}$/);
     if (r.detail) assert.ok(detailSchema.safeParse(r.detail).success, r.slug);

@@ -1,7 +1,7 @@
 import { normalizeAr, type Recipe } from "./data";
 import type { RIngredient, RStep } from "./reviewed";
 
-export const CAPTURED_AT = "2026-10-22";
+export const CAPTURED_AT = "2026-11-06";
 export const SWEET_CATEGORIES = ["حلويات باردة", "كيك ومخبوزات", "مشروبات"];
 export function isSweet(r: Recipe) {
   return (
