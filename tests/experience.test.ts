@@ -19,7 +19,7 @@ import { emptyKitchen, mergeGuest, kitchenSchema } from "../lib/kitchen-state";
 test("source IDs are unique and review badges require actual complete details", () => {
   const ids = recipes.flatMap((r) => r.sources.map((s) => s.ytId));
   assert.equal(new Set(ids).size, ids.length);
-  assert.equal(ids.length, 136); // الدفعات السابقة + مصادر الأفكار المختارة
+  assert.equal(ids.length, 156); // الدفعات السابقة + مصادر الأفكار المختارة
   for (const r of recipes) {
     assert.ok(creators.some((c) => c.id === r.creatorId), r.slug);
     assert.ok(contentSchema.shape.creatorId.safeParse(r.creatorId).success, r.slug);
@@ -290,4 +290,19 @@ test("من اللي عندك للناقص: الترشيح بيقول الناق�
     break;
   }
   assert.ok(checked === 1, "لازم نلاقي وصفة تتطابق بالكامل بأسمائها");
+});
+
+test("user candidate batch has unique creators, sources and a complete collection", async () => {
+  const { USER_CANDIDATES, USER_CANDIDATE_CREATORS } = await import("../lib/user-candidates");
+  const { collections } = await import("../lib/data");
+  const collection = collections.find((c) => c.slug === "your-remaining-ideas");
+  assert.ok(collection);
+  assert.equal(USER_CANDIDATES.length, 20);
+  assert.deepEqual(new Set(collection.recipeSlugs), new Set(USER_CANDIDATES.map((r) => r.slug)));
+  assert.equal(new Set(USER_CANDIDATE_CREATORS.map((c) => c.id)).size, USER_CANDIDATE_CREATORS.length);
+  for (const r of USER_CANDIDATES) {
+    assert.ok(USER_CANDIDATE_CREATORS.some((c) => c.id === r.creatorId), r.slug);
+    assert.equal(r.status, "video", r.slug);
+    assert.ok(r.sources[0].uploadedAt?.startsWith(r.sources[0].published.slice(3)), r.slug);
+  }
 });

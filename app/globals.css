@@ -86,9 +86,10 @@ main {
 .logo b {
   color: var(--orange);
 }
-.logo-moon {
-  font-size: 1.5rem;
-  filter: drop-shadow(0 3px 6px rgba(201, 101, 63, 0.4));
+.logo-mark {
+  width: 32px;
+  height: 32px;
+  flex: none;
 }
 .topnav {
   display: flex;
@@ -1600,7 +1601,7 @@ body {
     font-size: 1.08rem;
     gap: 6px;
   }
-  .logo-moon {
+  .logo-mark {
     font-size: 1.3rem;
   }
   .top-actions {
@@ -2121,9 +2122,9 @@ textarea {
 .logo {
   flex-shrink: 0;
 }
-.logo-moon {
-  width: 26px;
-  height: 26px;
+.logo-mark {
+  width: 32px;
+  height: 32px;
 }
 .logo-text {
   white-space: nowrap;
@@ -2314,9 +2315,9 @@ textarea {
   .logo {
     font-size: 1.1rem;
   }
-  .logo-moon {
-    width: 23px;
-    height: 23px;
+  .logo-mark {
+    width: 28px;
+    height: 28px;
   }
   .hero-inner {
     padding: 28px var(--gutter) 30px;

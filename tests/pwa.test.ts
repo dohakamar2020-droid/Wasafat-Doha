@@ -33,7 +33,7 @@ test("ثبّت التطبيق: المانيفست بهوية وصفات قمر �
     assert.equal(w, ew, `${icon.src} العرض`);
     assert.equal(h, eh, `${icon.src} الارتفاع`);
   }
-  assert.ok(existsSync("public/icons/apple-touch-icon.png"));
+  assert.ok(existsSync("public/icons/logo-apple-touch.png"));
 });
 
 test("ثبّت التطبيق: الزرار بيستخدم واجهة التثبيت الحقيقية ويكبر لما يتداس عليه", () => {
@@ -72,4 +72,17 @@ test("ثبّت التطبيق: عائم ومش ثابت جوه الصفحات و
     cssSrc,
     /@media\s*\(max-width:\s*640px\)\s*\{[\s\S]*?\.install-float[\s\S]*?bottom:\s*calc\(104px\s*\+\s*env\(safe-area-inset-bottom,\s*0px\)\)/,
   );
+});
+
+
+test("لوجو الموقع وأيقونات التطبيق من نفس ملف الهوية", () => {
+  const layout = readFileSync("app/layout.tsx", "utf8");
+  assert.match(layout, /src="\/logo\.svg"/);
+  assert.match(layout, /href="\/logo\.svg"/);
+  assert.match(layout, /href="\/icons\/logo-apple-touch\.png"/);
+  assert.ok(manifest.icons.some((i: { src: string }) => i.src === "/logo.svg"));
+  assert.ok(existsSync("public/logo.svg"));
+  const generator = readFileSync("scripts/generate-icons.mjs", "utf8");
+  assert.match(generator, /public\/logo\.svg/);
+  assert.match(generator, /resize\(400, 400\)/);
 });
