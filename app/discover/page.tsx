@@ -1,6 +1,6 @@
 "use client";
 import { useCatalog } from "@/components/CatalogProvider";
-import { byTrend } from "@/lib/trend";
+import { discoverySort, orderDiscovery, type DiscoverySort } from "@/lib/discovery-order";
 import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -15,21 +15,36 @@ import {
 import { MEAL_TYPES, mealTypesOf, type MealType } from "@/lib/meal-types";
 import { RecipeCard } from "@/components/ui";
 
-type Sort = "editor" | "views" | "newest" | "az" | "trend";
 
 function DiscoverInner() {
   const recipes = useCatalog();
   const sp = useSearchParams();
-  const [q, setQ] = useState(sp.get("q") || "");
-  const [cat, setCat] = useState(sp.get("cat") || "");
-  const [creator, setCreator] = useState(sp.get("creator") || "");
-  const [kind, setKind] = useState(sp.get("kind") || "");
-  const [texture, setTexture] = useState(sp.get("texture") || "");
-  const [need, setNeed] = useState(sp.get("need") || "");
-  const [ing, setIng] = useState(sp.get("ing") || "");
-  const [sort, setSort] = useState<Sort>("editor");
-  const [status, setStatus] = useState(sp.get("status") || "");
-  const [meal, setMeal] = useState(sp.get("meal") || "");
+  const q = sp.get("q") || "";
+  const cat = sp.get("cat") || "";
+  const creator = sp.get("creator") || "";
+  const kind = sp.get("kind") || "";
+  const texture = sp.get("texture") || "";
+  const need = sp.get("need") || "";
+  const ing = sp.get("ing") || "";
+  const status = sp.get("status") || "";
+  const meal = sp.get("meal") || "";
+  const sort = discoverySort(sp.get("sort"), q);
+  const update = (key: string, value: string, replace = false) => {
+    const url = new URL(window.location.href);
+    if (value) url.searchParams.set(key, value); else url.searchParams.delete(key);
+    window.history[replace ? "replaceState" : "pushState"](null, "", url);
+    setShown(24);
+  };
+  const setQ = (v: string) => update("q", v, true);
+  const setCat = (v: string) => update("cat", v);
+  const setCreator = (v: string) => update("creator", v);
+  const setKind = (v: string) => update("kind", v);
+  const setTexture = (v: string) => update("texture", v);
+  const setNeed = (v: string) => update("need", v);
+  const setIng = (v: string) => update("ing", v);
+  const setStatus = (v: string) => update("status", v);
+  const setMeal = (v: string) => update("meal", v);
+  const setSort = (v: DiscoverySort) => update("sort", v);
   const [shown, setShown] = useState(24);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
@@ -41,28 +56,9 @@ function DiscoverInner() {
     if (texture) list = list.filter((r) => r.textures.includes(texture));
     if (need) list = list.filter((r) => r.needs.includes(need));
     if (ing) list = list.filter((r) => r.mainIngredients.includes(ing));
-  if (status) list = list.filter((r) => r.status === status);
+    if (status) list = list.filter((r) => r.status === status);
     if (meal) list = list.filter((r) => mealTypesOf(r).includes(meal as MealType));
-    const byDate = (r: (typeof recipes)[0]) =>
-      Math.max(
-        0,
-        ...r.sources.map((s) => {
-          const [m, y] = s.published.split("/");
-          return Number(y) * 100 + Number(m);
-        }),
-      );
-    if (sort === "views") list.sort((a, b) => b.views - a.views);
-    else if (sort === "trend") list.sort((a, b) => byTrend(a, b));
-    else if (sort === "newest") list.sort((a, b) => byDate(b) - byDate(a));
-    else if (sort === "az")
-      list.sort((a, b) => a.title.localeCompare(b.title, "ar"));
-    else
-      list.sort(
-        (a, b) =>
-          Number(b.editorsPick || false) - Number(a.editorsPick || false) ||
-          b.views - a.views,
-      );
-    return list;
+    return orderDiscovery(list, sort, q);
   }, [q, cat, creator, kind, texture, need, ing, sort, status, meal, recipes]);
 
   const active: [string, () => void][] = [];
@@ -88,15 +84,10 @@ function DiscoverInner() {
       () => setStatus(""),
     ]);
   const clearAll = () => {
-    setMeal("");
-    setQ("");
-    setCat("");
-    setCreator("");
-    setKind("");
-    setTexture("");
-    setNeed("");
-    setIng("");
-    setStatus("");
+    const url = new URL(window.location.href);
+    ["q", "cat", "creator", "kind", "texture", "need", "ing", "status", "meal"].forEach(key => url.searchParams.delete(key));
+    window.history.pushState(null, "", url);
+    setShown(24);
   };
 
   return (
@@ -262,9 +253,10 @@ function DiscoverInner() {
         </select>
         <select
           value={sort}
-          onChange={(e) => setSort(e.target.value as Sort)}
+          onChange={(e) => setSort(e.target.value as DiscoverySort)}
           aria-label="ترتيب النتائج"
         >
+          <option value="relevance">الأقرب للبحث</option>
           <option value="editor">اختيارات المحرر</option>
           <option value="views">الأكثر مشاهدة على يوتيوب</option>
           <option value="trend">🔥 الأكثر انتشارًا حديثًا</option>
@@ -295,7 +287,7 @@ function DiscoverInner() {
         </div>
       )}
 
-      <p className="results-note">
+      <p className="results-note" role="status" aria-live="polite">
         لقينا <b>{results.length}</b> وصفة{results.length !== 1 ? "" : ""} في
         وصفات قمر
         {sort === "views" ? " — مرتبة بمشاهدات يوتيوب وقت آخر مراجعة" : ""}
@@ -305,8 +297,8 @@ function DiscoverInner() {
         <div className="empty">
           <h3>مش لاقيين نفس الطلب بالظبط 🤔</h3>
           <p>
-            جرّب تخفف فلتر أو اتنين، أو دور بكلمة أبسط — ودول أقرب اختيارات
-            متاحة:
+            جرّب تخفف فلتر أو اتنين، أو دور بكلمة أبسط. دي وصفات شائعة
+            ممكن تعجبك، مش نتائج مطابقة للبحث:
           </p>
           <button className="btn btn-primary" onClick={clearAll}>
             خفف الفلاتر وشوف الكل
