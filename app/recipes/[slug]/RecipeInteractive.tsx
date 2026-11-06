@@ -91,6 +91,7 @@ export default function RecipeInteractive({ r }: { r: Recipe }) {
             <SaveButton slug={r.slug} big />
           </div>
           <div className="secondary-actions">
+            <Link className="btn btn-ghost" href={`/chat?recipe=${encodeURIComponent(r.slug)}`}>اسأل قمر عن الوصفة</Link>
             <button
               className="btn btn-ghost"
               aria-pressed={planned.has(r.slug)}

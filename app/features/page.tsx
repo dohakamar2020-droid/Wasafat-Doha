@@ -24,6 +24,7 @@ import {
   LifeBuoy,
   Lightbulb,
   Calculator,
+  MessageCircle,
 } from "lucide-react";
 
 // «كل المزايا»: دليل واحد لكل اللي وصفات قمر بيقدمه، مرتب على رحلة
@@ -119,6 +120,7 @@ const GROUPS: Group[] = [
     title: "٣ · جهّز",
     sub: "حوّل اختيارك لخطة تجهيز ومشتريات",
     feats: [
+      { Icon: MessageCircle, title: "اسأل مساعد قمر", desc: "اسأل عن المقادير والخطوات وقارن الموجود عندك بمقادير الوصفة المكتوبة.", href: "/chat", linkText: "افتح المساعد" },
       {
         Icon: ShoppingBasket,
         title: "اكتب اللي عندك",
