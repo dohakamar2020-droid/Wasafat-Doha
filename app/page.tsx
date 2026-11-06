@@ -58,7 +58,7 @@ export default async function Home() {
     recipes
       .filter((r) => r.sources.some((s) => s.kind === "short"))
       .sort((a, b) => b.views - a.views),
-    8,
+    4,
     used,
   );
   const journey = [
@@ -133,10 +133,6 @@ export default async function Home() {
   ];
   return (
     <>
-      <section className="home-watch wrap" aria-label="اتفرج حسب التصنيف">
-        <div className="home-watch-head"><div><span>مساحتك للفرجة</span><h2>نبدأ بحاجة تفتح النفس؟</h2></div><Link href="/videos">كل الفيديوهات ←</Link></div>
-        <div className="home-watch-links"><Link className="home-watch-main" href="/watch">▶ قلّب في الشورتس</Link>{Array.from(new Set(recipes.filter(r => r.sources.some(s => s.kind === "short")).map(r => r.category))).slice(0, 6).map(category => <Link key={category} href={`/watch?cat=${encodeURIComponent(category)}`}>{category}</Link>)}</div>
-      </section>
       <section className="hero">
         <div className="wrap hero-inner">
           <div>
@@ -210,6 +206,19 @@ export default async function Home() {
         </div>
       </section>
       <div className="wrap">
+        <section className="block">
+          <SectionHead
+            title="شوف الفكرة بسرعة"
+            sub="شورتس للفرجة؛ وقت الطبخ بيتحدد من الوصفة"
+            href="/watch"
+            linkText="كل الشورتس"
+          />
+          <div className="shorts-row">
+            {shorts.map((r) => (
+              <ShortCard key={r.slug} r={r} />
+            ))}
+          </div>
+        </section>
         <ResumeCooking />
         <section className="block" aria-labelledby="journey-h">
           <SectionHead
@@ -305,19 +314,6 @@ export default async function Home() {
             <Link className="btn btn-primary btn-sm" href="/ingredients">
               <ShoppingBasket size={16} aria-hidden="true" /> افتح مطبخك
             </Link>
-          </div>
-        </section>
-        <section className="block">
-          <SectionHead
-            title="شوف الفكرة بسرعة"
-            sub="شورتس للفرجة؛ وقت الطبخ بيتحدد من الوصفة"
-            href="/watch"
-            linkText="كل الشورتس"
-          />
-          <div className="shorts-row">
-            {shorts.map((r) => (
-              <ShortCard key={r.slug} r={r} />
-            ))}
           </div>
         </section>
         <section className="block">

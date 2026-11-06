@@ -149,7 +149,7 @@ export function ShortCard({ r }: { r: Recipe }) {
   return (
     <article className="short-card">
       <div className="short-media">
-        <Link href={`/watch/${r.slug}`} aria-label={`شاهد ${r.title}`}>
+        <Link href={`/watch?start=${encodeURIComponent(r.slug)}`} aria-label={`شاهد ${r.title}`}>
           <FoodImage
             src={ytThumb(s.ytId)}
             alt={r.title}
