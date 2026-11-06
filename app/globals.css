@@ -3063,3 +3063,31 @@ fieldset.wiz-step legend {
 .sub-line { color: var(--orange); font-size: 0.88rem; font-weight: 600; }
 .tips-list { line-height: 2; }
 .tips-list li { margin-bottom: 6px; }
+
+/* رشحلي ٥: مكونات وتفضيلات أكتر، من غير وعود بوقت أو مقادير غير موثقة */
+.pick-five { padding-bottom: 70px; }
+.five-layout { display: grid; grid-template-columns: 1.15fr 1fr; gap: 20px; align-items: start; }
+.five-layout .surface { padding: clamp(20px, 3vw, 32px); }
+.five-heading { display: flex; justify-content: space-between; align-items: start; gap: 12px; }
+.five-heading h2, .five-preferences h2 { margin: 6px 0; }
+.five-counter { color: var(--orange-2); background: #fdf0e7; border-radius: 999px; padding: 7px 14px; white-space: nowrap; }
+.five-selected { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+.five-selected button { border: 1px solid var(--olive); background: var(--olive); color: white; border-radius: 999px; padding: 8px 14px; font-weight: 700; }
+.five-selected button span { margin-inline-start: 5px; }
+.five-search { display: block; width: 100%; margin: 8px 0 16px; }
+.five-ingredients label, .five-fields label { font-weight: 700; color: var(--olive); }
+.five-chips { margin-bottom: 14px; }
+.five-more { margin-top: 16px; }
+.five-more summary { cursor: pointer; font-weight: 700; color: var(--olive); }
+.five-all { margin-top: 14px; max-height: 240px; overflow-y: auto; }
+.five-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 20px 0; }
+.five-fields label { display: grid; gap: 6px; font-size: .9rem; }
+.five-fields select { width: 100%; min-height: 48px; padding: 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--cream); color: var(--olive); font: inherit; }
+.five-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+.five-results { margin-top: 44px; }
+.five-results .grid { margin-top: 22px; }
+.five-result { min-width: 0; }
+.five-match { padding: 12px 4px 4px; line-height: 1.8; color: var(--olive); font-size: .9rem; }
+.five-match p { margin: 0 0 10px; }
+@media (max-width: 760px) { .five-layout { grid-template-columns: 1fr; } .five-fields { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 420px) { .five-fields { grid-template-columns: 1fr; } }

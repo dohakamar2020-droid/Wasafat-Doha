@@ -55,9 +55,9 @@ export default function PickPage() {
       <div className="page-head">
         <span className="eyebrow">اختيارات على مقاس طلبك</span>
         <h1>رشحلي 3</h1>
+        <Link href="/pick-five" className="text-link">عايز اختيارات أكتر؟ جرّب رشحلي ٥ بـ٥ مكونات ←</Link>
         <p>
-          حدد مزاجك ووقتك. الشروط اللي تختارها هتتطبق، حتى لو النتيجة أقل من 3
-          وصفات.
+          حدد مزاجك ووقتك. بنبدأ بالمطابق، ولو الاختيارات قليلة ممكن نعرض بدائل قريبة مع توضيح السبب.
         </p>
       </div>
       <div className="wizard">
