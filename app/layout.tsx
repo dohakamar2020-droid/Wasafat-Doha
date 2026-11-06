@@ -17,6 +17,7 @@ import CatalogProvider from "@/components/CatalogProvider";
 import { getCatalog } from "@/lib/catalog";
 import { siteURL } from "@/lib/site";
 import RegisterSW from "@/components/RegisterSW";
+import { Analytics } from "@vercel/analytics/next";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -159,6 +160,7 @@ export default async function RootLayout({
             <BottomBar />
           </SyncProvider>
         </CatalogProvider>
+        <Analytics />
       </body>
     </html>
   );
