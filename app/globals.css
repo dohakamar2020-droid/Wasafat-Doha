@@ -2735,8 +2735,8 @@ fieldset.wiz-step legend {
 }
 
 /* ===== Trending, shelf, my-week, SOS, step-video (Oct 2026 batch) ===== */
-.trend-badge{position:absolute;inset-inline-start:8px;bottom:8px;background:#B33A1F;color:#fff;font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:999px}
-.new-badge{position:absolute;inset-inline-start:8px;bottom:8px;background:#2F6B4F;color:#fff;font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:999px}
+.trend-badge{pointer-events:none;position:absolute;inset-inline-start:8px;bottom:8px;background:#B33A1F;color:#fff;font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:999px}
+.new-badge{pointer-events:none;position:absolute;inset-inline-start:8px;bottom:8px;background:#2F6B4F;color:#fff;font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:999px}
 .card-media{position:relative}
 .step-video-link{display:inline-block;margin-top:6px;font-weight:600}
 .step-video-btn{margin-top:8px}

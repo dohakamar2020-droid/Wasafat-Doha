@@ -14,6 +14,8 @@ import {
   parsePantryText,
 } from "@/lib/experience";
 import { unlockSuggestions } from "@/lib/pantry";
+import { uniqueIngredientOptions } from "@/lib/ingredient-options";
+import { normalizeAr } from "@/lib/data";
 
 function Ingredients() {
   const catalog = useCatalog();
@@ -36,19 +38,12 @@ function Ingredients() {
     [shopped, setShopped] = useState<string[]>([]);
   const ingredients = useMemo(
     () =>
-      [
-        ...new Set(
-          catalog
-            .flatMap((r) =>
-              r.detail
-                ? r.detail.ingredients.flatMap((g) =>
-                    g.items.map((i) => ingredientKey(i.name)),
-                  )
-                : r.mainIngredients,
-            )
-            .concat(["ملح", "زيت", "فلفل أسود"]),
-        ),
-      ].sort((a, b) => a.localeCompare(b, "ar")),
+      uniqueIngredientOptions(
+        catalog.flatMap((r) => r.detail
+          ? r.detail.ingredients.flatMap((g) => g.items.map((i) => ingredientKey(i.name)))
+          : r.mainIngredients
+        ).concat(["ملح", "زيت", "فلفل أسود"]),
+      ),
     [catalog],
   );
   const results = useMemo(
@@ -74,7 +69,7 @@ function Ingredients() {
     [catalog, sel, excluded],
   );
   const toggle = (i: string) =>
-    setSel((s) => (s.includes(i) ? s.filter((x) => x !== i) : [...s, i]));
+    setSel((s) => (s.some(x => normalizeAr(x) === normalizeAr(i)) ? s.filter((x) => normalizeAr(x) !== normalizeAr(i)) : [...s, i]));
   const applyDraft = () => {
     const parsed = parsePantryText(draft, ingredients);
     if (!parsed.length) {
@@ -156,8 +151,8 @@ function Ingredients() {
           "ثوم",
         ].map((i) => (
           <button
-            className={`ing-chip ${sel.includes(i) ? "on" : ""}`}
-            aria-pressed={sel.includes(i)}
+            className={`ing-chip ${sel.some(x => normalizeAr(x) === normalizeAr(i)) ? "on" : ""}`}
+            aria-pressed={sel.some(x => normalizeAr(x) === normalizeAr(i))}
             onClick={() => toggle(i)}
             key={i}
           >
@@ -172,8 +167,8 @@ function Ingredients() {
             <button
               type="button"
               key={i}
-              className={`ing-chip ${sel.includes(i) ? "on" : ""}`}
-              aria-pressed={sel.includes(i)}
+              className={`ing-chip ${sel.some(x => normalizeAr(x) === normalizeAr(i)) ? "on" : ""}`}
+              aria-pressed={sel.some(x => normalizeAr(x) === normalizeAr(i))}
               onClick={() => toggle(i)}
             >
               {i}

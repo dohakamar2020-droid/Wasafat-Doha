@@ -1,0 +1,10 @@
+# Homepage implementation constraints and verification
+
+Source of truth: `full-website-audit/full-audit-and-phase-02-plan.md` and its unified backlog. No homepage section, hero CTA, discovery CTA, or creator preview was redesigned, reordered or removed on hypothesis alone. F05 remains unverified as to user impact.
+
+- **F02:** Existing homepage trend links target `/discover?sort=trend`; discovery validates the sort and uses `byTrend`. Automated tests compare the deep-link ordering to the homepage trend comparator and selection. Local HTTP returned 200 for the link. Interactive click, selected control, refresh and browser history remain untested.
+- **F04:** The earlier weekly-card fix prefers reviewed success tips. An additional narrowly targeted safeguard in the shared recipe card strips the known obsolete video-only sentence from descriptions when written details are present, preserving the rest of the description and any unrelated editorial reason. Video-only cards retain their disclaimer. Automated rendered-card tests cover both states.
+- **Click targets:** Server-rendered component tests check recipe image and title links, creator links, short image and title links, and separate save/hide buttons. The trend/new badges over recipe images previously intercepted pointer events; they now let clicks pass through to the image link. A local HTTP check found 152 creator links, 16 recipe card title links, 19 recipe image links (including hero), 4 short image links, 4 short title links and 2 trend links. Sample creator, recipe, short, short-title and trend URLs returned HTTP 200. This is markup/HTTP verification, not a browser hit-test, keyboard navigation or proof every destination was clicked.
+- `npm run check`: lint, typecheck and 65 tests passed. `npm run build`: passed with existing CSS Autoprefixer warnings. No browser, responsive/RTL visual, screen reader or screenshot verification performed.
+
+No production deployment, database change, or content removal was performed. Existing Phase 02 safety and account blockers remain; see `delivery-report.md`.
