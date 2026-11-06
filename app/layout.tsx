@@ -14,6 +14,8 @@ import AuthStatus from "@/components/AuthStatus";
 import { Search, Sparkles, Heart, MessageCircle } from "lucide-react";
 import { TopNav, BottomBar } from "@/components/NavLinks";
 import InstallApp from "@/components/InstallApp";
+import ChatPopup from "@/components/ChatPopup";
+import { Suspense } from "react";
 import CatalogProvider from "@/components/CatalogProvider";
 import { getCatalog } from "@/lib/catalog";
 import { siteURL } from "@/lib/site";
@@ -161,6 +163,7 @@ export default async function RootLayout({
             </footer>
 
             <InstallApp />
+            <Suspense fallback={null}><ChatPopup /></Suspense>
             <BottomBar />
           </SyncProvider>
         </CatalogProvider>
