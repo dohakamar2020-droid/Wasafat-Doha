@@ -49,7 +49,8 @@ async function main() {
         status: detail ? "reviewed" : "video",
         views: r.views,
         detail: detail || null,
-        viewsUpdatedAt: new Date("2026-10-22T00:00:00Z"),
+        viewsUpdatedAt: new Date(r.viewsUpdatedAt || "2026-10-22T00:00:00Z"),
+        sourceData: r.sources,
       })
       .onConflictDoNothing({ target: schema.recipes.slug });
     if (detail)

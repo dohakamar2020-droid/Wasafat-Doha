@@ -60,7 +60,7 @@ export const contentSchema = z.object({
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
     .max(100),
   title: z.string().trim().min(3).max(200),
-  creatorId: z.enum(["nadia", "heba", "abeer", "omar", "abujulia", "aya", "fatma", "om-anwar"]),
+  creatorId: z.enum(["nadia", "heba", "abeer", "omar", "abujulia", "aya", "fatma", "om-anwar", "monte-food", "easy-peasy-pan", "nico-recipes", "eatmee", "suburban-soapbox", "no-recipes", "chef-jack-ovens", "satiate", "sorrow-sky", "uma-devi", "anishi", "ghar-khana-vlog", "food-info-recipe", "pahadi-family", "sabrina-nicole", "eats-withren", "oksana-home", "homeit", "zayka-zindagi", "avani-anuradha", "bharatzkitchen", "ryuji-buzz"]),
   category: z.string().min(1).max(100),
   mainIngredients: z.array(z.string().min(1).max(100)).max(60),
   textures: z.array(z.string().max(100)).max(20),
