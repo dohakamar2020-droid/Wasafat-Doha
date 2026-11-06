@@ -111,6 +111,7 @@ export default async function RootLayout({
                   <Link href="/discover">اكتشف الوصفات</Link>
                   <Link href="/watch">الشورتس</Link>
                   <Link href="/pick">رشحلي 3</Link>
+                  <Link href="/pick-five">رشحلي ٥ بـ٥ مكونات</Link>
                   <Link href="/collections">المجموعات</Link>
                   <Link href="/meals">السفرات</Link>
                   <Link href="/weekly">اختيارات الأسبوع</Link>

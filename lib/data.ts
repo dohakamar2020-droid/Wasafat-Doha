@@ -1,9 +1,10 @@
+import { EXTRA_CANDIDATES, EXTRA_CREATORS } from "./extra-candidates";
 import { USER_CANDIDATES, USER_CANDIDATE_CREATORS } from "./user-candidates";
-// وصفات قمر — البيانات الأولية: 156 فيديو وشورت (منها مصادر قديمة لأفكار القائمة)
+// وصفات قمر — البيانات الأولية: 171 فيديو وشورت (منها مصادر قديمة لأفكار القائمة)
 // الدفعة الأخيرة (نوفمبر 2026) من بحث موسّع على القنوات الثمانية على يوتيوب: 22 وصفة ترند جديدة
 // و18 منها بمقادير وخطوات مكتملة المراجعة (lib/reviewed-batch5.ts) و4 تبقى ترشيح فيديو.
 // نموذج البيانات يفصل بين "الوصفة" Recipe و"مصدر الفيديو" VideoSource كما هو مخطط في وثيقة المشروع:
-// ثلاث وصفات لها شرح كامل وشورت منفصل، فعدد الوصفات أقل من عدد المصادر (153 وصفة مقابل 156 مصدرًا).
+// ثلاث وصفات لها شرح كامل وشورت منفصل، فعدد الوصفات أقل من عدد المصادر (168 وصفة مقابل 171 مصدرًا).
 // ملحوظة تحريرية: المقادير والخطوات التفصيلية لم تُراجع بعد لكل وصفة، لذلك تظهر الوصفات غير المراجعة بحالة
 // "ترشيح فيديو" ولا نعرض أوقات طبخ أو مقادير مُخترعة — الأرقام هنا هي مشاهدات يوتيوب وقت المراجعة.
 
@@ -57,6 +58,7 @@ export const creators: Creator[] = [
   {"id": "ryuji-buzz", "name": "Ryuji's Buzz Recipe", "tagline": "وصفات يابانية منزلية سريعة وتقنيات مطاعم مبسطة", "style": "وصفات يابانية عملية تعتمد على المذاق الواضح ومكونات قليلة، ومنها الكاراجي المقلي", "channelHint": "YouTube — Ryuji's Buzz Recipe"},
 
   ...USER_CANDIDATE_CREATORS,
+  ...EXTRA_CREATORS,
 ];
 export const creatorById = (id: string) => creators.find((c) => c.id === id)!;
 
@@ -3528,7 +3530,8 @@ export const recipes: Recipe[] = [
   "views": 1782417,
   "viewsUpdatedAt": "2026-11-06"
 },
- ...USER_CANDIDATES
+ ...USER_CANDIDATES,
+ ...EXTRA_CANDIDATES
 ];
 
 // إرفاق تفاصيل المراجعة اليدوية: الوصفة بتبقى «مكتملة» بس لو ليها مقادير وخطوات مراجعة
@@ -3592,6 +3595,10 @@ export function relatedRecipes(r: Recipe): { recipe: Recipe; reason: string }[] 
 
 export type Collection = { slug: string; title: string; desc: string; recipeSlugs: string[] };
 export const collections: Collection[] = [
+  { slug: "world-savory-discoveries", title: "سفرة من برّه الصندوق", desc: "أفكار مالحة من الكرنب والبحر للمشاوي، بطرق من مطابخ مختلفة.", recipeSlugs: ["tortilla-beef-kebab-skewers", "lobster-spring-rolls", "meatball-sub-bites", "cabbage-alfredo", "cabbage-wrapped-dumplings", "sardine-avocado-toast", "chili-oil-eggs", "marry-me-chicken", "baked-feta-pasta", "beef-birria-quesatacos"] },
+  { slug: "crunchy-snack-lab", title: "معمل القرمشة", desc: "سناكس بأفكار من المكرونة للسابودانا والتاكو؛ كل وصفة على طريقتها.", recipeSlugs: ["pasta-chips-air-fryer", "crispy-masala-macaroni", "sabudana-cheese-balls", "smashed-potatoes-jack", "smash-burger-tacos", "lobster-spring-rolls", "meatball-sub-bites"] },
+  { slug: "dessert-world-tour", title: "جواز سفر الحلويات", desc: "جولة بين الكروكي والموتشي وقشطة دبي وأفكار حلويات باردة ومخبوزة.", recipeSlugs: ["crookie-brown-butter", "rice-paper-fruit-mochi", "dubai-qishta-huma", "biscoff-yogurt-cheesecake", "ice-cream-croissant", "funfetti-dot-cake", "strawberry-tanghulu", "cottage-cheese-ice-cream"] },
+  { slug: "sweet-meets-heat", title: "حلو وحار في نفس الطبق", desc: "مانجا وشطة، عسل حار، ونكهات تجمع الحلاوة والحرارة.", recipeSlugs: ["mexican-mangonada", "hot-honey-chicken-bites", "whipped-feta-honey"] },
   {"slug": "your-remaining-ideas", "title": "أفكار تانية من قايمتك", "desc": "اختيارات من الأفكار اللي بعتوها، بمصادر يوتيوب مختلفة؛ منها فيديوهات قديمة وكلها ترشيحات فيديو لحد مراجعة التفاصيل.", "recipeSlugs": ["dubai-qishta-huma", "biscoff-yogurt-cheesecake", "stuffed-sweet-potato-beans", "rotisserie-chicken-fried-rice", "sabudana-cheese-balls", "shrimp-lemon-pasta-one-pot", "funfetti-dot-cake", "phyllo-crinkle-cake", "watermelon-frozen-ice-cream", "frozen-strawberry-yogurt-clusters", "smash-burger-tacos", "turkish-pasta-yogurt", "creamy-gochujang-noodles", "mexican-mangonada", "cottage-cheese-ranch-dip", "japanese-milk-bread-shokupan", "hot-honey-chicken-bites", "susla-puffed-rice", "shaved-frozen-pineapple", "mango-chicken-salad"]},
   {"slug": "november-2026-trends", "title": "ترندات نوفمبر 2026", "desc": "١٥ اختيارًا من الحزمة المرفقة، بروابط يوتيوب متحقَّق منها؛ كلها ترشيحات فيديو.", "recipeSlugs": ["homemade-tortilla-hack", "easy-egg-crepe", "egg-keema-masala", "cheese-potato-bread-rolls", "sweet-potato-cookies", "crispy-masala-macaroni", "lazy-girl-salmon-bake", "tuna-sushi-wrap", "potato-crust-chicken-pie", "winter-sujebi-soup", "bun-omelette", "cheesy-anda-paratha", "butter-garlic-maggi", "shahi-chicken-kadhai", "ajinomoto-karaage"]},
   { slug: "ideas-from-your-list", title: "أفكار من قايمتك", desc: "اختيارات من قائمتك بمصادر يوتيوب، منها فيديوهات قديمة ومش كلها ترند جديد.", recipeSlugs: ["crookie-brown-butter", "pasta-chips-air-fryer", "pizza-beans", "chicken-dumpling-lasagna", "whipped-feta-honey", "japanese-smashed-cucumber", "smashed-potatoes-jack", "pistachio-yogurt-tiramisu", "muhammara-omar", "arayes-charcoal-omar"] },

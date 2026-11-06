@@ -16,6 +16,7 @@ import {
 export const MAIN_NAV = [
   { href: "/discover", label: "اكتشف" },
   { href: "/pick", label: "رشحلي 3" },
+  { href: "/pick-five", label: "رشحلي ٥" },
   { href: "/ingredients", label: "عندك إيه؟" },
   { href: "/meals", label: "السفرات" },
   { href: "/creators", label: "الشيفات" },

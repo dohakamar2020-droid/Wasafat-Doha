@@ -1,6 +1,6 @@
-const CACHE = "wq-public-v4";
+const CACHE = "wq-public-v5";
 const PUBLIC =
-  /^\/(?:$|discover$|pick$|ingredients$|same-ingredient$|weekly$|about$|collections(?:\/[^/]+)?$|creators(?:\/[^/]+)?$|meals(?:\/[^/]+)?$|recipes\/[^/]+(?:\/cook)?$)/;
+  /^\/(?:$|discover$|pick$|pick-five$|ingredients$|same-ingredient$|weekly$|about$|collections(?:\/[^/]+)?$|creators(?:\/[^/]+)?$|meals(?:\/[^/]+)?$|recipes\/[^/]+(?:\/cook)?$)/;
 self.addEventListener("install", (e) => {
   e.waitUntil(
     caches

@@ -71,8 +71,8 @@ export default async function Home() {
     {
       n: "٢",
       title: "اختار",
-      sub: "رشحلي 3 أو اكتشف بنفسك",
-      href: "/pick",
+      sub: "رشحلي ٥ أو اكتشف بنفسك",
+      href: "/pick-five",
     },
     {
       n: "٣",
@@ -165,6 +165,7 @@ export default async function Home() {
               <Link className="btn btn-primary" href="/pick">
                 <Sparkles size={18} aria-hidden="true" /> رشحلي 3
               </Link>
+              <Link className="btn btn-ghost" href="/pick-five">رشحلي ٥ بـ٥ مكونات</Link>
               <Link className="btn btn-ghost" href="/features">
                 كل المزايا
               </Link>
