@@ -1,7 +1,9 @@
-// وصفات قمر — البيانات الأولية: 80 فيديو وشورت (22 أكتوبر 2024 → 22 أكتوبر 2026)
+// وصفات قمر — البيانات الأولية: 136 فيديو وشورت (منها مصادر قديمة لأفكار القائمة)
+// الدفعة الأخيرة (نوفمبر 2026) من بحث موسّع على القنوات الثمانية على يوتيوب: 22 وصفة ترند جديدة
+// و18 منها بمقادير وخطوات مكتملة المراجعة (lib/reviewed-batch5.ts) و4 تبقى ترشيح فيديو.
 // نموذج البيانات يفصل بين "الوصفة" Recipe و"مصدر الفيديو" VideoSource كما هو مخطط في وثيقة المشروع:
-// ثلاث وصفات لها شرح كامل وشورت منفصل، فعدد الوصفات 77 وعدد المصادر 80.
-// ملحوظة تحريرية: المقادير والخطوات التفصيلية لم تُراجع بعد لكل وصفة، لذلك تظهر كلها بحالة
+// ثلاث وصفات لها شرح كامل وشورت منفصل، فعدد الوصفات أقل من عدد المصادر (133 وصفة مقابل 136 مصدرًا).
+// ملحوظة تحريرية: المقادير والخطوات التفصيلية لم تُراجع بعد لكل وصفة، لذلك تظهر الوصفات غير المراجعة بحالة
 // "ترشيح فيديو" ولا نعرض أوقات طبخ أو مقادير مُخترعة — الأرقام هنا هي مشاهدات يوتيوب وقت المراجعة.
 
 export type Creator = { id: string; name: string; tagline: string; style: string; channelHint: string };
@@ -29,6 +31,30 @@ export const creators: Creator[] = [
   { id: "aya", name: "آية حبيب", tagline: "حلويات شرقية وأطباق بيتية بملايين المشاهدات", style: "شرح تفصيلي هادي للحلويات الشرقية والأطباق البيتية — من أوسع قنوات الطبخ المصرية انتشارًا (نحو 5.9 مليون مشترك وقت الإضافة)", channelHint: "youtube.com — قناة آية حبيب" },
   { id: "fatma", name: "فاطمة أبو حاتي", tagline: "أكلات بيتية مصرية بحيل بسيطة تنفع كل يوم", style: "وصفات بيتية سريعة بحيل عملية (زي كيكة العصاري بصينية واحدة وكوباية واحدة)، ونحو 3.75 مليون مشترك وقت الإضافة", channelHint: "youtube.com — قناة فاطمة أبو حاتي" },
   { id: "om-anwar", name: "سفيرة الطبخ أم أنوار", tagline: "معجنات وعجائن بعجينة واحدة وتشكيلات كتير", style: "ملفات معجنات متكاملة بعجينة أساسية واحدة وتشكيلات متعددة للفريزر والعزومات", channelHint: "youtube.com — قناة سفيرة الطبخ أم أنوار" },
+  {"id": "monte-food", "name": "Monte’s Food Diary", "tagline": "وصفات مصوّرة وحلويات مبتكرة", "style": "وصفات وحلويات بخطوات مصوّرة", "channelHint": "youtube.com/@montefood"},
+  {"id": "easy-peasy-pan", "name": "Easy Peasy Pan", "tagline": "أفكار سناكس سهلة", "style": "سناكس وأفكار بالقلاية الهوائية", "channelHint": "youtube.com/@EasyPeasyPan"},
+  {"id": "nico-recipes", "name": "Nico’s Recipes", "tagline": "أفكار نباتية متنوعة", "style": "أطباق نباتية مستوحاة من مطابخ مختلفة", "channelHint": "youtube.com/@nico.recipes"},
+  {"id": "eatmee", "name": "EatMee Recipes", "tagline": "وصفات من مطابخ مختلفة", "style": "أفكار بيتية ووصفات مصوّرة", "channelHint": "youtube.com/@eatmeerecipes"},
+  {"id": "suburban-soapbox", "name": "The Suburban Soapbox", "tagline": "أطباق منزلية ومقبلات", "style": "وصفات منزلية وصلصات ومقبلات", "channelHint": "youtube.com/@TheSuburbanSoapbox"},
+  {"id": "no-recipes", "name": "No Recipes", "tagline": "أطباق يابانية وطرق منزلية", "style": "وصفات يابانية وأفكار منزلية", "channelHint": "youtube.com/@NoRecipes"},
+  {"id": "chef-jack-ovens", "name": "Chef Jack Ovens", "tagline": "أطباق وسناكس بخطوات مصوّرة", "style": "وصفات منزلية ومقبلات من الشيف جاك", "channelHint": "youtube.com/@ChefJackOvens"},
+  {"id": "satiate", "name": "Danica Theobald | SATIATE", "tagline": "حلويات وأفكار منزلية", "style": "حلويات وأطباق مصوّرة", "channelHint": "youtube.com/@saysheate"},
+
+  {"id": "sorrow-sky", "name": "Sorrow Sky", "tagline": "خبز منزلي سريع وتحضيرات يومية", "style": "وصفات خبز وتورتيلا منزلية بخطوات قصيرة ومكونات أساسية", "channelHint": "YouTube — Sorrow Sky"},
+  {"id": "uma-devi", "name": "Cook with UmaDevi", "tagline": "فطار هندي سريع وعجائن محشية", "style": "وصفات فطار هندي قصيرة تجمع البيض والخبز والجبن", "channelHint": "YouTube — Cook with UmaDevi"},
+  {"id": "anishi", "name": "Tasty & Spicy by Anishi", "tagline": "وصفات هندية متبلة وأكلات اقتصادية", "style": "أكلات هندية منزلية تعتمد على التوابل ومكونات متاحة", "channelHint": "YouTube — Tasty & Spicy by Anishi"},
+  {"id": "ghar-khana-vlog", "name": "Ghar ka khana vlog", "tagline": "سناكس بيتية سهلة بالبطاطس والجبن", "style": "أفكار سناكس سريعة من مكونات منزلية", "channelHint": "YouTube — Ghar ka khana vlog"},
+  {"id": "food-info-recipe", "name": "food_info_recipe", "tagline": "حلويات منزلية مصوّرة", "style": "حلويات قصيرة وأفكار موسمية", "channelHint": "youtube.com/@food_info_recipe"},
+  {"id": "pahadi-family", "name": "The Pahadi Family", "tagline": "سناكس هندية مبتكرة ومقرمشة", "style": "وصفات سناكس هندية وأفكار تحويل المكونات اليومية", "channelHint": "YouTube — The Pahadi Family"},
+  {"id": "sabrina-nicole", "name": "Sabrina Nicole", "tagline": "وجبات صواني سهلة للعشاء", "style": "وجبات منزلية قليلة الأواني وتحضير مباشر في صينية واحدة", "channelHint": "YouTube — Sabrina Nicole"},
+  {"id": "eats-withren", "name": "Eats Withren", "tagline": "أفكار أكل سريعة بلمسة آسيوية", "style": "وصفات سريعة قابلة للتجهيز والحمل، ومنها لفائف مستوحاة من السوشي", "channelHint": "YouTube — Eats Withren"},
+  {"id": "oksana-home", "name": "Home Cooked by Oksana", "tagline": "وجبات منزلية وصواني مبتكرة", "style": "أطباق عائلية تستخدم الخضار والبروتين في قوالب سهلة التقديم", "channelHint": "YouTube — Home Cooked by Oksana"},
+  {"id": "homeit", "name": "홈잇 (Homeit)", "tagline": "أكلات كورية منزلية وأطباق شتوية", "style": "وصفات كورية دافئة وشوربات وعجائن منزلية", "channelHint": "YouTube — 홈잇"},
+  {"id": "zayka-zindagi", "name": "Zayka & Zindagi", "tagline": "فطار هندي سريع وسندوتشات", "style": "أفكار فطار سريعة من البيض والخبز وتوابل بسيطة", "channelHint": "YouTube — Zayka & Zindagi"},
+  {"id": "avani-anuradha", "name": "Avani Anuradha Ki Rasoi", "tagline": "وصفات هندية سريعة ونكهات قوية", "style": "أطباق سريعة ونودلز وتوابل هندية", "channelHint": "YouTube — Avani Anuradha Ki Rasoi"},
+  {"id": "bharatzkitchen", "name": "Bharatzkitchen Shorts", "tagline": "وصفات هندية رئيسية بتقنيات مختصرة", "style": "أطباق هندية منزلية مع تبسيط ترتيب التوابل والتسوية", "channelHint": "YouTube — Bharatzkitchen Shorts"},
+  {"id": "ryuji-buzz", "name": "Ryuji's Buzz Recipe", "tagline": "وصفات يابانية منزلية سريعة وتقنيات مطاعم مبسطة", "style": "وصفات يابانية عملية تعتمد على المذاق الواضح ومكونات قليلة، ومنها الكاراجي المقلي", "channelHint": "YouTube — Ryuji's Buzz Recipe"},
+
 ];
 export const creatorById = (id: string) => creators.find((c) => c.id === id)!;
 
@@ -2403,7 +2429,1103 @@ export const recipes: Recipe[] = [
   ],
   "views": 858000,
   "viewsUpdatedAt": "2026-10-23"
+ },
+ {
+  "slug": "grandma-orange-cake",
+  "title": "كيكة البرتقان بتاعة الجدات — بالجليز",
+  "creatorId": "nadia",
+  "category": "كيك ومخبوزات",
+  "mainIngredients": ["دقيق","برتقال"],
+  "textures": ["إسفنجي","كريمي"],
+  "needs": ["أول تجربة في المطبخ"],
+  "why": "كيكة البرتقان القديمة اللي كانت بتعطر البيت كله — الزيت هو الدهن الأساسي فيها فبتفضل هشة يومين، وبشر البرتقال وعصره الطازج هما النكهة كلها من غير فانيليا ولا محسنات. نادية نزّلتها أول نوفمبر 2026 بشرح كامل بالكميات، وجليز البرتقان بيكمّل الطعم بدل السكر البودرة السادة.",
+  "sources": [
+   {"ytId":"0RC5GOBZIKc","kind":"video","published":"11/2026","views":135653,"sourceNo":90,"uploadedAt":"2026-11-01","durationSec":126}
+  ],
+  "views": 135653,
+  "editorsPick": true,
+  "viewsUpdatedAt": "2026-11-06"
+ },
+ {
+  "slug": "meat-casserole-caramelized-onions",
+  "title": "طاجن اللحمة الخفيف بالبصل المحمر",
+  "creatorId": "nadia",
+  "category": "أطباق رئيسية",
+  "mainIngredients": ["لحمة","بصل","بطاطس"],
+  "textures": ["دافئ ومشبع","متبّل"],
+  "needs": ["مناسبة للعزومات"],
+  "why": "طاجن شتوي بلحمة متسبكة في مرقتها وبصل محمر كتير — من غير صلصة طماطم تقيلة، عشان كده طلع «خفيف» زي ما نادية وصفت. الفكرة إن كل حاجة تتسلق وتتشوح لوحدها في الآخر يتجمعوا في الطاجن نص ساعة بس في الفرن، فالعزومة تطلع من غير ما تقف على النار.",
+  "sources": [
+   {"ytId":"0SGbdVgOlik","kind":"video","published":"10/2026","views":372006,"sourceNo":91,"uploadedAt":"2026-10-07","durationSec":150}
+  ],
+  "views": 372006,
+  "viewsUpdatedAt": "2026-11-06"
+ },
+ {
+  "slug": "yogurt-curry-chicken",
+  "title": "دجاج بصوص الزبادي والكاري — أكلتها الأسبوعية",
+  "creatorId": "nadia",
+  "category": "أطباق رئيسية",
+  "mainIngredients": ["دجاج","لبن زبادي"],
+  "textures": ["كريمي","متبّل"],
+  "needs": ["طاسة واحدة","مناسبة للعزومات"],
+  "why": "أكتر فيديو انتشارًا في الدفعة: نادية قالت إن الوصفة دي عدّت 60 مليون مشاهدة على فيسبوك لوحدها، والفيديو على يوتيوب فوق الـ13 مليون. أساسها طماطم متسبكة على نار هادية وبعدها زبادي وليمون — حاجة واحدة على الطاسة، وتنفع تتقدم في طاسة أو تتشوى في صينية مع بطاطس.",
+  "sources": [
+   {"ytId":"5p3juUYDvAE","kind":"video","published":"08/2025","views":13059092,"sourceNo":92,"uploadedAt":"2025-08-18","durationSec":90}
+  ],
+  "views": 13059092,
+  "editorsPick": true,
+  "viewsUpdatedAt": "2026-11-06"
+ },
+ {
+  "slug": "poulet-au-gratin",
+  "title": "بولي أو جرتان — دجاج بالبشاميل تحت الباف باستري",
+  "creatorId": "nadia",
+  "category": "أطباق رئيسية",
+  "mainIngredients": ["دجاج","مشروم","باف باستري"],
+  "textures": ["سايح بالجبنة","كريمي","مقرمش"],
+  "needs": ["مناسبة للعزومات"],
+  "why": "الوصفة دي جت بطلب من متابعة («نداء عاجل» بعد وفاة جدتها) وعملتها نادية بطريقتها: دجاج بصوص بشاميل بالكريمة والجبنة، وباف باستري ساقعة فوقه يطلع مقرمش. الخطوة الحاسمة إن الخليط يبرد تمامًا والعجينة تفضل ساقعة، وده اللي بيفرق بين طبق محترم وسيريلاك مالح زي ما وصفت.",
+  "sources": [
+   {"ytId":"QmfYVjIUuc0","kind":"video","published":"04/2026","views":4986413,"sourceNo":93,"uploadedAt":"2026-04-06","durationSec":180}
+  ],
+  "views": 4986413,
+  "viewsUpdatedAt": "2026-11-06"
+ },
+ {
+  "slug": "marble-croissant",
+  "title": "كرواسون الماربل — طبقات فانيليا وشوكولاتة",
+  "creatorId": "nadia",
+  "category": "كيك ومخبوزات",
+  "mainIngredients": ["دقيق","شوكولاتة"],
+  "textures": ["إسفنجي","شوكولاتة"],
+  "needs": ["تحضير مسبق"],
+  "why": "كرواسون بعجينتين متطابقتين — واحدة فانيليا وواحدة كاكاو — بتترص فوق بعض وتتقطع مثلثات وتتلف. الحيلة اللي شدّدت عليها نادية إن كل ما تزود كاكاو لازم تزود سوائل بنفس النسبة، وإلا العجينة تنشف ومتلفش. النتيجة شكل ماربل وطبقات طرية زي القطن.",
+  "sources": [
+   {"ytId":"NBT9i76ExuQ","kind":"video","published":"09/2026","views":522951,"sourceNo":94,"uploadedAt":"2026-09-27","durationSec":170}
+  ],
+  "views": 522951,
+  "viewsUpdatedAt": "2026-11-06"
+ },
+ {
+  "slug": "no-knead-fried-pastries",
+  "title": "فطاير سخنة من غير عجن ولا فرن",
+  "creatorId": "nadia",
+  "category": "فطار",
+  "mainIngredients": ["دقيق","جبنة","فلفل ألوان"],
+  "textures": ["مقرمش","سايح بالجبنة"],
+  "needs": ["بدون فرن","وقت قليل","طاسة واحدة"],
+  "why": "عجينة سائلة بتخمر نص ساعة بس، بتتحشي جبنة وخضار وتتنزل في الزيت بكيس بلاستيك ومقص — من غير فرد ولا عجن ولا فرن. الفكرة عبقرية لأي حد «بيخاف» من المعجنات: مفيش عجينة تتشكل، وبترتفع في الزيت وتطلع جواها فاضية وجاهزة للحشو.",
+  "sources": [
+   {"ytId":"Nk0f0sZdVEE","kind":"video","published":"10/2026","views":304305,"sourceNo":95,"uploadedAt":"2026-10-12","durationSec":93}
+  ],
+  "views": 304305,
+  "viewsUpdatedAt": "2026-11-06"
+ },
+ {
+  "slug": "double-chocolate-muffin",
+  "title": "دوبل تشوكلت مافن — بالماء المغلي",
+  "creatorId": "heba",
+  "category": "كيك ومخبوزات",
+  "mainIngredients": ["دقيق","شوكولاتة","كاكاو"],
+  "textures": ["شوكولاتة","إسفنجي"],
+  "needs": ["لانش بوكس","أول تجربة في المطبخ"],
+  "why": "التركة هنا إن الماء المغلي بينزل على خليط الكاكاو آخر خطوة، وده اللي بيخلي المافن دنس وطري من غير ما يحتاج خفق طويل. هبة كتبت كل الكميات بالجرام ومدد الخبز على مرحلتين (5 دقائق حرارة عالية ثم 15 دقيقة على 180) — وصفة مبتدئين بمعايير مطبخ محترف.",
+  "sources": [
+   {"ytId":"zG5QRhI_xbE","kind":"video","published":"09/2026","views":200315,"sourceNo":96,"uploadedAt":"2026-09-30","durationSec":115}
+  ],
+  "views": 200315,
+  "viewsUpdatedAt": "2026-11-06"
+ },
+ {
+  "slug": "aish-el-saraya",
+  "title": "عيش السرايا — التوست المكرمل بالقشطة",
+  "creatorId": "heba",
+  "category": "حلويات باردة",
+  "mainIngredients": ["عيش توست","حليب","قشطة"],
+  "textures": ["كريمي","منعش"],
+  "needs": ["بدون فرن","تحضير مسبق"],
+  "why": "حلوى شامية ملكية بمكونات بيت: توست محمص بيتشرّب شربات كراميل، وفوقه كاسترد بالقشطة، وآخر طبقة كريم شانتيه. هبة وثّقت الصينية (25×30) وكل الأوزان بالجرام، وأهم ملاحظة فيها إن كل ما تقعد في التلاجة أكتر كل ما يبقى الطعم أحسن.",
+  "sources": [
+   {"ytId":"bdlrm-TCk-0","kind":"video","published":"06/2026","views":181930,"sourceNo":97,"uploadedAt":"2026-06-28","durationSec":127}
+  ],
+  "views": 181930,
+  "editorsPick": true,
+  "viewsUpdatedAt": "2026-11-06"
+ },
+ {
+  "slug": "eid-liver-tray",
+  "title": "كبدة العيد في الطاسة — بالتتبيلة والطحينة",
+  "creatorId": "heba",
+  "category": "فطار",
+  "mainIngredients": ["كبدة","فلفل ألوان"],
+  "textures": ["متبّل","دافئ ومشبع"],
+  "needs": ["وقت قليل","مناسبة للعزومات","طاسة واحدة"],
+  "why": "وصفة فطار العيد اللي بيقف عليها البيت كله: كبدة شرائح رفيعة بتتبيلة ثوم وخل وليمون وفلفل حار، 5 لـ7 دقايق على نار عالية بس. هبة زوّدت طاسة القلب والكلاوي على نفس التتبيلة وصوص طحينة بالزبادي — يعني ثلاث وصفات في فيديو واحد، وكلها بكميات مكتوبة.",
+  "sources": [
+   {"ytId":"ZyhmbPJLgWM","kind":"video","published":"05/2026","views":169915,"sourceNo":98,"uploadedAt":"2026-05-26","durationSec":137}
+  ],
+  "views": 169915,
+  "viewsUpdatedAt": "2026-11-06"
+ },
+ {
+  "slug": "chicken-biryani",
+  "title": "برياني الدجاج الهندي — بالزعفران والبصل المقلي",
+  "creatorId": "abeer",
+  "category": "أطباق رئيسية",
+  "mainIngredients": ["دجاج","أرز","لبن زبادي"],
+  "textures": ["متبّل","دافئ ومشبع"],
+  "needs": ["مناسبة للعزومات","تحضير مسبق"],
+  "why": "أول برياني بالطريقة الهندية في المكتبة، ومن عبير الصغير تحديدًا — بمقادير كاملة في الوصف الرسمي: كيلو ونص بصل أحمر مقلي مقرمش، تتبيلة زبادي بست بهارات، وأرز بسمتي بيتسلق 90% وبعدين يتكدّس مع الزعفران والسمن على طبقات. النتيجة ريحة هندية حقيقية من غير بهارات برياني جاهزة.",
+  "sources": [
+   {"ytId":"GtKo0g4uPTw","kind":"video","published":"02/2026","views":1701176,"sourceNo":99,"uploadedAt":"2026-02-19","durationSec":943}
+  ],
+  "views": 1701176,
+  "editorsPick": true,
+  "viewsUpdatedAt": "2026-11-06"
+ },
+ {
+  "slug": "churros",
+  "title": "التشوروز المثالي من أول مرة — بصوص الشوكولاتة",
+  "creatorId": "abeer",
+  "category": "حلويات باردة",
+  "mainIngredients": ["دقيق","زبدة","شوكولاتة"],
+  "textures": ["مقرمش","شوكولاتة"],
+  "needs": ["أول تجربة في المطبخ"],
+  "why": "التشوروز مش حلويات معقدة زي ما بيخوّف: عجينة تتطبخ على النار قبل القلي، بيض بيتزود واحدة واحدة لحد ما القوام يبقى مرن، وبعدين تتنزل في الزيت وهي ملزوقة في ورق زبدة — فبتطلع متساوية من أول مرة. عبير نشرت الكميات بالكوب والجرام مع صوص شوكولاتة بالنشا.",
+  "sources": [
+   {"ytId":"dwiIcvJDVQI","kind":"video","published":"08/2026","views":951038,"sourceNo":100,"uploadedAt":"2026-08-22","durationSec":825}
+  ],
+  "views": 951038,
+  "viewsUpdatedAt": "2026-11-06"
+ },
+ {
+  "slug": "kofta-mandi",
+  "title": "مندي الكفتة — الاختراع الجديد على صينية واحدة",
+  "creatorId": "fatma",
+  "category": "أطباق رئيسية",
+  "mainIngredients": ["دجاج","أرز"],
+  "textures": ["متبّل","دافئ ومشبع"],
+  "needs": ["مناسبة للعزومات","طاسة واحدة"],
+  "why": "بدل الدجاج، الكفتة بتستوي على شبكة فوق الأرز بخار المندي نفسه — فالكفتة تفضل جوسي والأرز ياخد طعم الدهن والبهارات. فاطمة نزّلتها نهاية أكتوبر 2026، والفيديو نفسه فيه طريقة الدقوس والتدخين بالفحم — لكن وزن البهارات والملح ما اتكتبوش في الوصف، فسايبينها ترشيح فيديو بدل ما نخترع أرقام.",
+  "sources": [
+   {"ytId":"z0gb8pM1Qjw","kind":"video","published":"10/2026","views":32275,"sourceNo":101,"uploadedAt":"2026-10-31","durationSec":331}
+  ],
+  "views": 32275,
+  "viewsUpdatedAt": "2026-11-06"
+ },
+ {
+  "slug": "turkish-cheese-borek",
+  "title": "البوريك التركي بالجبنة في الطاسة",
+  "creatorId": "fatma",
+  "category": "فطار",
+  "mainIngredients": ["رقائق فيلو","جبنة","لبن زبادي"],
+  "textures": ["مقرمش","سايح بالجبنة"],
+  "needs": ["بدون فرن","وقت قليل","طاسة واحدة"],
+  "why": "ورق الفيلو بيتكرمش على خلطة بيض وزبادي وسمنة، طبقتين ورا بعض وبينهم لبنة وجبنة، ويتقفل في الطاسة على نار هادية ويتقلب مرة واحدة. من غير فرن ولا تحضير مسبق، وبيطلع منفوش ومورق — أحسن استعمال لورق الجلاش/الفيلو لغاية دلوقتي.",
+  "sources": [
+   {"ytId":"sCgIDIJWk3M","kind":"video","published":"10/2026","views":19938,"sourceNo":102,"uploadedAt":"2026-10-13","durationSec":193}
+  ],
+  "views": 19938,
+  "viewsUpdatedAt": "2026-11-06"
+ },
+ {
+  "slug": "sweet-potato-om-ali",
+  "title": "أم علي بالبطاطا — الحلو الشتوي الجديد",
+  "creatorId": "fatma",
+  "category": "حلويات باردة",
+  "mainIngredients": ["بطاطا حلوة","حليب","قشطة"],
+  "textures": ["كريمي","دافئ ومشبع"],
+  "needs": ["مكونات قليلة"],
+  "why": "أم علي بس بالبطاطا الحلوة بدل العيش: شرائح بطاطا بتتغطى بحليب سخن بالسكر والقرفة وتدخل الفرن من تحت لحد ما تاخد لون، وبعدها مكسرات وكراميل. فكرة شتوية بمكونات موجودة في أي بيت، ومكتوبة بالكميات كاملة.",
+  "sources": [
+   {"ytId":"4q55ZZzgkz0","kind":"video","published":"10/2026","views":44030,"sourceNo":103,"uploadedAt":"2026-10-24","durationSec":84}
+  ],
+  "views": 44030,
+  "viewsUpdatedAt": "2026-11-06"
+ },
+ {
+  "slug": "flan-cake-trend",
+  "title": "كيك فلان التريند — كيكة الحليب بالكراميل",
+  "creatorId": "fatma",
+  "category": "حلويات باردة",
+  "mainIngredients": ["حليب","بيض","سكر"],
+  "textures": ["كريمي"],
+  "needs": ["مناسبة للعزومات","مكونات قليلة"],
+  "why": "الكيكة التريند اللي بتتعمل في قالب واحد: كراميل في القاع، خليط حليب وبيض وحليب بودر في الخلاط، وحمام مائي على 180 لمدة ساعة ونص. سرها إن الرغوة بتتشال قبل الصب عشان تطلع ناعمة من غير عيون هوى — والوصف الرسمي كتب الكميات كاملة.",
+  "sources": [
+   {"ytId":"tIPpVEqfmfo","kind":"video","published":"11/2026","views":36167,"sourceNo":104,"uploadedAt":"2026-11-03","durationSec":169}
+  ],
+  "views": 36167,
+  "editorsPick": true,
+  "viewsUpdatedAt": "2026-11-06"
+ },
+ {
+  "slug": "tabsi-dolma",
+  "title": "تبسي دولمة الباذنجان — من غير لحوم",
+  "creatorId": "om-anwar",
+  "category": "أطباق رئيسية",
+  "mainIngredients": ["باذنجان","أرز","طماطم"],
+  "textures": ["متبّل","دافئ ومشبع"],
+  "needs": ["مناسبة للعزومات","تحضير مسبق"],
+  "why": "بين المحشي والمسقعة: باذنجان محشي أرز بالخضار ودبس الرمان والفليفلة، بيتسطّح في صينية وعليه سائل طماطم وبيتخبز ساعة. أم أنوار نزّلتها أول نوفمبر 2026 بمقادير كاملة وحرارة ووقت مكتوبين، وهي أول وصفة محشي نباتية في المكتبة.",
+  "sources": [
+   {"ytId":"eMJCfqxsajs","kind":"video","published":"11/2026","views":70406,"sourceNo":105,"uploadedAt":"2026-11-04","durationSec":521}
+  ],
+  "views": 70406,
+  "viewsUpdatedAt": "2026-11-06"
+ },
+ {
+  "slug": "date-maamoul",
+  "title": "معمول التمر — عجينة بالزيت واليانسون",
+  "creatorId": "omar",
+  "category": "كيك ومخبوزات",
+  "mainIngredients": ["دقيق","تمر"],
+  "textures": ["مقرمش","إسفنجي"],
+  "needs": ["مناسبة للعزومات","تحضير مسبق"],
+  "why": "معمول العيد بعجينة زيت زيتون وسمسم وحبة بركة ويانسون — مش العجينة اللي بالزبدة والسمنة بس. شيف عمر عمله مع خالة سلام (بنت مريم) والكميات كلها مكتوبة في الوصف: نص كيلو طحين، 100 جرام زبدة، 200 مللي زيت زيتون، ونص كيلو عجوة بالقرفة.",
+  "sources": [
+   {"ytId":"3PDt8z4sGQQ","kind":"video","published":"03/2026","views":154551,"sourceNo":106,"uploadedAt":"2026-03-14","durationSec":1246}
+  ],
+  "views": 154551,
+  "viewsUpdatedAt": "2026-11-06"
+ },
+ {
+  "slug": "luxe-date-confection",
+  "title": "تمرية العيد الفاخرة بخمس حشوات — بدون فرن",
+  "creatorId": "om-anwar",
+  "category": "حلويات باردة",
+  "mainIngredients": ["تمر","مكسرات","شوكولاتة"],
+  "textures": ["شوكولاتة","كريمي"],
+  "needs": ["بدون فرن","مناسبة للعزومات","تحضير مسبق"],
+  "why": "معجون التمر بيتعجن بالسمنة والهيل ويتشكّل، وجواه خمس حشوات مختلفة (مكسرات بعسل، شوكولاتة بيضاء بزبدة الفستق، جوز هند بحليب مكثف، شوكولاتة ببندق، وطحينة بحليب بودر). ملف تقديمات كامل بدون فرن — مناسب للعيد والضيافة، وكل كمياته مكتوبة في الوصف.",
+  "sources": [
+   {"ytId":"bG65gINs3Fo","kind":"video","published":"03/2026","views":939510,"sourceNo":107,"uploadedAt":"2026-03-18","durationSec":668}
+  ],
+  "views": 939510,
+  "editorsPick": true,
+  "viewsUpdatedAt": "2026-11-06"
+ },
+ {
+  "slug": "potato-boats",
+  "title": "قوارب البطاطا — 148 مليون مشاهدة",
+  "creatorId": "abeer",
+  "category": "سناكس ومقبلات",
+  "mainIngredients": ["بطاطس"],
+  "textures": ["مقرمش","سايح بالجبنة"],
+  "needs": ["مكونات قليلة","تحضير مسبق"],
+  "why": "أعلى شورت وصله مكتبتنا لغاية دلوقتي: 148.8 مليون مشاهدة على يوتيوب، وملايين المشاهدات على تيك توك برضه. الفكرة بسيطة وبصرية — نص بطاطس بيتفرّغ وبيتحشى ويتشوى، وده اللي خلاها تنتشر عبر تيك توك ويوتيوب. لسه «ترشيح فيديو» عندنا لأن صاحبة الوصفة ما كتبتش الكميات، والتركة الحقيقية في تقنية التفريغ مش في المقادير.",
+  "sources": [
+   {"ytId":"zKTiIr8i4Mk","kind":"short","published":"06/2025","views":148812701,"sourceNo":108,"uploadedAt":"2025-06-16"}
+  ],
+  "views": 148812701,
+  "viewsUpdatedAt": "2026-11-06"
+ },
+ {
+  "slug": "autumn-apple-cake",
+  "title": "كيكة الخريف بالتفاح — Cozy Autumn Apple Cake",
+  "creatorId": "heba",
+  "category": "كيك ومخبوزات",
+  "mainIngredients": ["تفاح","دقيق","قرفة"],
+  "textures": ["إسفنجي","كريمي"],
+  "needs": ["مناسبة للعزومات"],
+  "why": "كيكة موسمية خفيفة زي السحابة: بيض وسكر بيتخفقوا 8 دقايق لحد ما يتضاعفوا، وبينهم طبقة تفاح مبشور بالقرفة والسكر، وتتقدم دافية مع كراميل وآيس كريم. هبة ما كتبتش أوزان الدقيق والسكر في الوصف، فسايبينها ترشيح فيديو بدل ما نخترع أرقام.",
+  "sources": [
+   {"ytId":"L0qQvh63d3A","kind":"video","published":"10/2026","views":85870,"sourceNo":109,"uploadedAt":"2026-10-28","durationSec":116}
+  ],
+  "views": 85870,
+  "viewsUpdatedAt": "2026-11-06"
+ },
+ {
+  "slug": "mango-tiramisu",
+  "title": "تيراميسو المانجا — بدون فرن ولا بيض",
+  "creatorId": "heba",
+  "category": "حلويات باردة",
+  "mainIngredients": ["مانجا","بسكويت","كريمة"],
+  "textures": ["كريمي","منعش"],
+  "needs": ["بدون فرن","تحضير مسبق"],
+  "why": "نسخة صيفية من التيراميسو: كاسترد بالحليب البودرة بيتساب يتماسك ساعتين، بيتقلب مع كريمة مخفوقة، وطبقات بسكويت ليدي فنجر مغموس في مانجا وحليب. من غير فرن ولا بيض ولا ماسكاربوني — أرخص وأخف من الأصلي، وكمان بموسم المانجا.",
+  "sources": [
+   {"ytId":"SMCpB__hAws","kind":"video","published":"07/2026","views":124359,"sourceNo":110,"uploadedAt":"2026-07-26","durationSec":89}
+  ],
+  "views": 124359,
+  "viewsUpdatedAt": "2026-11-06"
+ },
+ {
+  "slug": "ejjeh-aleppo-vs-damascus",
+  "title": "العجة الحلبية ولا الدمشقية؟ — عجة البيض بالبقدونس",
+  "creatorId": "omar",
+  "category": "فطار",
+  "mainIngredients": ["بيض","بقدونس","بصل"],
+  "textures": ["دافئ ومشبع"],
+  "needs": ["وقت قليل","طاسة واحدة","مكونات قليلة"],
+  "why": "شيف عمر عمل مقارنة بين العجة الحلبية والدمشقية في نفس الفيديو، وأهم سر قاله: ما تفقسش البيض غير وقت القلي بالظبط — لو سبته على جنب بينزل ماية ويفشل. مفيش كميات مكتوبة، فالمقادير تقديرية على قد العدد، وعشان كده الوصفة عندنا ترشيح فيديو.",
+  "sources": [
+   {"ytId":"0EZMJpCnrsE","kind":"video","published":"06/2026","views":108650,"sourceNo":111,"uploadedAt":"2026-06-03","durationSec":179}
+  ],
+  "views": 108650,
+  "viewsUpdatedAt": "2026-11-06"
  }
+ ,{
+  "slug": "muhammara-omar",
+  "title": "محمّرة شامية بدبس الفلفل والجوز — شيف عمر",
+  "creatorId": "omar", "category": "سناكس ومقبلات",
+  "mainIngredients": ["فلفل", "جوز", "دبس رمان"],
+  "textures": ["متبّل"], "needs": [],
+  "why": "ترشيح من قائمة أفكارك: شيف عمر بيقدم المحمّرة الشامية بدبس الفلفل والجوز ودبس الرمان، مع لمسة قهوة في وصفته. الفيديو بيضم كمان بابا غنوج؛ راجعيه للتفاصيل.",
+  "sources": [{"ytId":"mnWbCR9AU1I","kind":"video","published":"10/2021","uploadedAt":"2021-10-15","durationSec":1127,"views":1852288,"sourceNo":112}],
+  "views":1852288, "viewsUpdatedAt":"2026-11-06"
+ },
+ {
+  "slug": "arayes-charcoal-omar",
+  "title": "عرايس لحمة على الفحم — شيف عمر",
+  "creatorId": "omar", "category": "عشاء وسندوتشات",
+  "mainIngredients": ["لحمة مفرومة", "بصل", "فلفل"],
+  "textures": ["مقرمش", "دافئ ومشبع"], "needs": [],
+  "why": "من أفكار القائمة: خبز محشي بلحمة متبلة، والشيف عمر بيحضّره على الفحم مع دبس الرمان والفلفل. اتفرجي على الفيديو لمعرفة طريقة التحضير والمقادير.",
+  "sources": [{"ytId":"JQffPh_M0lQ","kind":"video","published":"08/2022","uploadedAt":"2022-08-04","durationSec":669,"views":737128,"sourceNo":113}],
+  "views":737128, "viewsUpdatedAt":"2026-11-06"
+ }
+,
+ {
+  "slug": "crookie-brown-butter",
+  "title": "كروكي بالزبدة المحمّرة والشوكولاتة",
+  "creatorId": "monte-food",
+  "category": "كيك ومخبوزات",
+  "mainIngredients": [
+    "دقيق",
+    "شوكولاتة"
+  ],
+  "textures": [
+    "مقرمش",
+    "شوكولاتة"
+  ],
+  "needs": [],
+  "why": "كرواسون محشي بعجينة كوكيز معمولة بزبدة محمّرة، من وصفة Monte’s Food Diary. الفيديو من ٢٠٢٤، مش ترند جديد بالضرورة.",
+  "sources": [
+    {
+      "ytId": "jxdSzfNrRno",
+      "kind": "video",
+      "published": "03/2024",
+      "uploadedAt": "2024-03-16",
+      "durationSec": 120,
+      "views": 9022,
+      "sourceNo": 114
+    }
+  ],
+  "views": 9022,
+  "viewsUpdatedAt": "2026-11-06"
+},
+ {
+  "slug": "pasta-chips-air-fryer",
+  "title": "باستا شيبس بالقلاية الهوائية",
+  "creatorId": "easy-peasy-pan",
+  "category": "سناكس ومقبلات",
+  "mainIngredients": [
+    "مكرونة"
+  ],
+  "textures": [
+    "مقرمش",
+    "متبّل"
+  ],
+  "needs": [],
+  "why": "مكرونة متبلة بتتحمّص في القلاية الهوائية لسناك مقرمش. دي نسخة Easy Peasy Pan من ٢٠٢١، مختلفة عن الغموس المذكور في القائمة.",
+  "sources": [
+    {
+      "ytId": "B51XTdVxus0",
+      "kind": "video",
+      "published": "07/2021",
+      "uploadedAt": "2021-07-01",
+      "durationSec": 124,
+      "views": 50249,
+      "sourceNo": 115
+    }
+  ],
+  "views": 50249,
+  "viewsUpdatedAt": "2026-11-06"
+},
+ {
+  "slug": "pizza-beans",
+  "title": "فاصوليا بنكهة البيتزا",
+  "creatorId": "nico-recipes",
+  "category": "أطباق رئيسية",
+  "mainIngredients": [
+    "فاصوليا",
+    "جبنة",
+    "طماطم"
+  ],
+  "textures": [
+    "سايح بالجبنة",
+    "دافئ ومشبع"
+  ],
+  "needs": [
+    "طاسة واحدة"
+  ],
+  "why": "فاصوليا بيضا بصلصة الطماطم والجبنة والريحان، من فيديو Nico’s Recipes. التفاصيل الكاملة والكميات مش ظاهرة في الفيديو، فدي ترشيح فيديو.",
+  "sources": [
+    {
+      "ytId": "oVGCqLmigjY",
+      "kind": "short",
+      "published": "12/2025",
+      "uploadedAt": "2025-12-09",
+      "durationSec": 24,
+      "views": 71962,
+      "sourceNo": 116
+    }
+  ],
+  "views": 71962,
+  "viewsUpdatedAt": "2026-11-06"
+},
+ {
+  "slug": "chicken-dumpling-lasagna",
+  "title": "لازانيا الدامبلينج بالدجاج على البخار",
+  "creatorId": "eatmee",
+  "category": "أطباق رئيسية",
+  "mainIngredients": [
+    "دجاج"
+  ],
+  "textures": [
+    "دافئ ومشبع"
+  ],
+  "needs": [],
+  "why": "طبقات من عجينة الجيوزا وحشوة دجاج مطهية على البخار في أكواب؛ المصدر بيستخدم حشوة جاهزة من فيديو تاني، فدي ترشيح فيديو.",
+  "sources": [
+    {
+      "ytId": "kvWSL8ZFF1E",
+      "kind": "short",
+      "published": "02/2026",
+      "uploadedAt": "2026-02-21",
+      "durationSec": 56,
+      "views": 7489,
+      "sourceNo": 117
+    }
+  ],
+  "views": 7489,
+  "viewsUpdatedAt": "2026-11-06"
+},
+ {
+  "slug": "whipped-feta-honey",
+  "title": "غموس الفيتا المخفوقة بالعسل والشطة",
+  "creatorId": "suburban-soapbox",
+  "category": "سناكس ومقبلات",
+  "mainIngredients": [
+    "جبنة",
+    "زبادي"
+  ],
+  "textures": [
+    "كريمي",
+    "حار"
+  ],
+  "needs": [
+    "بدون فرن"
+  ],
+  "why": "فيتا وزبادي مخفوقين مع عسل وشطة: فكرة تجمع الحلو والحار من فيديو The Suburban Soapbox.",
+  "sources": [
+    {
+      "ytId": "4vc5gvyg5F0",
+      "kind": "video",
+      "published": "05/2025",
+      "uploadedAt": "2025-05-21",
+      "durationSec": 275,
+      "views": 1622,
+      "sourceNo": 118
+    }
+  ],
+  "views": 1622,
+  "viewsUpdatedAt": "2026-11-06"
+},
+ {
+  "slug": "japanese-smashed-cucumber",
+  "title": "سلطة الخيار المكسر بالسمسم",
+  "creatorId": "no-recipes",
+  "category": "سناكس ومقبلات",
+  "mainIngredients": [
+    "خيار",
+    "سمسم"
+  ],
+  "textures": [
+    "مقرمش",
+    "متبّل"
+  ],
+  "needs": [
+    "بدون فرن"
+  ],
+  "why": "خيار متكسر ومتبل بزيت السمسم والصويا على الطريقة اليابانية. الفيديو من ٢٠٢٣، والمقصود مكسر مش مدخن.",
+  "sources": [
+    {
+      "ytId": "09g-HSTI7_o",
+      "kind": "video",
+      "published": "02/2023",
+      "uploadedAt": "2023-02-12",
+      "durationSec": 258,
+      "views": 21284,
+      "sourceNo": 119
+    }
+  ],
+  "views": 21284,
+  "viewsUpdatedAt": "2026-11-06"
+},
+ {
+  "slug": "smashed-potatoes-jack",
+  "title": "بطاطس التكسير المقرمشة",
+  "creatorId": "chef-jack-ovens",
+  "category": "سناكس ومقبلات",
+  "mainIngredients": [
+    "بطاطس"
+  ],
+  "textures": [
+    "مقرمش",
+    "دافئ ومشبع"
+  ],
+  "needs": [],
+  "why": "بطاطس مسلوقة ومضغوطة ومتتبلة قبل الفرن، والشيف جاك بيقدمها مع مايونيز بالعسل والمستردة. ترشيح فيديو للتفاصيل.",
+  "sources": [
+    {
+      "ytId": "Hzwq53yVGhg",
+      "kind": "video",
+      "published": "06/2024",
+      "uploadedAt": "2024-06-13",
+      "durationSec": 279,
+      "views": 469588,
+      "sourceNo": 120
+    }
+  ],
+  "views": 469588,
+  "viewsUpdatedAt": "2026-11-06"
+},
+ {
+  "slug": "pistachio-yogurt-tiramisu",
+  "title": "تيراميسو الفستق بالزبادي",
+  "creatorId": "satiate",
+  "category": "حلويات باردة",
+  "mainIngredients": [
+    "بسكويت",
+    "قهوة",
+    "فستق",
+    "زبادي"
+  ],
+  "textures": [
+    "كريمي"
+  ],
+  "needs": [
+    "بدون فرن",
+    "تحضير مسبق"
+  ],
+  "why": "أكواب تيراميسو بطبقات بسكويت وقهوة وكريمة فستق وزبادي، من فيديو Danica Theobald.",
+  "sources": [
+    {
+      "ytId": "nM2MxwblG0g",
+      "kind": "short",
+      "published": "10/2026",
+      "uploadedAt": "2026-10-29",
+      "durationSec": 46,
+      "views": 1338,
+      "sourceNo": 121
+    }
+  ],
+  "views": 1338,
+  "viewsUpdatedAt": "2026-11-06"
+},
+ {
+  "slug": "homemade-tortilla-hack",
+  "title": "تورتيلا منزلية سريعة بخمس مكونات",
+  "creatorId": "sorrow-sky",
+  "category": "عشاء وسندوتشات",
+  "mainIngredients": [
+    "دقيق",
+    "ماء",
+    "زيت",
+    "ملح",
+    "بيكنج بودر"
+  ],
+  "textures": [
+    "طري ومرن"
+  ],
+  "needs": [
+    "مكونات قليلة",
+    "تحضير مسبق"
+  ],
+  "why": "فيديو لتورتيلا منزلية من الدقيق والماء والزيت، تتفرد وتتسوّى على الطاسة. المقادير الكاملة لسه محتاجة مراجعة.",
+  "sources": [
+    {
+      "ytId": "LpVHDpr8gLA",
+      "kind": "short",
+      "published": "10/2026",
+      "views": 13833781,
+      "sourceNo": 122,
+      "uploadedAt": "2026-10-27",
+      "durationSec": 25
+    }
+  ],
+  "views": 13833781,
+  "viewsUpdatedAt": "2026-11-06"
+},
+ {
+  "slug": "easy-egg-crepe",
+  "title": "كريب البيض السريع للفطار",
+  "creatorId": "uma-devi",
+  "category": "عشاء وسندوتشات",
+  "mainIngredients": [
+    "بيض",
+    "ملح",
+    "زيت"
+  ],
+  "textures": [
+    "طري"
+  ],
+  "needs": [
+    "مكونات قليلة",
+    "وقت قليل"
+  ],
+  "why": "طبقة بيض رفيعة تتسوّى في طاسة وتتطوى للتقديم؛ ترشيح فيديو لفكرة فطار بسيطة.",
+  "sources": [
+    {
+      "ytId": "7gxNkCporzk",
+      "kind": "short",
+      "published": "10/2026",
+      "views": 19902815,
+      "sourceNo": 123,
+      "uploadedAt": "2026-10-22",
+      "durationSec": 15
+    }
+  ],
+  "views": 19902815,
+  "viewsUpdatedAt": "2026-11-06"
+},
+ {
+  "slug": "egg-keema-masala",
+  "title": "إيج كيما ماسالا — كيمة البيض الهندية",
+  "creatorId": "anishi",
+  "category": "أطباق رئيسية",
+  "mainIngredients": [
+    "بيض مسلوق",
+    "بصل",
+    "طماطم",
+    "زنجبيل",
+    "ثوم",
+    "فلفل أخضر",
+    "بهارات"
+  ],
+  "textures": [
+    "متبّل",
+    "دافئ ومشبع"
+  ],
+  "needs": [
+    "بديل اقتصادي للحوم"
+  ],
+  "why": "بيض مسلوق مفروم مع بصل وطماطم وزنجبيل وثوم وبهارات على طريقة الكيما الهندية؛ التفاصيل في فيديو القناة.",
+  "sources": [
+    {
+      "ytId": "kQx3o7xoJVY",
+      "kind": "short",
+      "published": "10/2026",
+      "views": 7593427,
+      "sourceNo": 124,
+      "uploadedAt": "2026-10-21",
+      "durationSec": 17
+    }
+  ],
+  "views": 7593427,
+  "viewsUpdatedAt": "2026-11-06"
+},
+ {
+  "slug": "cheese-potato-bread-rolls",
+  "title": "رولات عيش بالبطاطس والجبنة المذابة",
+  "creatorId": "ghar-khana-vlog",
+  "category": "سناكس ومقبلات",
+  "mainIngredients": [
+    "بطاطس",
+    "جبنة",
+    "عيش"
+  ],
+  "textures": [
+    "مقرمش",
+    "سايح بالجبنة"
+  ],
+  "needs": [
+    "مكونات قليلة",
+    "وقت قليل"
+  ],
+  "why": "شرائح عيش محشية بطاطس وجبنة على هيئة رولات؛ المصدر يعرض الفكرة من غير مقادير كاملة.",
+  "sources": [
+    {
+      "ytId": "ooR4bkrbjas",
+      "kind": "short",
+      "published": "10/2026",
+      "views": 3846868,
+      "sourceNo": 125,
+      "uploadedAt": "2026-10-27",
+      "durationSec": 22
+    }
+  ],
+  "views": 3846868,
+  "viewsUpdatedAt": "2026-11-06"
+},
+ {
+  "slug": "sweet-potato-cookies",
+  "title": "كوكيز البطاطا الحلوة اليابانية",
+  "creatorId": "food-info-recipe",
+  "category": "كيك ومخبوزات",
+  "mainIngredients": [
+    "بطاطا حلوة"
+  ],
+  "textures": [
+    "طري"
+  ],
+  "needs": [
+    "تحضير مسبق"
+  ],
+  "why": "كوكيز ياباني بالبطاطا الحلوة؛ ترشيح فيديو حتى تتم مراجعة المكونات والخطوات كاملة من المصدر الياباني.",
+  "sources": [
+    {
+      "ytId": "7siFPVsnEg0",
+      "kind": "short",
+      "published": "10/2026",
+      "views": 1032953,
+      "sourceNo": 126,
+      "uploadedAt": "2026-10-30",
+      "durationSec": 61
+    }
+  ],
+  "views": 1032953,
+  "viewsUpdatedAt": "2026-11-06"
+},
+ {
+  "slug": "crispy-masala-macaroni",
+  "title": "مكرونة ماسالا مقرمشة — سناك مفاجأة",
+  "creatorId": "pahadi-family",
+  "category": "سناكس ومقبلات",
+  "mainIngredients": [
+    "مكرونة",
+    "بهارات"
+  ],
+  "textures": [
+    "مقرمش",
+    "متبّل"
+  ],
+  "needs": [
+    "مكونات قليلة"
+  ],
+  "why": "فكرة سناك مكرونة بالماسالا من قناة The Pahadi Family؛ راجعي الفيديو للتفاصيل.",
+  "sources": [
+    {
+      "ytId": "2UqiYNSoiec",
+      "kind": "short",
+      "published": "09/2026",
+      "views": 28691404,
+      "sourceNo": 127,
+      "uploadedAt": "2026-09-30",
+      "durationSec": 31
+    }
+  ],
+  "views": 28691404,
+  "viewsUpdatedAt": "2026-11-06"
+},
+ {
+  "slug": "lazy-girl-salmon-bake",
+  "title": "صينية السلمون السهلة بالسبانخ والطماطم",
+  "creatorId": "sabrina-nicole",
+  "category": "أطباق رئيسية",
+  "mainIngredients": [
+    "سلمون",
+    "سبانخ",
+    "طماطم شيري"
+  ],
+  "textures": [
+    "طري",
+    "عصاري"
+  ],
+  "needs": [
+    "صينية واحدة",
+    "وقت قليل"
+  ],
+  "why": "فيديو صينية سلمون مع سبانخ وطماطم وجبنة بالثوم، ومعها مكرونة في وصف المصدر. المقادير والخطوات الكاملة لم تراجع بعد.",
+  "sources": [
+    {
+      "ytId": "ydDQRUHNzuI",
+      "kind": "short",
+      "published": "10/2026",
+      "views": 3524523,
+      "sourceNo": 128,
+      "uploadedAt": "2026-10-14",
+      "durationSec": 28
+    }
+  ],
+  "views": 3524523,
+  "viewsUpdatedAt": "2026-11-06"
+},
+ {
+  "slug": "tuna-sushi-wrap",
+  "title": "راب السوشي بالتونة والخيار والأفوكادو",
+  "creatorId": "eats-withren",
+  "category": "عشاء وسندوتشات",
+  "mainIngredients": [
+    "تونة"
+  ],
+  "textures": [
+    "طري",
+    "منعش"
+  ],
+  "needs": [
+    "لانش بوكس",
+    "وقت قليل"
+  ],
+  "why": "لفافة مستوحاة من السوشي بالتونة، كما يصفها الفيديو؛ المقادير وطريقة التجميع محتاجين مراجعة.",
+  "sources": [
+    {
+      "ytId": "he7hAHhs7-s",
+      "kind": "short",
+      "published": "10/2026",
+      "views": 1365405,
+      "sourceNo": 129,
+      "uploadedAt": "2026-10-28",
+      "durationSec": 7
+    }
+  ],
+  "views": 1365405,
+  "viewsUpdatedAt": "2026-11-06"
+},
+ {
+  "slug": "potato-crust-chicken-pie",
+  "title": "فطيرة الدجاج بقشرة البطاطس والمشروم والجبنة",
+  "creatorId": "oksana-home",
+  "category": "أطباق رئيسية",
+  "mainIngredients": [
+    "بطاطس",
+    "دجاج",
+    "مشروم",
+    "بصل",
+    "بيض",
+    "جبنة"
+  ],
+  "textures": [
+    "كريمي",
+    "ذهبي"
+  ],
+  "needs": [
+    "مناسبة للعزومات",
+    "تحضير مسبق"
+  ],
+  "why": "فطيرة بقاعدة بطاطس مع حشوة دجاج ومشروم وجبنة. ترشيح فيديو حتى مراجعة التفاصيل كاملة.",
+  "sources": [
+    {
+      "ytId": "REW4p3U408Q",
+      "kind": "short",
+      "published": "10/2026",
+      "views": 3784327,
+      "sourceNo": 130,
+      "uploadedAt": "2026-10-19",
+      "durationSec": 37
+    }
+  ],
+  "views": 3784327,
+  "viewsUpdatedAt": "2026-11-06"
+},
+ {
+  "slug": "winter-sujebi-soup",
+  "title": "سوجيبي كوري — شوربة العجين الممزق بالكرنب",
+  "creatorId": "homeit",
+  "category": "أطباق رئيسية",
+  "mainIngredients": [
+    "كرنب"
+  ],
+  "textures": [
+    "دافئ ومشبع"
+  ],
+  "needs": [
+    "وجبة شتوية",
+    "حلة واحدة"
+  ],
+  "why": "سوجيبي كورية دافية بعجين مخلوط بالكرنب؛ وصف الفيديو يذكر أن العجين من غير دقيق. المقادير محتاجة مراجعة.",
+  "sources": [
+    {
+      "ytId": "3dooqcs14Rc",
+      "kind": "short",
+      "published": "10/2026",
+      "views": 667268,
+      "sourceNo": 131,
+      "uploadedAt": "2026-10-30",
+      "durationSec": 24
+    }
+  ],
+  "views": 667268,
+  "viewsUpdatedAt": "2026-11-06"
+},
+ {
+  "slug": "bun-omelette",
+  "title": "ساندوتش أومليت حار داخل عيش البرجر",
+  "creatorId": "zayka-zindagi",
+  "category": "عشاء وسندوتشات",
+  "mainIngredients": [
+    "بيض",
+    "عيش برجر",
+    "ملح",
+    "فلفل"
+  ],
+  "textures": [
+    "طري",
+    "متبّل"
+  ],
+  "needs": [
+    "فطار",
+    "وقت قليل"
+  ],
+  "why": "فكرة ساندوتش خبز وأومليت من قناة Zayka & Zindagi؛ راجعي الفيديو لتفاصيل الحشو.",
+  "sources": [
+    {
+      "ytId": "oRmx64XVhNA",
+      "kind": "short",
+      "published": "10/2026",
+      "views": 5667364,
+      "sourceNo": 132,
+      "uploadedAt": "2026-10-21",
+      "durationSec": 16
+    }
+  ],
+  "views": 5667364,
+  "viewsUpdatedAt": "2026-11-06"
+},
+ {
+  "slug": "cheesy-anda-paratha",
+  "title": "باراثا البيض بالموتزاريلا — Cheesy Anda Paratha",
+  "creatorId": "uma-devi",
+  "category": "عشاء وسندوتشات",
+  "mainIngredients": [
+    "دقيق",
+    "بيض",
+    "موتزاريلا",
+    "بصل",
+    "كزبرة",
+    "سمن"
+  ],
+  "textures": [
+    "مقرمش",
+    "سايح بالجبنة"
+  ],
+  "needs": [
+    "فطار",
+    "وقت قليل"
+  ],
+  "why": "باراثا محشية بيض وموزاريلا وبصل وكزبرة؛ المقادير الكاملة لم تراجع بعد.",
+  "sources": [
+    {
+      "ytId": "7dZsFf6_90Q",
+      "kind": "short",
+      "published": "10/2026",
+      "views": 6867323,
+      "sourceNo": 133,
+      "uploadedAt": "2026-10-21",
+      "durationSec": 19
+    }
+  ],
+  "views": 6867323,
+  "viewsUpdatedAt": "2026-11-06"
+},
+ {
+  "slug": "butter-garlic-maggi",
+  "title": "ماجي بالزبدة والثوم والماسالا",
+  "creatorId": "avani-anuradha",
+  "category": "سناكس ومقبلات",
+  "mainIngredients": [
+    "نودلز سريعة",
+    "زبدة",
+    "ثوم",
+    "شطة",
+    "بهارات ماسالا"
+  ],
+  "textures": [
+    "كريمي",
+    "متبّل"
+  ],
+  "needs": [
+    "وقت قليل",
+    "مكونات قليلة"
+  ],
+  "why": "نودلز ماجي بالزبدة والثوم والماسالا، من فيديو القناة؛ ترشيح فيديو للتفاصيل.",
+  "sources": [
+    {
+      "ytId": "epClZITVhyg",
+      "kind": "short",
+      "published": "10/2026",
+      "views": 3495779,
+      "sourceNo": 134,
+      "uploadedAt": "2026-10-23",
+      "durationSec": 12
+    }
+  ],
+  "views": 3495779,
+  "viewsUpdatedAt": "2026-11-06"
+},
+ {
+  "slug": "shahi-chicken-kadhai",
+  "title": "شاهي تشيكن كاداي — دجاج هندي بالزبادي والكريمة",
+  "creatorId": "bharatzkitchen",
+  "category": "أطباق رئيسية",
+  "mainIngredients": [
+    "دجاج",
+    "بصل",
+    "طماطم",
+    "زبادي",
+    "بهارات"
+  ],
+  "textures": [
+    "كريمي",
+    "متبّل"
+  ],
+  "needs": [
+    "وجبة عائلية"
+  ],
+  "why": "دجاج كاداي هندي بصوص بصل وطماطم وزبادي ومكسرات وتوابل؛ المقادير الكاملة لم تراجع بعد.",
+  "sources": [
+    {
+      "ytId": "nuC9P46dQxM",
+      "kind": "short",
+      "published": "10/2026",
+      "views": 3033041,
+      "sourceNo": 135,
+      "uploadedAt": "2026-10-23",
+      "durationSec": 75
+    }
+  ],
+  "views": 3033041,
+  "viewsUpdatedAt": "2026-11-06"
+},
+ {
+  "slug": "ajinomoto-karaage",
+  "title": "كاراجي ياباني بالدجاج والزنجبيل — Ajinomoto Karaage",
+  "creatorId": "ryuji-buzz",
+  "category": "أطباق رئيسية",
+  "mainIngredients": [
+    "دجاج",
+    "زنجبيل",
+    "صويا صوص",
+    "نشا بطاطس",
+    "زيت",
+    "ليمون"
+  ],
+  "textures": [
+    "مقرمش",
+    "طري من الداخل"
+  ],
+  "needs": [
+    "مكونات قليلة",
+    "وقت قليل"
+  ],
+  "why": "كاراجي ياباني بالدجاج والزنجبيل والصويا ونشا البطاطس. وصف المصدر فيه صيغتان مختلفتان للمقادير، فالوصفة ترشيح فيديو.",
+  "sources": [
+    {
+      "ytId": "WZXkc1YirIQ",
+      "kind": "video",
+      "published": "11/2026",
+      "views": 1782417,
+      "sourceNo": 136,
+      "uploadedAt": "2026-11-02",
+      "durationSec": 1588
+    }
+  ],
+  "views": 1782417,
+  "viewsUpdatedAt": "2026-11-06"
+}
 ];
 
 // إرفاق تفاصيل المراجعة اليدوية: الوصفة بتبقى «مكتملة» بس لو ليها مقادير وخطوات مراجعة
@@ -2467,6 +3589,8 @@ export function relatedRecipes(r: Recipe): { recipe: Recipe; reason: string }[] 
 
 export type Collection = { slug: string; title: string; desc: string; recipeSlugs: string[] };
 export const collections: Collection[] = [
+  {"slug": "november-2026-trends", "title": "ترندات نوفمبر 2026", "desc": "١٥ اختيارًا من الحزمة المرفقة، بروابط يوتيوب متحقَّق منها؛ كلها ترشيحات فيديو.", "recipeSlugs": ["homemade-tortilla-hack", "easy-egg-crepe", "egg-keema-masala", "cheese-potato-bread-rolls", "sweet-potato-cookies", "crispy-masala-macaroni", "lazy-girl-salmon-bake", "tuna-sushi-wrap", "potato-crust-chicken-pie", "winter-sujebi-soup", "bun-omelette", "cheesy-anda-paratha", "butter-garlic-maggi", "shahi-chicken-kadhai", "ajinomoto-karaage"]},
+  { slug: "ideas-from-your-list", title: "أفكار من قايمتك", desc: "اختيارات من قائمتك بمصادر يوتيوب، منها فيديوهات قديمة ومش كلها ترند جديد.", recipeSlugs: ["crookie-brown-butter", "pasta-chips-air-fryer", "pizza-beans", "chicken-dumpling-lasagna", "whipped-feta-honey", "japanese-smashed-cucumber", "smashed-potatoes-jack", "pistachio-yogurt-tiramisu", "muhammara-omar", "arayes-charcoal-omar"] },
  {
   "slug": "start-here",
   "title": "ابدأ من هنا — أقوى اللقطات",
@@ -2513,7 +3637,10 @@ export const collections: Collection[] = [
    "hali-altayebeen",
    "french-chamois-cake",
    "chocolate-truffles-2-ing",
-   "strawberry-summer-desserts"
+   "strawberry-summer-desserts",
+   "aish-el-saraya",
+   "mango-tiramisu",
+   "flan-cake-trend"
   ]
  },
  {
@@ -2556,7 +3683,10 @@ export const collections: Collection[] = [
    "kunafa-cream",
    "mahshi-pot-secrets",
    "syrian-grill-chicken",
-   "stuffed-onion"
+   "stuffed-onion",
+   "chicken-biryani",
+   "tabsi-dolma",
+   "kofta-mandi"
   ]
  },
  {
@@ -2585,7 +3715,9 @@ export const collections: Collection[] = [
    "grilled-kibbeh",
    "syrian-grill-chicken",
    "ramadan-sambousek",
-   "turkish-doner-kebab"
+   "turkish-doner-kebab",
+   "date-maamoul",
+   "luxe-date-confection"
   ]
  },
  {
@@ -2600,6 +3732,23 @@ export const collections: Collection[] = [
    "summer-flour-water",
    "coffee-cake-one-cup",
    "cold-coffee-cups"
+  ]
+ },
+ {
+  "slug": "trend-now",
+  "title": "ترند دلوقتي — دفعة نوفمبر 2026",
+  "desc": "آخر اللي نزل على القنوات الثمانية وأخد أعلى مشاهدات في أسبوعه.",
+  "recipeSlugs": [
+   "grandma-orange-cake",
+   "meat-casserole-caramelized-onions",
+   "tabsi-dolma",
+   "flan-cake-trend",
+   "sweet-potato-om-ali",
+   "kofta-mandi",
+   "turkish-cheese-borek",
+   "double-chocolate-muffin",
+   "autumn-apple-cake",
+   "yogurt-curry-chicken"
   ]
  }
 ];
