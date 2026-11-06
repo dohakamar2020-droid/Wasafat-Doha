@@ -19,7 +19,7 @@ import { emptyKitchen, mergeGuest, kitchenSchema } from "../lib/kitchen-state";
 test("source IDs are unique and review badges require actual complete details", () => {
   const ids = recipes.flatMap((r) => r.sources.map((s) => s.ytId));
   assert.equal(new Set(ids).size, ids.length);
-  assert.equal(ids.length, 171); // الدفعات السابقة + مصادر الأفكار المختارة
+  assert.equal(ids.length, 267); // الدفعات السابقة + مصادر الأفكار المختارة
   for (const r of recipes) {
     assert.ok(creators.some((c) => c.id === r.creatorId), r.slug);
     assert.ok(contentSchema.shape.creatorId.safeParse(r.creatorId).success, r.slug);

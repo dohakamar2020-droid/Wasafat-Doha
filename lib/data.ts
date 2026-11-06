@@ -1,10 +1,11 @@
+import { IMPORT_CANDIDATES, IMPORT_CREATORS } from "./import-candidates";
 import { EXTRA_CANDIDATES, EXTRA_CREATORS } from "./extra-candidates";
 import { USER_CANDIDATES, USER_CANDIDATE_CREATORS } from "./user-candidates";
-// وصفات قمر — البيانات الأولية: 171 فيديو وشورت (منها مصادر قديمة لأفكار القائمة)
+// وصفات قمر — البيانات الأولية: 267 فيديو وشورت (منها مصادر قديمة لأفكار القائمة)
 // الدفعة الأخيرة (نوفمبر 2026) من بحث موسّع على القنوات الثمانية على يوتيوب: 22 وصفة ترند جديدة
 // و18 منها بمقادير وخطوات مكتملة المراجعة (lib/reviewed-batch5.ts) و4 تبقى ترشيح فيديو.
 // نموذج البيانات يفصل بين "الوصفة" Recipe و"مصدر الفيديو" VideoSource كما هو مخطط في وثيقة المشروع:
-// ثلاث وصفات لها شرح كامل وشورت منفصل، فعدد الوصفات أقل من عدد المصادر (168 وصفة مقابل 171 مصدرًا).
+// ثلاث وصفات لها شرح كامل وشورت منفصل، فعدد الوصفات أقل من عدد المصادر (264 وصفة مقابل 267 مصدرًا).
 // ملحوظة تحريرية: المقادير والخطوات التفصيلية لم تُراجع بعد لكل وصفة، لذلك تظهر الوصفات غير المراجعة بحالة
 // "ترشيح فيديو" ولا نعرض أوقات طبخ أو مقادير مُخترعة — الأرقام هنا هي مشاهدات يوتيوب وقت المراجعة.
 
@@ -59,6 +60,7 @@ export const creators: Creator[] = [
 
   ...USER_CANDIDATE_CREATORS,
   ...EXTRA_CREATORS,
+  ...IMPORT_CREATORS,
 ];
 export const creatorById = (id: string) => creators.find((c) => c.id === id)!;
 
@@ -3531,7 +3533,8 @@ export const recipes: Recipe[] = [
   "viewsUpdatedAt": "2026-11-06"
 },
  ...USER_CANDIDATES,
- ...EXTRA_CANDIDATES
+ ...EXTRA_CANDIDATES,
+ ...IMPORT_CANDIDATES
 ];
 
 // إرفاق تفاصيل المراجعة اليدوية: الوصفة بتبقى «مكتملة» بس لو ليها مقادير وخطوات مراجعة
@@ -3595,6 +3598,9 @@ export function relatedRecipes(r: Recipe): { recipe: Recipe; reason: string }[] 
 
 export type Collection = { slug: string; title: string; desc: string; recipeSlugs: string[] };
 export const collections: Collection[] = [
+  { slug: "new-dubai-sweets", title: "شوكولاتة دبي بأفكار جديدة", desc: "من الآيس كريم للكوكيز والتمر، نسخ مصوّرة بالفستق والكنافة.", recipeSlugs: ["dubai-chocolate-ice-cream-bars", "dubai-chocolate-brownies", "dubai-chocolate-cheesecake", "dubai-chocolate-stuffed-dates", "dubai-chocolate-bar", "dubai-chocolate-cookies", "dubai-chocolate-cake"] },
+  { slug: "new-world-bakes", title: "حلويات العالم في فرنك", desc: "كعكات وبراونيز ووصفات مستوحاة من مطابخ مختلفة، كل واحدة بفيديوها.", recipeSlugs: ["matcha-mochi-brownie", "basque-burnt-cheesecake", "baklava-cheesecake", "japanese-cotton-cheesecake", "churro-cheesecake-bars", "lotus-biscoff-brownies"] },
+  { slug: "new-breakfast-ideas", title: "فطار وأفكار للمزاج", desc: "أفكار للشوفان والبيض واللاتيه، مع فيديو كل وصفة للمقادير.", recipeSlugs: ["protein-overnight-oats", "baked-banana-oats", "mayak-marinated-eggs", "strawberry-french-toast-roll-ups", "iced-date-latte", "protein-chia-pudding", "starbucks-egg-white-bites", "cottage-cheese-bagels", "iced-strawberry-matcha-latte"] },
   { slug: "world-savory-discoveries", title: "سفرة من برّه الصندوق", desc: "أفكار مالحة من الكرنب والبحر للمشاوي، بطرق من مطابخ مختلفة.", recipeSlugs: ["tortilla-beef-kebab-skewers", "lobster-spring-rolls", "meatball-sub-bites", "cabbage-alfredo", "cabbage-wrapped-dumplings", "sardine-avocado-toast", "chili-oil-eggs", "marry-me-chicken", "baked-feta-pasta", "beef-birria-quesatacos"] },
   { slug: "crunchy-snack-lab", title: "معمل القرمشة", desc: "سناكس بأفكار من المكرونة للسابودانا والتاكو؛ كل وصفة على طريقتها.", recipeSlugs: ["pasta-chips-air-fryer", "crispy-masala-macaroni", "sabudana-cheese-balls", "smashed-potatoes-jack", "smash-burger-tacos", "lobster-spring-rolls", "meatball-sub-bites"] },
   { slug: "dessert-world-tour", title: "جواز سفر الحلويات", desc: "جولة بين الكروكي والموتشي وقشطة دبي وأفكار حلويات باردة ومخبوزة.", recipeSlugs: ["crookie-brown-butter", "rice-paper-fruit-mochi", "dubai-qishta-huma", "biscoff-yogurt-cheesecake", "ice-cream-croissant", "funfetti-dot-cake", "strawberry-tanghulu", "cottage-cheese-ice-cream"] },
