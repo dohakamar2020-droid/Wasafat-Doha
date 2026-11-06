@@ -1,4 +1,4 @@
-const CACHE = "wq-public-v3";
+const CACHE = "wq-public-v4";
 const PUBLIC =
   /^\/(?:$|discover$|pick$|ingredients$|same-ingredient$|weekly$|about$|collections(?:\/[^/]+)?$|creators(?:\/[^/]+)?$|meals(?:\/[^/]+)?$|recipes\/[^/]+(?:\/cook)?$)/;
 self.addEventListener("install", (e) => {
@@ -10,7 +10,7 @@ self.addEventListener("install", (e) => {
           "/offline.html",
           "/offline-kitchen.html",
           "/recipe-fallback.svg",
-          "/icon.svg",
+          "/logo.svg",
         ]),
       ),
   );
@@ -77,7 +77,7 @@ self.addEventListener("fetch", (e) => {
   }
   if (
     u.pathname.startsWith("/_next/static/") ||
-    ["/recipe-fallback.svg", "/icon.svg"].includes(u.pathname)
+    ["/recipe-fallback.svg", "/logo.svg"].includes(u.pathname)
   )
     e.respondWith(
       caches.match(req).then(
