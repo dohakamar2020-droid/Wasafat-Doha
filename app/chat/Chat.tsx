@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowUp, ChefHat, MessageCircle, RotateCcw, Sparkles } from "lucide-react";
 import { useCatalog } from "@/components/CatalogProvider";
 import { answerChat, type ChatAnswer } from "@/lib/chat-assistant";
+import { scrollToLatestMessage } from "@/lib/chat-scroll";
 
 type Message = { id: number; role: "user" | "assistant"; text: string; recipeSlugs?: string[]; recipeSlug?: string };
 const starter = "أهلاً بيك في مطبخ قمر! اختار وصفة واسألني عن مقاديرها أو خطواتها، أو قولّي إيه الموجود عندك وهنشوف إيه اللي محتاج تراجعه.";
@@ -27,7 +28,7 @@ export default function Chat({ compact = false, contextSlug }: { compact?: boole
     if (compact && requestRef.current) { requestRef.current.abort(); requestRef.current = null; setBusy(false); }
     setSlug(catalog.some(r => r.slug === recipeParam) ? recipeParam! : "");
   }, [recipeParam, catalog, compact]);
-  useEffect(() => { if (messagesRef.current) messagesRef.current.scrollTop = messagesRef.current.scrollHeight; }, [messages]);
+  useEffect(() => { if (messagesRef.current) scrollToLatestMessage(messagesRef.current); }, [messages]);
   function reply(answer: ChatAnswer, userText?: string) {
     setMessages(old => [...old, ...(userText ? [{ id: old.length, role: "user" as const, text: userText }] : []), { id: old.length + (userText ? 1 : 0), role: "assistant" as const, ...answer }]);
     if (answer.recipeSlug) setSlug(answer.recipeSlug);
@@ -76,7 +77,7 @@ export default function Chat({ compact = false, contextSlug }: { compact?: boole
       <section className="chat-window" aria-label="المحادثة">
         {!compact && <div className="chat-window-head"><div className="chat-avatar"><MessageCircle size={20} aria-hidden="true" /></div><div><strong>مساعد قمر</strong><small>يعتمد على بيانات الوصفات المنشورة</small></div><button className="chat-reset" type="button" onClick={reset} aria-label="بدء محادثة جديدة"><RotateCcw size={17} aria-hidden="true" /> ابدأ من جديد</button></div>}
         <div className="chat-context"><label className={compact ? "chat-visually-hidden" : undefined} htmlFor={recipeId}>الوصفة اللي بنتكلم عنها</label><select id={recipeId} disabled={busy} value={slug} onChange={e => choose(e.target.value)}><option value="">اختار وصفة من المكتبة</option>{catalog.map(r => <option key={r.slug} value={r.slug}>{r.title}</option>)}</select>{current && <Link href={`/recipes/${current.slug}`}>افتح الوصفة ←</Link>}</div>
-        <div className="chat-messages" ref={messagesRef} aria-live="polite" aria-relevant="additions text">
+        <div className="chat-messages" ref={messagesRef} role="region" aria-label="رسائل المحادثة، مرّر لقراءة المزيد" tabIndex={0} aria-live="polite" aria-relevant="additions text">
           {messages.map(m => <div className={`chat-message ${m.role}`} key={m.id}>{m.role === "assistant" && <div className="chat-bubble-avatar" aria-hidden="true"><Sparkles size={15} /></div>}<div className="chat-bubble"><span className="chat-sender">{m.role === "assistant" ? "مساعد قمر" : "أنت"}</span><p>{m.text}</p>{m.recipeSlug && <Link href={`/recipes/${m.recipeSlug}`} className="chat-source">افتح الوصفة والمصدر الأصلي ←</Link>}{m.recipeSlugs && <div className="chat-choices">{m.recipeSlugs.map(s => {const r = catalog.find(x => x.slug === s); return r ? <button type="button" disabled={busy} key={s} onClick={() => choose(s)}>{r.title} ←</button> : null;})}</div>}</div></div>)}
         </div>
         {busy && <p className="chat-wait" role="status">بفكر في إجابتك…</p>}
